@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -112,12 +113,13 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
             shape = RoundedCornerShape(16.dp),
         ) {
             Text(
-                text = "Debes introducir un nombre y un alias para continuar",
+                text = "Debes introducir un nombre y un alias para continuar".uppercase(),
                 fontSize = 10.sp,
                 modifier = Modifier
                     .fillMaxSize()
                     .wrapContentSize(Alignment.Center),
                 textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
             )
         }
     }
@@ -151,7 +153,7 @@ fun Login(onEnviar: (String, String)-> Unit)
         Text(
             text = "TO-DO APP",
             fontSize = 30.sp,
-            color = Color(1231231321),
+            color = Color(0xFF850071),
             fontWeight = FontWeight.Bold,
 
             )
@@ -210,8 +212,9 @@ fun Login(onEnviar: (String, String)-> Unit)
                     }
                 )
             }
-            HorizontalDivider(thickness = 3.dp)
-            Spacer(modifier = Modifier.height(5.dp))
+
+            HorizontalDivider(modifier = Modifier.padding(10.dp))
+
             Button(onClick = {
                 if (nombres.isNotBlank() && alias.isNotBlank()) {
                     onEnviar(nombres, alias)
@@ -222,7 +225,7 @@ fun Login(onEnviar: (String, String)-> Unit)
                 }
             },
                 modifier = Modifier.width(275.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(1231231321)))
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF850071)))
             {
                 Text(
                     text = "Continuar"
@@ -231,7 +234,7 @@ fun Login(onEnviar: (String, String)-> Unit)
             Text(
                 text = "Gracias por registrarte",
                 fontSize = 16.sp,
-                color = Color(1231231321)
+                color = Color(0xFF850071)
             )
         }
     }
@@ -320,7 +323,7 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
                     tareas.add(tarea)   //agregar tarea a la lista de tareas
                     tarea = ""          //limpiar el campo después de agregar
                 }
-            }, colors = ButtonDefaults.buttonColors(Color(1231231321)))
+            }, colors = ButtonDefaults.buttonColors(Color(0xFF850071)))
             {
                 Text("Agregar")
             }
@@ -330,7 +333,7 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
 
         if (tareas.isEmpty())
         {
-            Text("Tu lista de tareas esta vacia", modifier = Modifier.padding(20.dp) )
+            Text("Tu lista de tareas esta vacia", modifier = Modifier.padding(20.dp), fontStyle = FontStyle.Italic )
         }
         else
         {
@@ -358,7 +361,7 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
         Spacer(Modifier.weight(1f))
         Button(
             onClick = { onBack() },
-            colors = ButtonDefaults.buttonColors(Color(1231231321)))
+            colors = ButtonDefaults.buttonColors(Color(0xFF850071)))
         {
             Text(text = "Salir")
         }
