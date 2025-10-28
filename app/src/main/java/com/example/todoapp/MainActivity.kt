@@ -32,6 +32,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -361,10 +362,18 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
         Spacer(Modifier.weight(1f))
         Button(
             onClick = { onBack() },
-            colors = ButtonDefaults.buttonColors(Color(0xFF850071)))
+            colors = ButtonDefaults.buttonColors(Color(0xFF850071))
+        )
         {
-            Text(text = "Salir")
+            Text(text = "Salir", color = Color.White)
         }
+
+//        FloatingActionButton(
+//            onClick = { onBack() },
+//            containerColor = Color(0xFF850071))
+//        {
+//            Text(text = "Salir", color = Color.White)
+//        }
     }
 }
 
