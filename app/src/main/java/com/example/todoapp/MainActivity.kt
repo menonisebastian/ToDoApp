@@ -24,7 +24,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
@@ -54,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -260,7 +264,15 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
         .fillMaxSize()
         .padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally)
     {
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
+
+        Image(
+            painter = painterResource(R.drawable.fontlogo),
+            modifier = Modifier.width(100.dp).padding(10.dp),
+            contentDescription = "logo texto"
+        )
+
+        Spacer(Modifier.height(10.dp))
 
         Column(modifier = Modifier.shadow(15.dp, RoundedCornerShape(15.dp))
             .background(Color.White, RoundedCornerShape(10.dp))
@@ -333,7 +345,8 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Button(onClick = {
-                    if (tarea.isNotBlank()) {
+                    if (tarea.isNotBlank())
+                    {
                         tareas.add(tarea)   //agregar tarea a la lista de tareas
                         tarea = ""          //limpiar el campo después de agregar
                     }
@@ -341,6 +354,7 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
                 {
                     Text("Agregar",
                         fontWeight = FontWeight.Bold)
+                    Icon(Icons.Outlined.Add, contentDescription = "Añadir")
                 }
             }
         }
@@ -375,6 +389,11 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
                     Text(text = tareaItem)
                     Spacer(modifier = Modifier.weight(1f))
 
+                    IconButton(onClick = {/*tareas.set(index, "")*/})
+                    {
+                        Icon(Icons.Default.Edit, contentDescription = "Preferencias")
+                    }
+
                     IconButton(onClick = {tareas.removeAt(index)})
                     {
                         Icon(Icons.Default.Delete, contentDescription = "Preferencias")
@@ -406,6 +425,6 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    AppNav()
-    //App(nombre = "Sebastian", alias = "Menoni", onBack = {})
+    //AppNav()
+    App(nombre = "Sebastian", alias = "Menoni", onBack = {})
 }
