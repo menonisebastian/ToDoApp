@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -365,8 +366,10 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
                     modifier = Modifier.shadow(15.dp, RoundedCornerShape(15.dp))
                         .background(Color.White, RoundedCornerShape(10.dp))
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp, horizontal = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(vertical = 10.dp, horizontal = 20.dp)
+                        .clickable {  },
+                    verticalAlignment = Alignment.CenterVertically,
+
                 )
                 {
                     Text(text = tareaItem)
