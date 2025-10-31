@@ -73,6 +73,20 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
 import com.example.todoapp.ui.theme.Typography
 
+
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            ToDoAppTheme {
+                AppNav()
+            }
+        }
+    }
+}
+
 @Composable
 fun AppNav()
 {
@@ -83,13 +97,13 @@ fun AppNav()
         composable("login")
         {
             Login(onEnviar =
-            {nombre, alias ->
-                navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("nombre", nombre)
-                    set("alias", alias)
-                }
-                navController.navigate("app")
-            })
+                {nombre, alias ->
+                    navController.currentBackStackEntry?.savedStateHandle?.apply {
+                        set("nombre", nombre)
+                        set("alias", alias)
+                    }
+                    navController.navigate("app")
+                })
         }
         composable("app")
         {
@@ -98,18 +112,6 @@ fun AppNav()
             val alias = prev?.get<String>("alias").orEmpty()
 
             App(nombre = nombre, alias=alias, onBack = { navController.popBackStack()})
-        }
-    }
-}
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ToDoAppTheme {
-                AppNav()
-            }
         }
     }
 }
