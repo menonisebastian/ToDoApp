@@ -43,6 +43,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -116,28 +117,30 @@ fun AppNav()
     }
 }
 
-@Composable
-fun MinimalDialog(onDismissRequest: () -> Unit) {
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Text(
-                text = "Debes introducir un nombre y un alias para continuar".uppercase(),
-                fontSize = 10.sp,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize(Alignment.Center),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-    }
-}
+// MENSAJE DIALOG
+
+//@Composable
+//fun MinimalDialog(onDismissRequest: () -> Unit) {
+//    Dialog(onDismissRequest = { onDismissRequest() }) {
+//        Card(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(100.dp)
+//                .padding(16.dp),
+//            shape = RoundedCornerShape(16.dp),
+//        ) {
+//            Text(
+//                text = "Debes introducir un nombre y un alias para continuar".uppercase(),
+//                fontSize = 10.sp,
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .wrapContentSize(Alignment.Center),
+//                textAlign = TextAlign.Center,
+//                fontWeight = FontWeight.Bold,
+//            )
+//        }
+//    }
+//}
 
 @Composable
 fun Login(onEnviar: (String, String)-> Unit)
@@ -145,14 +148,17 @@ fun Login(onEnviar: (String, String)-> Unit)
     var nombres by remember { mutableStateOf("") }
     var alias by remember { mutableStateOf("") }
 
-    // 1. Add a state to control the dialog's visibility
-    var showDialog by remember { mutableStateOf(false) }
+//VARIABLES PARA EL MANEJO DEL DIALOG
 
-    // 2. Conditionally show the dialog in the composition
-    if (showDialog)
-    {
-        MinimalDialog(onDismissRequest = { showDialog = false })
-    }
+//    // 1. Add a state to control the dialog's visibility
+//    var showDialog by remember { mutableStateOf(false) }
+//
+//    // 2. Conditionally show the dialog in the composition
+//    if (showDialog)
+//    {
+//        MinimalDialog(onDismissRequest = { showDialog = false })
+//    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -161,21 +167,16 @@ fun Login(onEnviar: (String, String)-> Unit)
     ){
         Spacer(Modifier.height(20.dp))
         Image(
-            painter = painterResource(R.drawable.applogo),
-            modifier = Modifier.size(100.dp).padding(vertical = 10.dp),
+            painter = painterResource(R.drawable.cutlogoapp),
+            modifier = Modifier.size(90.dp).padding(10.dp),
             contentDescription = "Logo"
         )
         Image(
             painter = painterResource(R.drawable.fontlogo),
-            modifier = Modifier.width(200.dp).padding(top = 5.dp),
+            modifier = Modifier.width(200.dp).padding(top = 10.dp),
             contentDescription = "logo texto"
         )
-//        Text(
-//            text = "toDo(App)",
-//            fontSize = 30.sp,
-//            color = Color(0xFF505050),
-//            fontWeight = FontWeight.Bold
-//            )
+
         Spacer(Modifier.height(20.dp))
         Column(
             modifier = Modifier
@@ -200,40 +201,10 @@ fun Login(onEnviar: (String, String)-> Unit)
                 singleLine = true,
                 label = { Text("Alias") }
             )
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//
-//            ) {
-//                Checkbox(
-//                    checked = checked,
-//                    onCheckedChange = {checked = it}
-//                )
-//                Text(
-//                    text = "Mantener la sesion abierta"
-//                )
-//            }
-//
-//            Row(
-//                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    text = "Activar notificaciones"
-//                )
-//                Spacer(Modifier.weight(1f))
-//                Switch(
-//                    checked = checked,
-//                    onCheckedChange =
-//                    {
-//                        checked = it
-//                    }
-//                )
-//            }
 
             Spacer(Modifier.height(10.dp))
 
-            ElevatedButton(onClick = {
+            Button(onClick = {
                 if (nombres.isNotBlank() && alias.isNotBlank()) {
                     onEnviar(nombres, alias)
                 }
@@ -280,7 +251,7 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
             .background(Color.White, RoundedCornerShape(10.dp))
             .padding(horizontal = 20.dp, vertical = 10.dp))
         {
-            // FILA NOMBRE Y PREFERENCIAS
+            // FILA NOMBRE Y BOTON PREFERENCIAS
 
             Row (verticalAlignment = Alignment.CenterVertically)
             {
@@ -297,12 +268,12 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
 //                    DropdownMenuItem(
 //                        text = { Text("Profile") },
 //                        leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
-//                        onClick = { /* Do something... */ }
+//                        onClick = {  }
 //                    )
                         DropdownMenuItem(
                             text = { Text("Preferencias") },
                             leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                            onClick = { /* Do something... */ }
+                            onClick = {  }
                         )
 
                         HorizontalDivider()
@@ -312,23 +283,23 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
 //                        text = { Text("Send Feedback") },
 //                        leadingIcon = { Icon(Icons.Outlined.Warning, contentDescription = null) },
 //                        trailingIcon = { Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = null) },
-//                        onClick = { /* Do something... */ }
+//                        onClick = {  }
 //                    )
 
-                        HorizontalDivider()
+                        //HorizontalDivider()
 
                         // Third section
                         DropdownMenuItem(
                             text = { Text("Ayuda") },
                             leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                            onClick = { /* Do something... */ }
+                            onClick = {  }
                         )
 //                    DropdownMenuItem(
 //                        text = { Text("Help") },
 //                        // https://developer.android.com/develop/ui/compose/components/menu?hl=es-419
 //                        leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Help, contentDescription = null) },
 //                        trailingIcon = { Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null) },
-//                        onClick = { /* Do something... */ }
+//                        onClick = {  }
 //                    )
                     }
                 }
@@ -336,27 +307,30 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
 
             // FILA AGREGAR TAREA
 
-            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically)
+            Row(modifier = Modifier.fillMaxWidth()
+                .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically)
             {
                 OutlinedTextField(
                     value = tarea,
                     onValueChange = { tarea = it },
-                    label = { Text("Nueva tarea")}, modifier = Modifier.weight(1f),
+                    label = { Text("Nueva tarea")},
+                    modifier = Modifier.weight(1f),
                     singleLine = true
                 )
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(5.dp))
 
-                Button(onClick = {
+                IconButton(onClick = {
                     if (tarea.isNotBlank())
                     {
                         tareas.add(tarea)   //agregar tarea a la lista de tareas
                         tarea = ""          //limpiar el campo después de agregar
                     }
-                }, colors = ButtonDefaults.buttonColors(Color(0xFFFD6310)))
+                }, colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFFFD6310)))
                 {
-                    Text("Agregar",
-                        fontWeight = FontWeight.Bold)
-                    Icon(Icons.Outlined.Add, contentDescription = "Añadir")
+                    Icon(Icons.Outlined.Add,
+                        contentDescription = "Añadir",
+                        tint = Color.White)
                 }
             }
         }
@@ -367,7 +341,8 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
         {
             Column(modifier = Modifier.fillMaxHeight(),verticalArrangement = Arrangement.Center)
             {
-                Text("Tu lista de tareas está vacía", modifier = Modifier.padding(20.dp),
+                Text("Tu lista de tareas está vacía",
+                    modifier = Modifier.padding(20.dp),
                     fontSize = 20.sp,
                     fontStyle = FontStyle.Italic, color = Color.Gray)
             }
@@ -375,7 +350,7 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
         else
         {
             Spacer(Modifier.height(10.dp))
-            //HorizontalDivider()
+
             // Mostrar cada tarea en su propia fila
             tareas.forEachIndexed { index, tareaItem ->
                 Row(
@@ -384,21 +359,20 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
                         .fillMaxWidth()
                         .padding(vertical = 10.dp, horizontal = 20.dp)
                         .clickable {  },
-                    verticalAlignment = Alignment.CenterVertically,
-
+                    verticalAlignment = Alignment.CenterVertically
                 )
                 {
                     Text(text = tareaItem)
                     Spacer(modifier = Modifier.weight(1f))
 
-                    IconButton(onClick = {/*tareas.set(index, "")*/})
+                    IconButton(onClick = {})
                     {
-                        Icon(Icons.Default.Edit, contentDescription = "Preferencias")
+                        Icon(Icons.Default.Edit, contentDescription = "Editar")
                     }
 
                     IconButton(onClick = {tareas.removeAt(index)})
                     {
-                        Icon(Icons.Default.Delete, contentDescription = "Preferencias")
+                        Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
                 }
                 Spacer(Modifier.height(10.dp))
@@ -406,6 +380,8 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
         }
 
         Spacer(Modifier.weight(1f))
+        // BOTON SALIR
+
         Button(
             onClick = { onBack() },
             colors = ButtonDefaults.buttonColors(Color(0xFFFD6310))
@@ -414,19 +390,12 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
             Text(text = "Salir",
                 fontWeight = FontWeight.Bold)
         }
-
-//        FloatingActionButton(
-//            onClick = { onBack() },
-//            containerColor = Color(0xFF850071))
-//        {
-//            Text(text = "Salir", color = Color.White)
-//        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    //AppNav()
-    App(nombre = "Sebastian", alias = "Menoni", onBack = {})
+    AppNav()
+    //App(nombre = "Sebastian", alias = "Menoni", onBack = {})
 }
