@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,7 +32,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Warning
@@ -207,8 +210,10 @@ fun Login(onEnviar: (String, String)-> Unit)
 
             Spacer(Modifier.height(10.dp))
 
-            Button(onClick = {
-                if (nombres.isNotBlank() && alias.isNotBlank()) {
+            Button(onClick =
+                {
+                if (nombres.isNotBlank() && alias.isNotBlank())     //continua solo si los campos no están vacíos
+                {
                     onEnviar(nombres, alias)
                 }
                 else
@@ -230,172 +235,167 @@ fun Login(onEnviar: (String, String)-> Unit)
 }
 
 @Composable
-fun App(nombre:String, alias:String, onBack: ()-> Unit)
+fun App(nombre: String, alias: String, onBack: () -> Unit)
 {
     var expanded by remember { mutableStateOf(false) }
     var tarea by remember { mutableStateOf("") }
     val tareas = remember { mutableStateListOf<String>() }
-    val scrollState = rememberScrollState()
 
-    Column(Modifier
-        .fillMaxSize()
-        .padding(20.dp)
-        .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally)
-    {
-        Spacer(Modifier.height(10.dp))
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Espacio superior
+        item { Spacer(Modifier.height(10.dp)) }
 
-        Image(
-            painter = painterResource(R.drawable.fontlogo),
-            modifier = Modifier.width(100.dp).padding(10.dp),
-            contentDescription = "logo texto"
-        )
+        // Logo
+        item {
+            Image(
+                painter = painterResource(id = R.drawable.fontlogo),
+                modifier = Modifier
+                    .width(100.dp)
+                    .padding(10.dp),
+                contentDescription = "logo texto"
+            )
+        }
 
-        Spacer(Modifier.height(10.dp))
-
-        Column(modifier = Modifier.shadow(15.dp, RoundedCornerShape(15.dp))
-            .background(Color.White, RoundedCornerShape(10.dp))
-            .padding(horizontal = 20.dp, vertical = 10.dp))
-        {
-            // FILA NOMBRE Y BOTON PREFERENCIAS
-
-            Row (verticalAlignment = Alignment.CenterVertically)
-            {
-                Text("Hola, $nombre ($alias)", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.weight(1f))
-                IconButton(onClick = {expanded = !expanded})
+        // Tarjeta superior (nombre + agregar tarea)
+        item {
+            Column(
+                modifier = Modifier
+                    .shadow(15.dp, RoundedCornerShape(15.dp))
+                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+            ) {
+                // FILA NOMBRE Y BOTÓN PREFERENCIAS
+                Row(verticalAlignment = Alignment.CenterVertically)
                 {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Preferencias")
-                    DropdownMenu(expanded = expanded,
-                        onDismissRequest = {expanded=false},
-                        modifier = Modifier.background(Color.White) )
+                    Text(
+                        text = "Hola, $nombre ($alias)",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = { expanded = !expanded })
                     {
-                        // First section
-//                    DropdownMenuItem(
-//                        text = { Text("Profile") },
-//                        leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
-//                        onClick = {  }
-//                    )
-                        DropdownMenuItem(
-                            text = { Text("Preferencias") },
-                            leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                            onClick = {  }
-                        )
-
-                        HorizontalDivider()
-
-                        // Second section
-//                    DropdownMenuItem(
-//                        text = { Text("Send Feedback") },
-//                        leadingIcon = { Icon(Icons.Outlined.Warning, contentDescription = null) },
-//                        trailingIcon = { Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = null) },
-//                        onClick = {  }
-//                    )
-
-                        //HorizontalDivider()
-
-                        // Third section
-                        DropdownMenuItem(
-                            text = { Text("Ayuda") },
-                            leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                            onClick = {  }
-                        )
-//                    DropdownMenuItem(
-//                        text = { Text("Help") },
-//                        // https://developer.android.com/develop/ui/compose/components/menu?hl=es-419
-//                        leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Help, contentDescription = null) },
-//                        trailingIcon = { Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null) },
-//                        onClick = {  }
-//                    )
+                        Icon(Icons.Outlined.MoreVert, contentDescription = "Preferencias")
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier.background(Color.White)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Preferencias") },
+                                leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                                onClick = { /* por implementar */ }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Ayuda") },
+                                leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+                                onClick = { /* por implementar */ }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Salir") },
+                                leadingIcon = { Icon(Icons.Outlined.Close, contentDescription = null) },
+                                onClick = { onBack() }
+                            )
+                        }
                     }
                 }
-            }
 
-            // FILA AGREGAR TAREA
+                // FILA AGREGAR NUEVA TAREA
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = tarea,
+                        onValueChange = { tarea = it },
+                        label = { Text("Nueva tarea") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
+                    )
 
-            Row(modifier = Modifier.fillMaxWidth()
-                .padding(vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically)
-            {
-                OutlinedTextField(
-                    value = tarea,
-                    onValueChange = { tarea = it },
-                    label = { Text("Nueva tarea")},
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.width(5.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
 
-                IconButton(onClick = {
-                    if (tarea.isNotBlank())
-                    {
-                        tareas.add(tarea)   //agregar tarea a la lista de tareas
-                        tarea = ""          //limpiar el campo después de agregar
+                    IconButton(
+                        onClick =
+                        {
+                            if (tarea.isNotBlank())     //si el campo está vacío no hace nada
+                            {
+                                tareas.add(tarea)       //añade la tarea a la lista
+                                tarea = ""              //vacia el campo
+                            }
+                        },
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFFFD6310))
+                    ) {
+                        Icon(
+                            Icons.Outlined.Add,
+                            contentDescription = "Añadir",
+                            tint = Color.White
+                        )
                     }
-                }, colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFFFD6310)))
-                {
-                    Icon(Icons.Outlined.Add,
-                        contentDescription = "Añadir",
-                        tint = Color.White)
                 }
             }
         }
 
-        // LISTADO DE TAREAS
+        // Espacio entre secciones
+        item { Spacer(Modifier.height(10.dp)) }
 
-        if (tareas.isEmpty())
-        {
-            Column(modifier = Modifier.fillMaxHeight(),verticalArrangement = Arrangement.Center)
-            {
-                Spacer(modifier = Modifier.height(200.dp))
-                Text("Tu lista de tareas está vacía",
-                    modifier = Modifier.padding(20.dp),
-                    fontSize = 20.sp,
-                    fontStyle = FontStyle.Italic, color = Color.Gray)
+        // Lista de tareas
+        if (tareas.isEmpty()) {
+            // Si la lista está vacía, muestra un mensaje en el fondo
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(Modifier.height(200.dp))
+
+                    Text(
+                        "Tu lista de tareas está vacía",
+                        fontSize = 20.sp,
+                        fontStyle = FontStyle.Italic,
+                        color = Color.Gray
+                    )
+                }
             }
         }
         else
         {
-            Spacer(Modifier.height(10.dp))
-
-            // Mostrar cada tarea en su propia fila
-            tareas.forEachIndexed { index, tareaItem ->
+            //Muestra los elementos de la lista de tareas
+            itemsIndexed(tareas) { index, tareaItem ->
                 Row(
-                    modifier = Modifier.shadow(15.dp, RoundedCornerShape(15.dp))
+                    modifier = Modifier
+                        .shadow(15.dp, RoundedCornerShape(15.dp))
                         .background(Color.White, RoundedCornerShape(10.dp))
                         .fillMaxWidth()
                         .padding(vertical = 10.dp, horizontal = 20.dp)
-                        .clickable {  },
+                        .clickable { },
                     verticalAlignment = Alignment.CenterVertically
-                )
-                {
+                ) {
                     Text(text = tareaItem)
                     Spacer(modifier = Modifier.weight(1f))
 
-                    IconButton(onClick = {})
-                    {
+                    IconButton(onClick = { /* por implementar */ }) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar")
                     }
 
-                    IconButton(onClick = {tareas.removeAt(index)})
-                    {
+                    IconButton(onClick = { tareas.removeAt(index) }) {
                         Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
                 }
+
                 Spacer(Modifier.height(10.dp))
             }
-        }
-
-        Spacer(Modifier.weight(1f))
-        // BOTON SALIR
-
-        Button(
-            onClick = { onBack() },
-            colors = ButtonDefaults.buttonColors(Color(0xFFFD6310))
-        )
-        {
-            Text(text = "Salir",
-                fontWeight = FontWeight.Bold)
         }
     }
 }
