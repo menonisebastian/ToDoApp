@@ -347,6 +347,7 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
         {
             Column(modifier = Modifier.fillMaxHeight(),verticalArrangement = Arrangement.Center)
             {
+                Spacer(modifier = Modifier.height(200.dp))
                 Text("Tu lista de tareas está vacía",
                     modifier = Modifier.padding(20.dp),
                     fontSize = 20.sp,
@@ -402,6 +403,6 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    AppNav()
-    //App(nombre = "Sebastian", alias = "Menoni", onBack = {})
+    //AppNav()
+    App(nombre = "Sebastian", alias = "Menoni", onBack = {})
 }
