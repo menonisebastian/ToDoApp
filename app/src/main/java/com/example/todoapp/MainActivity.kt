@@ -20,7 +20,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Delete
@@ -232,10 +235,13 @@ fun App(nombre:String, alias:String, onBack: ()-> Unit)
     var expanded by remember { mutableStateOf(false) }
     var tarea by remember { mutableStateOf("") }
     val tareas = remember { mutableStateListOf<String>() }
+    val scrollState = rememberScrollState()
 
     Column(Modifier
         .fillMaxSize()
-        .padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally)
+        .padding(20.dp)
+        .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally)
     {
         Spacer(Modifier.height(10.dp))
 
