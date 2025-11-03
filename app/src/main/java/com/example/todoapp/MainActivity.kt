@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Person
@@ -226,11 +227,7 @@ fun Login(onEnviar: (String, String)-> Unit)
                 {
 //                  showDialog = true
                     //no hace nada, se puede eliminar el else
-                    Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).apply {
-                        // Cambiar posición: arriba, centrado horizontalmente
-                        setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 200)
-                        show()
-                    }
+                    Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).apply { show() }
                 }
             },
                 modifier = Modifier.width(275.dp),
@@ -312,6 +309,18 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
+                                text = { Text("Vaciar lista") },
+                                leadingIcon = { Icon(Icons.Outlined.Delete, contentDescription = null) },
+                                onClick = {
+                                    tareas.clear()
+                                    numTareas=0
+                                    expanded=false
+                                    Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT)
+                                        .apply { show() }
+                                }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
                                 text = { Text("Salir") },
                                 leadingIcon = { Icon(Icons.Outlined.Close, contentDescription = null) },
                                 onClick = { onBack() }
@@ -325,7 +334,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp),
+                        .padding(bottom = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
@@ -369,7 +378,8 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
                     Text("Tareas creadas: $numTareas",
                         color = Color.Gray,
                         fontSize = 15.sp,
-                        modifier = Modifier.padding(end = 55.dp))
+                        modifier = Modifier.padding(end = 55.dp),
+                        fontStyle = FontStyle.Italic)
                 }
             }
         }
