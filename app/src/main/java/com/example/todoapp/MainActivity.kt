@@ -1,6 +1,8 @@
 package com.example.todoapp
 
 import android.os.Bundle
+import android.view.Gravity
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -56,6 +58,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -153,6 +157,7 @@ fun Login(onEnviar: (String, String)-> Unit)
 {
     var nombres by remember { mutableStateOf("") }
     var alias by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
 //VARIABLES PARA EL MANEJO DEL DIALOG
 
@@ -215,11 +220,17 @@ fun Login(onEnviar: (String, String)-> Unit)
                 if (nombres.isNotBlank() && alias.isNotBlank())     //continua solo si los campos no están vacíos
                 {
                     onEnviar(nombres, alias)
+
                 }
                 else
                 {
 //                  showDialog = true
                     //no hace nada, se puede eliminar el else
+                    Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).apply {
+                        // Cambiar posición: arriba, centrado horizontalmente
+                        setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 200)
+                        show()
+                    }
                 }
             },
                 modifier = Modifier.width(275.dp),
@@ -240,6 +251,8 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
     var expanded by remember { mutableStateOf(false) }
     var tarea by remember { mutableStateOf("") }
     val tareas = remember { mutableStateListOf<String>() }
+    val context = LocalContext.current
+    var numTareas by remember { mutableIntStateOf(0) }
 
     LazyColumn(
         modifier = Modifier
@@ -307,6 +320,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
                     }
                 }
 
+
                 // FILA AGREGAR NUEVA TAREA
                 Row(
                     modifier = Modifier
@@ -331,6 +345,11 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
                             {
                                 tareas.add(tarea)       //añade la tarea a la lista
                                 tarea = ""              //vacia el campo
+
+                                numTareas++
+
+                                Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT)
+                                    .apply { show() }
                             }
                         },
                         colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFFFD6310))
@@ -341,6 +360,16 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
                             tint = Color.White
                         )
                     }
+                }
+
+                //POSIBLEMENTE QUITAR ESTO
+                Row()
+                {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text("Tareas creadas: $numTareas",
+                        color = Color.Gray,
+                        fontSize = 15.sp,
+                        modifier = Modifier.padding(end = 55.dp))
                 }
             }
         }
@@ -389,7 +418,14 @@ fun App(nombre: String, alias: String, onBack: () -> Unit)
                         Icon(Icons.Default.Edit, contentDescription = "Editar")
                     }
 
-                    IconButton(onClick = { tareas.removeAt(index) }) {
+                    IconButton(onClick =
+                        {
+                            tareas.removeAt(index)
+                            Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT)
+                                .apply { show() }
+                            numTareas--
+                        })
+                    {
                         Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
                 }
