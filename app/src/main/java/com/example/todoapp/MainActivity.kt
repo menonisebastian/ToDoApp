@@ -173,6 +173,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
     val tareas = remember { mutableStateListOf<Tarea>() }
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
+    var showClearDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
 
@@ -208,9 +209,10 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
                 }
             },
             onVaciarLista = {
-                tareas.clear()
-                nextId = 0
-                Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
+                if (!tareas.isEmpty())
+                    showClearDialog = true
+                else
+                    Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
             },
             numTareas = tareas.size,
             onBack = onBack
@@ -254,6 +256,18 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
                     }
                     tareaEditando = null
                     Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+
+        if (showClearDialog) {
+            ConfirmClearDialog(
+                onDismiss = { showClearDialog = false },
+                onConfirm = {
+                    tareas.clear()
+                    nextId = 0
+                    Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
+                    showClearDialog = false
                 }
             )
         }
@@ -431,6 +445,33 @@ fun EmptyTasksMessage()
 }
 
 @Composable
+fun ConfirmClearDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Vaciar lista de tareas") },
+        text = { Text("¿Estás seguro de que quieres eliminar todas las tareas? \nEsta acción no se puede deshacer.") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+            ) {
+                Text("Aceptar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = Color(0xFF017FFC))
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(10.dp)
+    )
+}
+
+@Composable
 fun EditTaskDialog(
     tarea: Tarea,
     onDismiss: () -> Unit,
@@ -497,4 +538,5 @@ fun GreetingPreview() {
     App(nombre = "Sebastian", alias = "Menoni", onBack = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { })
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
+    //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
 }
