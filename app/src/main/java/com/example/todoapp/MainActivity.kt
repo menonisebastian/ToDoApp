@@ -1,7 +1,6 @@
 package com.example.todoapp
 
 import android.os.Bundle
-import android.view.Gravity
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,69 +8,24 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -83,10 +37,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
-import com.example.todoapp.ui.theme.Typography
 
+// ============ DATA CLASS ============
+data class Tarea(
+    val id: Int,
+    val texto: String,
+    var completada: Boolean = false
+)
 
-
+// ============ ACTIVITY ============
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,92 +59,55 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNav()
-{
-    val navController=rememberNavController()
+fun AppNav() {
+    val navController = rememberNavController()
 
-    NavHost(navController, startDestination = "login")
-    {
-        composable("login")
-        {
-            Login(onEnviar =
-                {nombre, alias ->
-                    navController.currentBackStackEntry?.savedStateHandle?.apply {
-                        set("nombre", nombre)
-                        set("alias", alias)
-                    }
-                    navController.navigate("app")
-                })
+    NavHost(navController, startDestination = "login") {
+        composable("login") {
+            Login(onEnviar = { nombre, alias ->
+                navController.currentBackStackEntry?.savedStateHandle?.apply {
+                    set("nombre", nombre)
+                    set("alias", alias)
+                }
+                navController.navigate("app")
+            })
         }
-        composable("app")
-        {
+        composable("app") {
             val prev = navController.previousBackStackEntry?.savedStateHandle
             val nombre = prev?.get<String>("nombre").orEmpty()
             val alias = prev?.get<String>("alias").orEmpty()
 
-            App(nombre = nombre, alias=alias, onBack = { navController.popBackStack()})
+            App(nombre = nombre, alias = alias, onBack = { navController.popBackStack() })
         }
     }
 }
 
-// MENSAJE DIALOG
-
-//@Composable
-//fun MinimalDialog(onDismissRequest: () -> Unit) {
-//    Dialog(onDismissRequest = { onDismissRequest() }) {
-//        Card(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(100.dp)
-//                .padding(16.dp),
-//            shape = RoundedCornerShape(16.dp),
-//        ) {
-//            Text(
-//                text = "Debes introducir un nombre y un alias para continuar".uppercase(),
-//                fontSize = 10.sp,
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .wrapContentSize(Alignment.Center),
-//                textAlign = TextAlign.Center,
-//                fontWeight = FontWeight.Bold,
-//            )
-//        }
-//    }
-//}
-
+// ============ LOGIN SCREEN ============
 @Composable
-fun Login(onEnviar: (String, String)-> Unit)
-{
+fun Login(onEnviar: (String, String) -> Unit) {
     var nombres by remember { mutableStateOf("") }
     var alias by remember { mutableStateOf("") }
     val context = LocalContext.current
-
-//VARIABLES PARA EL MANEJO DEL DIALOG
-
-//    // 1. Add a state to control the dialog's visibility
-//    var showDialog by remember { mutableStateOf(false) }
-//
-//    // 2. Conditionally show the dialog in the composition
-//    if (showDialog)
-//    {
-//        MinimalDialog(onDismissRequest = { showDialog = false })
-//    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
         Spacer(Modifier.height(20.dp))
         Image(
             painter = painterResource(R.drawable.cutlogoapp),
-            modifier = Modifier.size(90.dp).padding(10.dp),
+            modifier = Modifier
+                .size(90.dp)
+                .padding(10.dp),
             contentDescription = "Logo"
         )
         Image(
             painter = painterResource(R.drawable.fontlogo),
-            modifier = Modifier.width(200.dp).padding(top = 10.dp),
+            modifier = Modifier
+                .width(200.dp)
+                .padding(top = 10.dp),
             contentDescription = "logo texto"
         )
 
@@ -198,257 +120,381 @@ fun Login(onEnviar: (String, String)-> Unit)
                 .width(300.dp),
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally
-        )
-        {
+        ) {
             OutlinedTextField(
                 value = nombres,
                 onValueChange = { nombres = it },
                 singleLine = true,
-                label = { Text("Nombre") }
+                label = { Text("Nombre") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF1B3B68),
+                    unfocusedBorderColor = Color(0xFFFD6310),
+                    focusedLabelColor = Color(0xFFFD6310),
+                    unfocusedLabelColor = Color(0xFF868686)
+                )
             )
             Spacer(Modifier.height(10.dp))
             OutlinedTextField(
                 value = alias,
                 onValueChange = { alias = it },
                 singleLine = true,
-                label = { Text("Alias") }
+                label = { Text("Alias") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF1B3B68),
+                    unfocusedBorderColor = Color(0xFFFD6310),
+                    focusedLabelColor = Color(0xFFFD6310),
+                    unfocusedLabelColor = Color(0xFF868686)
+                )
             )
 
             Spacer(Modifier.height(10.dp))
 
-            Button(onClick =
-                {
-                if (nombres.isNotBlank() && alias.isNotBlank())     //continua solo si los campos no están vacíos
-                {
-                    onEnviar(nombres, alias)
-
-                }
-                else
-                {
-//                  showDialog = true
-                    //no hace nada, se puede eliminar el else
-                    Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).apply { show() }
-                }
-            },
+            Button(
+                onClick = {
+                    if (nombres.isNotBlank() && alias.isNotBlank()) {
+                        onEnviar(nombres, alias)
+                    } else {
+                        Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier.width(275.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310)))
-            {
-                Text(
-                    text = "Continuar",
-                    fontWeight = FontWeight.Bold
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+            ) {
+                Text(text = "Continuar", fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
+// ============ MAIN APP SCREEN ============
 @Composable
-fun App(nombre: String, alias: String, onBack: () -> Unit)
-{
-    var expanded by remember { mutableStateOf(false) }
+fun App(nombre: String, alias: String, onBack: () -> Unit) {
     var tarea by remember { mutableStateOf("") }
-    val tareas = remember { mutableStateListOf<String>() }
+    val tareas = remember { mutableStateListOf<Tarea>() }
+    var nextId by remember { mutableIntStateOf(0) }
+    var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     val context = LocalContext.current
-    var numTareas by remember { mutableIntStateOf(0) }
 
-    LazyColumn(
+
+    // ESTRUCTURA: Column con LazyColumn solo para la lista
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Espacio superior
-        item { Spacer(Modifier.height(10.dp)) }
+        // HEADER FIJO
+        Spacer(Modifier.height(10.dp))
 
-        // Logo
-        item {
-            Image(
-                painter = painterResource(id = R.drawable.fontlogo),
-                modifier = Modifier
-                    .width(100.dp)
-                    .padding(10.dp),
-                contentDescription = "logo texto"
-            )
+        Image(
+            painter = painterResource(id = R.drawable.fontlogo),
+            modifier = Modifier
+                .width(100.dp)
+                .padding(10.dp),
+            contentDescription = "logo texto"
+        )
+
+        // CARD SUPERIOR FIJA
+        TopCard(
+            nombre = nombre,
+            alias = alias,
+            tarea = tarea,
+            onTareaChange = { tarea = it },
+            onAddTarea = {
+                if (tarea.isNotBlank()) {
+                    tareas.add(Tarea(id = nextId++, texto = tarea))
+                    tarea = ""
+                    Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onVaciarLista = {
+                tareas.clear()
+                nextId = 0
+                Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
+            },
+            numTareas = tareas.size,
+            onBack = onBack
+        )
+
+        Spacer(Modifier.height(10.dp))
+
+        // LISTA DE TAREAS (SOLO ESTO ES SCROLLEABLE)
+        if (tareas.isEmpty()) {
+            EmptyTasksMessage()
+        } else {
+            //HorizontalDivider(Modifier.padding(20.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                itemsIndexed(tareas) { index, tareaItem ->
+                    TaskItem(
+                        tarea = tareaItem,
+                        onEdit = { tareaEditando = tareaItem },
+                        onDelete = {
+                            tareas.removeAt(index)
+                            Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
         }
 
-        // Tarjeta superior (nombre + agregar tarea)
-        item {
-            Column(
-                modifier = Modifier
-                    .shadow(15.dp, RoundedCornerShape(15.dp))
-                    .background(Color.White, RoundedCornerShape(10.dp))
-                    .padding(horizontal = 20.dp, vertical = 10.dp)
-            ) {
-                // FILA NOMBRE Y BOTÓN PREFERENCIAS
-                Row(verticalAlignment = Alignment.CenterVertically)
-                {
-                    Text(
-                        text = "Hola, $nombre ($alias)",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.weight(1f))
-                    IconButton(onClick = { expanded = !expanded })
-                    {
-                        Icon(Icons.Outlined.MoreVert, contentDescription = "Preferencias")
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier.background(Color.White)
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Preferencias") },
-                                leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                                onClick = { /* por implementar */ }
-                            )
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text("Ayuda") },
-                                leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                                onClick = { /* por implementar */ }
-                            )
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text("Vaciar lista") },
-                                leadingIcon = { Icon(Icons.Outlined.Delete, contentDescription = null) },
-                                onClick = {
-                                    tareas.clear()
-                                    numTareas=0
-                                    expanded=false
-                                    Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT)
-                                        .apply { show() }
-                                }
-                            )
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text("Salir") },
-                                leadingIcon = { Icon(Icons.Outlined.Close, contentDescription = null) },
-                                onClick = { onBack() }
-                            )
-                        }
-                    }
-                }
-
-
-                // FILA AGREGAR NUEVA TAREA
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = tarea,
-                        onValueChange = { tarea = it },
-                        label = { Text("Nueva tarea") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true
-                    )
-
-                    Spacer(modifier = Modifier.width(5.dp))
-
-                    IconButton(
-                        onClick =
-                        {
-                            if (tarea.isNotBlank())     //si el campo está vacío no hace nada
-                            {
-                                tareas.add(tarea)       //añade la tarea a la lista
-                                tarea = ""              //vacia el campo
-
-                                numTareas++
-
-                                Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT)
-                                    .apply { show() }
-                            }
-                        },
-                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFFFD6310))
-                    ) {
-                        Icon(
-                            Icons.Outlined.Add,
-                            contentDescription = "Añadir",
-                            tint = Color.White
+        if (tareaEditando != null) {
+            val tarea = tareaEditando!!
+            EditTaskDialog(
+                tarea = tarea,
+                onDismiss = { tareaEditando = null },
+                onSave = { nuevoTexto ->
+                    val index = tareas.indexOf(tarea)
+                    if (index != -1) {
+                        tareas[index] = tarea.copy(
+                            texto = nuevoTexto
                         )
                     }
+                    tareaEditando = null
+                    Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
                 }
-
-                //POSIBLEMENTE QUITAR ESTO
-                Row()
-                {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text("Tareas creadas: $numTareas",
-                        color = Color.Gray,
-                        fontSize = 15.sp,
-                        modifier = Modifier.padding(end = 55.dp),
-                        fontStyle = FontStyle.Italic)
-                }
-            }
-        }
-
-        // Espacio entre secciones
-        item { Spacer(Modifier.height(10.dp)) }
-
-        // Lista de tareas
-        if (tareas.isEmpty()) {
-            // Si la lista está vacía, muestra un mensaje en el fondo
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(Modifier.height(200.dp))
-
-                    Text(
-                        "Tu lista de tareas está vacía",
-                        fontSize = 20.sp,
-                        fontStyle = FontStyle.Italic,
-                        color = Color.Gray
-                    )
-                }
-            }
-        }
-        else
-        {
-            //Muestra los elementos de la lista de tareas
-            itemsIndexed(tareas) { index, tareaItem ->
-                Row(
-                    modifier = Modifier
-                        .shadow(15.dp, RoundedCornerShape(15.dp))
-                        .background(Color.White, RoundedCornerShape(10.dp))
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp, horizontal = 20.dp)
-                        .clickable { },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = tareaItem)
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    IconButton(onClick = { /* por implementar */ }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Editar")
-                    }
-
-                    IconButton(onClick =
-                        {
-                            tareas.removeAt(index)
-                            Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT)
-                                .apply { show() }
-                            numTareas--
-                        })
-                    {
-                        Icon(Icons.Default.Delete, contentDescription = "Eliminar")
-                    }
-                }
-
-                Spacer(Modifier.height(10.dp))
-            }
+            )
         }
     }
 }
+
+// ============ COMPONENTES REUTILIZABLES ============
+
+@Composable
+fun TopCard(
+    nombre: String,
+    alias: String,
+    tarea: String,
+    onTareaChange: (String) -> Unit,
+    onAddTarea: () -> Unit,
+    onVaciarLista: () -> Unit,
+    numTareas: Int,
+    onBack: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .shadow(15.dp, RoundedCornerShape(15.dp))
+            .background(Color.White, RoundedCornerShape(10.dp))
+            .padding(horizontal = 20.dp, vertical = 10.dp)
+    ) {
+        // FILA NOMBRE Y MENÚ
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "Hola, $nombre ($alias)",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(Icons.Outlined.MoreVert, contentDescription = "Preferencias")
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.background(Color.White)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Preferencias") },
+                        leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                        onClick = { /* por implementar */ }
+                    )
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text("Ayuda") },
+                        leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+                        onClick = { /* por implementar */ }
+                    )
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text("Vaciar lista") },
+                        leadingIcon = { Icon(Icons.Outlined.Delete, contentDescription = null) },
+                        onClick = {
+                            onVaciarLista()
+                            expanded = false
+                        }
+                    )
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text("Salir") },
+                        leadingIcon = { Icon(Icons.Outlined.Close, contentDescription = null) },
+                        onClick = { onBack() }
+                    )
+                }
+            }
+        }
+
+        // FILA AGREGAR NUEVA TAREA
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = tarea,
+                onValueChange = onTareaChange,
+                label = { Text("Nueva tarea") },
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF017FFC),
+                    unfocusedBorderColor = Color(0xFFFD6310),
+                    focusedLabelColor = Color(0xFFFD6310),
+                    unfocusedLabelColor = Color(0xFF017FFC)
+                ),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            IconButton(
+                onClick = onAddTarea,
+                colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFFFD6310))
+            ) {
+                Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = Color.White)
+            }
+        }
+
+        // CONTADOR
+        Row {
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                "Tareas creadas: $numTareas",
+                color = Color.Gray,
+                fontSize = 15.sp,
+                modifier = Modifier.padding(end = 55.dp),
+                fontStyle = FontStyle.Italic
+            )
+        }
+    }
+}
+
+@Composable
+fun TaskItem(
+    tarea: Tarea,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    if (tarea.id==0)
+    {
+        Spacer(modifier = Modifier.height(20.dp))
+    }
+    Card(modifier = Modifier
+        .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(5.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+        )
+    {
+        Row(
+           modifier = Modifier
+            .padding(vertical = 10.dp, horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
+            Text(text = tarea.texto)
+            Spacer(modifier = Modifier.weight(1f))
+
+            IconButton(onClick = onEdit)
+            {
+                Icon(Icons.Default.Edit, contentDescription = "Editar")
+            }
+
+            IconButton(onClick = onDelete)
+            {
+                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+            }
+        }
+    }
+
+}
+
+@Composable
+fun EmptyTasksMessage()
+{
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    )
+    {
+        Text(
+            "Tu lista de tareas está vacía",
+            fontSize = 20.sp,
+            fontStyle = FontStyle.Italic,
+            color = Color.Gray
+        )
+    }
+}
+
+@Composable
+fun EditTaskDialog(
+    tarea: Tarea,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+)
+{
+    var textoEditado by remember(tarea) { mutableStateOf(tarea.texto) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        title =
+        {
+            Text(
+                text = "Editar tarea",
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            // El contenido principal del diálogo va aquí
+            OutlinedTextField(
+                value = textoEditado,
+                onValueChange = { textoEditado = it },
+                label = { Text("Descripción") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF017FFC),
+                    unfocusedBorderColor = Color(0xFFFD6310),
+                    focusedLabelColor = Color(0xFFFD6310),
+                    unfocusedLabelColor = Color(0xFF017FFC)
+                ),
+                singleLine = true
+            )
+        },
+        confirmButton =
+        {
+            Button(
+                onClick =
+                {
+                    if (textoEditado.isNotBlank())
+                    {
+                        onSave(textoEditado)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+            ) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = Color(0xFF017FFC))
+            }
+        },
+        shape = RoundedCornerShape(10.dp) // Mantienes los bordes redondeados
+    )
+}
+
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     //AppNav()
     App(nombre = "Sebastian", alias = "Menoni", onBack = {})
+    //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { })
+    //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
 }
