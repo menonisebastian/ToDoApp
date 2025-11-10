@@ -35,7 +35,7 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = White,
     onTertiary = White,
     onBackground = Black,
-    onSurface = Black,
+    onSurface = GrayBlack,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -52,7 +52,7 @@ private val LightColorScheme = lightColorScheme(
 fun ToDoAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

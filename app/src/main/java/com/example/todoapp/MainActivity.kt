@@ -147,7 +147,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
                 label = { Text("Nombre") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1B3B68),
-                    unfocusedBorderColor = Color(0xFFFD6310),
+                    //unfocusedBorderColor = Color(0xFFFD6310),
                     focusedLabelColor = Color(0xFFFD6310),
                     unfocusedLabelColor = Color(0xFF868686)
                 )
@@ -160,7 +160,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
                 label = { Text("Alias") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1B3B68),
-                    unfocusedBorderColor = Color(0xFFFD6310),
+                    //unfocusedBorderColor = Color(0xFFFD6310),
                     focusedLabelColor = Color(0xFFFD6310),
                     unfocusedLabelColor = Color(0xFF868686)
                 )
@@ -419,12 +419,12 @@ fun Preferences(onBack: () -> Unit)
                 }
             },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFFFFFFFF),
-                    checkedTrackColor = Color(0xFF000000),
-                    checkedBorderColor = Color(0xFFFFFFFF),
-                    uncheckedThumbColor = Color(0xFF000000),
-                    uncheckedTrackColor = Color(0xFFFFFFFF),
-                    uncheckedBorderColor = Color(0xFF000000)
+                    checkedThumbColor = MaterialTheme.colorScheme.onSurface,
+                    checkedTrackColor = MaterialTheme.colorScheme.background,
+                    checkedBorderColor = MaterialTheme.colorScheme.onSurface,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.background,
+                    uncheckedBorderColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -530,7 +530,7 @@ fun TopCard(
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF017FFC),
-                    unfocusedBorderColor = Color(0xFFFD6310),
+                    //unfocusedBorderColor = Color(0xFFFD6310),
                     focusedLabelColor = Color(0xFFFD6310),
                     unfocusedLabelColor = Color(0xFF017FFC)
                 ),
@@ -545,18 +545,6 @@ fun TopCard(
             ) {
                 Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = Color.White)
             }
-        }
-
-        // CONTADOR
-        Row {
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                "Tareas creadas: $numTareas",
-                color = Color.Gray,
-                fontSize = 15.sp,
-                modifier = Modifier.padding(end = 55.dp),
-                fontStyle = FontStyle.Italic
-            )
         }
     }
 }
