@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -293,6 +294,9 @@ fun Preferences()
     val colorFondo = remember { mutableListOf(Color.White, Color.Black, Color.Gray) }
     var selectedColor by remember { mutableStateOf(colorTexto[0]) }
 
+
+    TextButton(onClick = { }) { Text("Volver a la pantalla principal") }
+
     Column(Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center)
@@ -309,7 +313,9 @@ fun Preferences()
         colorTexto.forEach { color ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 4.dp)
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .width(100.dp)
             ) {
                 RadioButton(
                     selected = selectedColor == color,
