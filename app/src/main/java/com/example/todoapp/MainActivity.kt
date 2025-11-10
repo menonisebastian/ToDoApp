@@ -236,7 +236,6 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
                 else
                     Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
             },
-            numTareas = tareas.size,
             onBack = onBack,
             onPreferences = onPreferences
         )
@@ -454,7 +453,6 @@ fun TopCard(
     onTareaChange: (String) -> Unit,
     onAddTarea: () -> Unit,
     onVaciarLista: () -> Unit,
-    numTareas: Int,
     onBack: () -> Unit,
     onPreferences: () -> Unit
 ) {
@@ -487,7 +485,7 @@ fun TopCard(
                         leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                         onClick =
                         {
-                            expanded = false;
+                            expanded = false
                             onPreferences()
                         }
                     )
