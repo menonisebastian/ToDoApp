@@ -174,6 +174,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
     val tareas = remember { mutableStateListOf<Tarea>() }
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
+    var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
     var showClearDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -234,8 +235,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
                         tarea = tareaItem,
                         onEdit = { tareaEditando = tareaItem },
                         onDelete = {
-                            tareas.removeAt(index)
-                            Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT).show()
+                            tareaAEliminar = tareaItem
                         }
                     )
                     Spacer(Modifier.height(10.dp))
@@ -257,6 +257,16 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
                     }
                     tareaEditando = null
                     Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+
+        if (tareaAEliminar != null) {
+            ConfirmDeleteDialog(        onDismiss = { tareaAEliminar = null },
+                onConfirm = {
+                    tareas.remove(tareaAEliminar)
+                    Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT).show()
+                    tareaAEliminar = null
                 }
             )
         }
@@ -497,6 +507,33 @@ fun ConfirmClearDialog(
         onDismissRequest = onDismiss,
         title = { Text("Vaciar lista de tareas") },
         text = { Text("¿Estás seguro de que quieres eliminar todas las tareas? \nEsta acción no se puede deshacer.") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+            ) {
+                Text("Aceptar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = Color(0xFF017FFC))
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(10.dp)
+    )
+}
+
+@Composable
+fun ConfirmDeleteDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Eliminar tarea") },
+        text = { Text("¿Estás seguro de que quieres eliminar la tarea? \nEsta acción no se puede deshacer.") },
         confirmButton = {
             Button(
                 onClick = onConfirm,
