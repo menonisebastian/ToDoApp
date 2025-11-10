@@ -35,10 +35,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
+import kotlinx.coroutines.launch
 
 // ============ DATA CLASS ============
 data class Tarea(
@@ -52,8 +54,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            ToDoAppTheme {
+        setContent{
+            val settingsPreferences = remember { SettingsPreferences(applicationContext) }
+
+            val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
+
+            ToDoAppTheme(darkTheme = isDarkMode)
+            {
                 AppNav()
             }
         }
@@ -79,7 +86,16 @@ fun AppNav() {
             val nombre = prev?.get<String>("nombre").orEmpty()
             val alias = prev?.get<String>("alias").orEmpty()
 
-            App(nombre = nombre, alias = alias, onBack = { navController.popBackStack() })
+            App(
+                nombre = nombre,
+                alias = alias,
+                onBack = { navController.popBackStack() },
+                onPreferences = { navController.navigate("preferences") }
+            )
+        }
+        composable ("preferences" )
+        {
+            Preferences (onBack = { navController.popBackStack() })
         }
     }
 }
@@ -94,6 +110,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -117,7 +134,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
         Column(
             modifier = Modifier
                 .shadow(15.dp, RoundedCornerShape(10.dp))
-                .background(Color.White, RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
                 .padding(20.dp)
                 .width(300.dp),
             verticalArrangement = Arrangement.SpaceAround,
@@ -160,7 +177,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
                     }
                 },
                 modifier = Modifier.width(275.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(text = "Continuar", fontWeight = FontWeight.Bold)
             }
@@ -170,7 +187,8 @@ fun Login(onEnviar: (String, String) -> Unit) {
 
 // ============ MAIN APP SCREEN ============
 @Composable
-fun App(nombre: String, alias: String, onBack: () -> Unit) {
+fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> Unit)
+{
     var tarea by remember { mutableStateOf("") }
     val tareas = remember { mutableStateListOf<Tarea>() }
     var nextId by remember { mutableIntStateOf(0) }
@@ -184,6 +202,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -218,7 +237,8 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
                     Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
             },
             numTareas = tareas.size,
-            onBack = onBack
+            onBack = onBack,
+            onPreferences = onPreferences
         )
 
         Spacer(Modifier.height(10.dp))
@@ -288,14 +308,29 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
 
 // ============ VENTANA PREFERENCIAS ============
 @Composable
-fun Preferences()
+fun Preferences(onBack: () -> Unit)
 {
     val colorTexto = remember { mutableListOf("Negro", "Blanco", "Gris") }
     val colorFondo = remember { mutableListOf(Color.White, Color.DarkGray) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val settingsPreferences = remember { SettingsPreferences(context) }
     var selectedColor by remember { mutableStateOf(colorTexto[0]) }
+
+    // 1. Lee el valor del modo oscuro desde DataStore y lo convierte en un estado de Compose.
+    // El valor 'initial' es importante para la primera composición.
+    val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
+
+
+    // --- FIN DE CAMBIOS ---
+
+    // La variable 'checked' local ya no es necesaria, usamos 'isDarkMode' directamente.
+    //var checked by remember { mutableStateOf(false) }
+
 
     Column(Modifier
         .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)
         .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally)
     {
@@ -312,9 +347,10 @@ fun Preferences()
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "PREFERENCIAS",
+            text = "Preferencias",
             fontWeight = FontWeight.Bold,
-            fontSize = 15.sp
+            fontSize = 15.sp,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -323,13 +359,15 @@ fun Preferences()
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .shadow(10.dp, RoundedCornerShape(10.dp))
-                .background(Color.White, RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
                 .padding(10.dp)
                 .width(150.dp))
         {
             Text(text = "Colores del Texto",
                 modifier = Modifier.padding(10.dp),
-                fontWeight = FontWeight.Bold)
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.onSurface)
 
             colorTexto.forEach { color ->
                 Row(
@@ -345,13 +383,13 @@ fun Preferences()
                             selectedColor = when (color)
                             {
                                 "Negro" -> Color.Black
-                                "Blanco" -> Color.White
-                                "Gris" -> Color.Gray
+                                "Blanco" -> Color.LightGray
+                                "Gris" -> Color.DarkGray
                                 else -> Color(0xFFFD6310)
                             }
                         )
                     )
-                    Text(color)
+                    Text(color, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
@@ -363,16 +401,23 @@ fun Preferences()
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .shadow(10.dp, RoundedCornerShape(10.dp))
-                .background(Color.White, RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
                 .padding(10.dp)
                 .width(150.dp))
         {
             Text(text = "Modo Oscuro",
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 10.dp)
+                fontSize = 15.sp,
+                modifier = Modifier
+                    .padding(top = 10.dp)
                     .padding(horizontal = 20.dp)
             )
-            Switch(checked = false, onCheckedChange = {},
+            Switch(checked = isDarkMode, onCheckedChange = { nuevoValor ->
+                scope.launch {
+                    settingsPreferences.setDarkMode(nuevoValor)
+                }
+            },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color(0xFFFFFFFF),
                     checkedTrackColor = Color(0xFF000000),
@@ -387,15 +432,15 @@ fun Preferences()
         Spacer(modifier = Modifier.height(10.dp))
 
         Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+            onClick = { onBack() },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         )
         {
             Text("Guardar")
         }
 
-        TextButton(onClick = { })
-        { Text("Volver a la pantalla principal", color = Color(0xFF017FFC)) }
+        TextButton(onClick = { onBack() })
+        { Text("Volver a la pantalla principal", color = MaterialTheme.colorScheme.secondary) }
     }
 }
 
@@ -410,14 +455,15 @@ fun TopCard(
     onAddTarea: () -> Unit,
     onVaciarLista: () -> Unit,
     numTareas: Int,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onPreferences: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .shadow(15.dp, RoundedCornerShape(15.dp))
-            .background(Color.White, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
             .padding(horizontal = 20.dp, vertical = 10.dp)
     ) {
         // FILA NOMBRE Y MENÚ
@@ -425,20 +471,25 @@ fun TopCard(
             Text(
                 text = "Hola, $nombre ($alias)",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(Modifier.weight(1f))
             IconButton(onClick = { expanded = !expanded }) {
-                Icon(Icons.Outlined.MoreVert, contentDescription = "Preferencias")
+                Icon(Icons.Outlined.MoreVert, contentDescription = "Preferencias", tint = MaterialTheme.colorScheme.onSurface)
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(Color.White)
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 ) {
                     DropdownMenuItem(
                         text = { Text("Preferencias") },
                         leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                        onClick = { /* por implementar */ }
+                        onClick =
+                        {
+                            expanded = false;
+                            onPreferences()
+                        }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
@@ -490,7 +541,7 @@ fun TopCard(
 
             IconButton(
                 onClick = onAddTarea,
-                colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFFFD6310))
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = Color.White)
             }
@@ -523,7 +574,7 @@ fun TaskItem(
     Card(modifier = Modifier
         .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(5.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     )
     {
         Row(
@@ -581,17 +632,17 @@ fun ConfirmClearDialog(
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Aceptar")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = Color(0xFF017FFC))
+                Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
             }
         },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp)
     )
 }
@@ -603,22 +654,22 @@ fun ConfirmDeleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Eliminar tarea") },
-        text = { Text("¿Estás seguro de que quieres eliminar la tarea? \nEsta acción no se puede deshacer.") },
+        title = { Text("Eliminar tarea", color = MaterialTheme.colorScheme.onSurface) },
+        text = { Text("¿Estás seguro de que quieres eliminar la tarea? \nEsta acción no se puede deshacer.", color = MaterialTheme.colorScheme.onSurface) },
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Aceptar")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = Color(0xFF017FFC))
+                Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
             }
         },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp)
     )
 }
@@ -634,12 +685,13 @@ fun EditTaskDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         title =
             {
                 Text(
                     text = "Editar tarea",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             },
         text = {
@@ -668,14 +720,14 @@ fun EditTaskDialog(
                                 onSave(textoEditado)
                             }
                         },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text("Guardar")
                 }
             },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = Color(0xFF017FFC))
+                Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
             }
         },
         shape = RoundedCornerShape(10.dp) // Mantienes los bordes redondeados
@@ -691,5 +743,5 @@ fun GreetingPreview() {
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { })
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
-    Preferences()
+    Preferences(onBack = {})
 }
