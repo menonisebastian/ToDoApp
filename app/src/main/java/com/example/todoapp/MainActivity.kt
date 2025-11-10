@@ -310,7 +310,6 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
 fun Preferences(onBack: () -> Unit)
 {
     val colorTexto = remember { mutableListOf("Negro", "Blanco", "Gris") }
-    val colorFondo = remember { mutableListOf(Color.White, Color.DarkGray) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settingsPreferences = remember { SettingsPreferences(context) }
