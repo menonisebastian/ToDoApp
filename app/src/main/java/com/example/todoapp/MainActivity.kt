@@ -1,6 +1,7 @@
 package com.example.todoapp
 
 import android.os.Bundle
+import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -274,6 +275,49 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
     }
 }
 
+// ============ VENTANA PREFERENCIAS ============
+@Composable
+fun Preferences()
+{
+    val colorTexto = remember { mutableListOf("Negro", "Blanco", "Gris") }
+    val colorFondo = remember { mutableListOf(Color.White, Color.Black, Color.Gray) }
+    var selectedColor by remember { mutableStateOf(colorTexto[0]) }
+
+    Column(Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center)
+    {
+        Text(
+            text = "PANTALLA DE PREFERENCIAS",
+            fontSize = 15.sp
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Colores del texto")
+
+        colorTexto.forEach { color ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 4.dp)
+            ) {
+                RadioButton(
+                    selected = selectedColor == color,
+                    onClick = { selectedColor = color }
+                )
+                Text(color.replaceFirstChar { it.uppercase() })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "Modo Oscuro")
+        Switch(checked = true, onCheckedChange = {})
+
+    }
+}
+
 // ============ COMPONENTES REUTILIZABLES ============
 
 @Composable
@@ -399,11 +443,11 @@ fun TaskItem(
         .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(5.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
-        )
+    )
     {
         Row(
-           modifier = Modifier
-            .padding(vertical = 10.dp, horizontal = 20.dp),
+            modifier = Modifier
+                .padding(vertical = 10.dp, horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         )
         {
@@ -484,12 +528,12 @@ fun EditTaskDialog(
         onDismissRequest = onDismiss,
         containerColor = Color.White,
         title =
-        {
-            Text(
-                text = "Editar tarea",
-                fontWeight = FontWeight.Bold
-            )
-        },
+            {
+                Text(
+                    text = "Editar tarea",
+                    fontWeight = FontWeight.Bold
+                )
+            },
         text = {
             // El contenido principal del diálogo va aquí
             OutlinedTextField(
@@ -507,20 +551,20 @@ fun EditTaskDialog(
             )
         },
         confirmButton =
-        {
-            Button(
-                onClick =
-                {
-                    if (textoEditado.isNotBlank())
-                    {
-                        onSave(textoEditado)
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
-            ) {
-                Text("Guardar")
-            }
-        },
+            {
+                Button(
+                    onClick =
+                        {
+                            if (textoEditado.isNotBlank())
+                            {
+                                onSave(textoEditado)
+                            }
+                        },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+                ) {
+                    Text("Guardar")
+                }
+            },
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("Cancelar", color = Color(0xFF017FFC))
@@ -535,8 +579,9 @@ fun EditTaskDialog(
 @Composable
 fun GreetingPreview() {
     //AppNav()
-    App(nombre = "Sebastian", alias = "Menoni", onBack = {})
+    //App(nombre = "Sebastian", alias = "Menoni", onBack = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { })
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
+    Preferences()
 }
