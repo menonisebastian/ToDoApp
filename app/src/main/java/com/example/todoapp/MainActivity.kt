@@ -291,46 +291,111 @@ fun App(nombre: String, alias: String, onBack: () -> Unit) {
 fun Preferences()
 {
     val colorTexto = remember { mutableListOf("Negro", "Blanco", "Gris") }
-    val colorFondo = remember { mutableListOf(Color.White, Color.Black, Color.Gray) }
+    val colorFondo = remember { mutableListOf(Color.White, Color.DarkGray) }
     var selectedColor by remember { mutableStateOf(colorTexto[0]) }
 
-
-    TextButton(onClick = { }) { Text("Volver a la pantalla principal") }
-
-    Column(Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center)
+    Column(Modifier
+        .fillMaxSize()
+        .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally)
     {
+        Spacer(modifier = Modifier.height(40.dp))
+
+        Image(
+            painter = painterResource(id = R.drawable.fontlogo),
+            modifier = Modifier
+                .width(100.dp)
+                .padding(10.dp),
+            contentDescription = "logo texto"
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         Text(
-            text = "PANTALLA DE PREFERENCIAS",
+            text = "PREFERENCIAS",
+            fontWeight = FontWeight.Bold,
             fontSize = 15.sp
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "Colores del texto")
 
-        colorTexto.forEach { color ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .width(100.dp)
-            ) {
-                RadioButton(
-                    selected = selectedColor == color,
-                    onClick = { selectedColor = color }
-                )
-                Text(color.replaceFirstChar { it.uppercase() })
+        Column(horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .shadow(10.dp, RoundedCornerShape(10.dp))
+                .background(Color.White, RoundedCornerShape(10.dp))
+                .padding(10.dp)
+                .width(150.dp))
+        {
+            Text(text = "Colores del Texto",
+                modifier = Modifier.padding(10.dp),
+                fontWeight = FontWeight.Bold)
+
+            colorTexto.forEach { color ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .width(100.dp)
+                ) {
+                    RadioButton(
+                        selected = selectedColor == color,
+                        onClick = { selectedColor = color },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = when (color)
+                            {
+                                "Negro" -> Color.Black
+                                "Blanco" -> Color.White
+                                "Gris" -> Color.Gray
+                                else -> Color(0xFFFD6310)
+                            }
+                        )
+                    )
+                    Text(color)
+                }
             }
         }
 
+
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text(
-            text = "Modo Oscuro")
-        Switch(checked = true, onCheckedChange = {})
+        Column (horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .shadow(10.dp, RoundedCornerShape(10.dp))
+                .background(Color.White, RoundedCornerShape(10.dp))
+                .padding(10.dp)
+                .width(150.dp))
+        {
+            Text(text = "Modo Oscuro",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 10.dp)
+                    .padding(horizontal = 20.dp)
+            )
+            Switch(checked = false, onCheckedChange = {},
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFFFFFFFF),
+                    checkedTrackColor = Color(0xFF000000),
+                    checkedBorderColor = Color(0xFFFFFFFF),
+                    uncheckedThumbColor = Color(0xFF000000),
+                    uncheckedTrackColor = Color(0xFFFFFFFF),
+                    uncheckedBorderColor = Color(0xFF000000)
+                )
+            )
+        }
 
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(
+            onClick = {},
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFD6310))
+        )
+        {
+            Text("Guardar")
+        }
+
+        TextButton(onClick = { })
+        { Text("Volver a la pantalla principal", color = Color(0xFF017FFC)) }
     }
 }
 
