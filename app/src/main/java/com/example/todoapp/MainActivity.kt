@@ -1,6 +1,7 @@
 package com.example.todoapp
 
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -309,7 +310,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
 @Composable
 fun Preferences(onBack: () -> Unit)
 {
-    val colorTexto = remember { mutableListOf("Negro", "Blanco", "Gris") }
+    val colorTexto = remember { mutableListOf("Naranja", "Azul", "Azul Oscuro") }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settingsPreferences = remember { SettingsPreferences(context) }
@@ -359,7 +360,7 @@ fun Preferences(onBack: () -> Unit)
                 .shadow(10.dp, RoundedCornerShape(10.dp))
                 .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
                 .padding(10.dp)
-                .width(150.dp))
+                .width(160.dp))
         {
             Text(text = "Colores del Texto",
                 modifier = Modifier.padding(10.dp),
@@ -372,7 +373,7 @@ fun Preferences(onBack: () -> Unit)
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
-                        .width(100.dp)
+                        .width(110.dp)
                 ) {
                     RadioButton(
                         selected = selectedColor == color,
@@ -380,14 +381,14 @@ fun Preferences(onBack: () -> Unit)
                         colors = RadioButtonDefaults.colors(
                             selectedColor = when (color)
                             {
-                                "Negro" -> Color.Black
-                                "Blanco" -> Color.LightGray
-                                "Gris" -> Color.DarkGray
-                                else -> Color(0xFFFD6310)
+                                "Naranja" -> Color(0xFFFD6310)
+                                "Azul" -> Color(0xFF017FFC)
+                                "Celeste" -> Color(0xFF95AFD9)
+                                else -> Color.LightGray
                             }
                         )
                     )
-                    Text(color, color = MaterialTheme.colorScheme.onSurface)
+                    Text(color, color = MaterialTheme.colorScheme.onSurface, fontSize = 15.sp)
                 }
             }
         }
@@ -401,7 +402,7 @@ fun Preferences(onBack: () -> Unit)
                 .shadow(10.dp, RoundedCornerShape(10.dp))
                 .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
                 .padding(10.dp)
-                .width(150.dp))
+                .width(160.dp))
         {
             Text(text = "Modo Oscuro",
                 color = MaterialTheme.colorScheme.onSurface,
@@ -544,6 +545,12 @@ fun TopCard(
             }
         }
     }
+}
+
+@Composable
+fun searchBar()
+{
+    
 }
 
 @Composable
