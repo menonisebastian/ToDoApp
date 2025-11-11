@@ -13,11 +13,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -199,6 +202,15 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
     var showClearDialog by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredTareas =
+        if (searchQuery.isBlank())
+        {
+            tareas
+        } else
+        {
+            tareas.filter { it.texto.contains(searchQuery, ignoreCase = true) }
+        }
     val context = LocalContext.current
 
 
@@ -246,8 +258,32 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
 
         Spacer(Modifier.height(10.dp))
 
-        // LISTA DE TAREAS (SOLO ESTO ES SCROLLEABLE)
-        if (tareas.isEmpty()) {
+
+        // AÑADE LA LLAMADA A LA BARRA DE BÚSQUEDA
+        CustomizableSearchBar(
+            query = searchQuery,
+            onQueryChange = { searchQuery = it },
+            onSearch = { /* La búsqueda ya es en tiempo real, puedes dejar esto vacío o añadir lógica extra */ },
+            searchResults = filteredTareas,
+            onResultClick = { tarea ->
+                // Acción al hacer clic en un resultado, por ejemplo, abrir el diálogo de edición.
+                tareaEditando = tarea
+                searchQuery = "" // Limpiar la búsqueda
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Separador para que el primer TaskItem no se solape con la barra
+        Spacer(Modifier.height(60.dp))
+
+        if (filteredTareas.isEmpty() && tareas.isNotEmpty()) {
+            Text(
+                "No se encontraron tareas con: \"$searchQuery\"",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 20.dp)
+            )
+        } else if (tareas.isEmpty()) {
             EmptyTasksMessage()
         } else {
             //HorizontalDivider(Modifier.padding(20.dp))
@@ -550,23 +586,73 @@ fun TopCard(
     }
 }
 
+// ... (Justo después de TopCard o al final de la sección de componentes)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun searchBar(
+fun CustomizableSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
-    searchResults: List<String>,
-    onItemClick: (String) -> Unit)
-{
+    // Modificamos el tipo de la lista para que acepte Tareas
+    searchResults: List<Tarea>,
+    onResultClick: (Tarea) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: @Composable () -> Unit = { Text("Buscar tarea") },
+    leadingIcon: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .semantics{isTraversalGroup = true}
-    ) {
 
+    Box(
+        modifier = modifier
+            .semantics { isTraversalGroup = true }
+    ) {
+        SearchBar(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .semantics { traversalIndex = 0f }
+                .padding(horizontal = 16.dp), // Añadimos padding para que no ocupe todo el ancho
+            inputField = {
+                SearchBarDefaults.InputField(
+                    query = query,
+                    onQueryChange = onQueryChange,
+                    onSearch = {
+                        onSearch(query)
+                        expanded = false
+                    },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    placeholder = placeholder,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon
+                )
+            },
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            // Mostramos los resultados en una LazyColumn
+            LazyColumn {
+                items(searchResults) { tarea ->
+                    ListItem(
+                        headlineContent = { Text(tarea.texto) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        modifier = Modifier
+                            .clickable {
+                                onResultClick(tarea)
+                                expanded = false
+                            }
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                }
+            }
+        }
     }
 }
+
+// ============ TaskItem, EmptyTasksMessage, etc. van aquí debajo ============
+
 
 @Composable
 fun TaskItem(
