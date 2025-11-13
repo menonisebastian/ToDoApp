@@ -45,12 +45,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
 import kotlinx.coroutines.launch
+import java.util.Date
 
 // ============ DATA CLASS ============
 data class Tarea(
     val id: Int,
     val texto: String,
-    var completada: Boolean = false
+    var completada: Boolean = false,
+    val fechaCreacion: Date = Date()
 )
 
 // ============ ACTIVITY ============
