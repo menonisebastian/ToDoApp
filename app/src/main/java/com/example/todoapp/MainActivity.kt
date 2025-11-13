@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -213,9 +214,9 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
-    var tareaAMostrar by remember { mutableStateOf<Tarea?>(null) }
     var showClearDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
     val filteredTareas =
         if (searchQuery.isBlank())
         {
@@ -275,6 +276,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
 
             Spacer(Modifier.height(20.dp))
 
+
             CustomizableSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
@@ -282,9 +284,10 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
                 searchResults = filteredTareas,
                 onResultClick = { tarea ->
                     // Acción al hacer clic en un resultado, por ejemplo, abrir el diálogo de edición.
-                    tareaEditando = tarea
+                    tareaDetallada = tarea
                     searchQuery = "" // Limpiar la búsqueda
-                }
+                },
+                //modifier = Modifier.fillMaxWidth()
             )
 
             LazyColumn(
@@ -293,6 +296,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
                 items(tareas) { tareaItem ->
                     TaskItem(
                         tarea = tareaItem,
+                        onTaskClick = { tareaDetallada = tareaItem },
                         onEdit = { tareaEditando = tareaItem },
                         textColor = taskTextColor,
                         onDelete =
@@ -334,19 +338,6 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
             )
         }
 
-        if (tareaAMostrar != null)
-        {
-            val tarea = tareaAMostrar!!
-            DetailTaskDialog(
-                tarea = tarea,
-                onDismiss = { tareaAMostrar = null },
-                onConfirm = {
-                    tareaAMostrar = null
-                }
-            )
-        }
-
-
         if (showClearDialog) {
             ConfirmClearDialog(
                 onDismiss = { showClearDialog = false },
@@ -356,6 +347,12 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
                     Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
                     showClearDialog = false
                 }
+            )
+        }
+        if (tareaDetallada != null) {
+            DetailTaskDialog(
+                tarea = tareaDetallada!!,
+                onDismiss = { tareaDetallada = null }
             )
         }
     }
@@ -648,7 +645,11 @@ fun CustomizableSearchBar(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
-                                modifier = Modifier.clickable { expanded = false }
+                                modifier = Modifier.clickable
+                                {
+                                    onQueryChange("")
+                                    expanded = false
+                                }
                             )
                         }
                     }
@@ -657,19 +658,37 @@ fun CustomizableSearchBar(
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
-            LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
-                items(searchResults) { tarea ->
-                    ListItem(
-                        headlineContent = { Text(tarea.texto) },
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-                        modifier = Modifier
-                            .clickable {
-                                onResultClick(tarea)
-                                expanded = false
-                            }
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
+            LazyColumn(modifier = Modifier.heightIn(max = 300.dp))
+
+            {
+                if (searchResults.isEmpty())
+                {
+                    item {
+                        Column(modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center)
+                        {
+                            Spacer(modifier = Modifier.height(100.dp))
+
+                            Text("No se encontraron resultados", color = Color.Gray)
+                        }
+                    }
+                }
+                else
+                {
+                    items(searchResults) { tarea ->
+                        ListItem(
+                            headlineContent = { Text(tarea.texto) },
+                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                            modifier = Modifier
+                                .clickable {
+                                    onResultClick(tarea)
+                                    expanded = false
+                                }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
         }
@@ -682,6 +701,7 @@ fun CustomizableSearchBar(
 fun TaskItem(
     tarea: Tarea,
     textColor: Color,
+    onTaskClick: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -690,7 +710,8 @@ fun TaskItem(
         Spacer(modifier = Modifier.height(20.dp))
     }
     Card(modifier = Modifier
-        .fillMaxWidth(),
+        .fillMaxWidth()
+        .clickable { onTaskClick() },
         elevation = CardDefaults.cardElevation(5.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     )
@@ -749,7 +770,7 @@ fun ConfirmClearDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Vaciar lista de tareas") },
-        text = { Text("¿Estás seguro de que quieres eliminar todas las tareas? \nEsta acción no se puede deshacer.") },
+        text = { Text("¿Estás seguro de que quieres eliminar todas las tareas? Esta acción no se puede deshacer.") },
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -772,24 +793,21 @@ fun ConfirmClearDialog(
 @Composable
 fun DetailTaskDialog(
     tarea: Tarea,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onDismiss: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Tarea") },
+        title = { Text("Tarea  #${tarea.id+1}") },
         text = { Text(tarea.texto) },
         confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Aceptar")
+            TextButton(onClick = onDismiss) {
+                Text("Listo", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
+            TextButton(onClick = onDismiss /* por implementar */)
+            {
+                Text("Editar", color = MaterialTheme.colorScheme.secondary)
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -806,7 +824,7 @@ fun ConfirmDeleteDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Eliminar tarea", color = MaterialTheme.colorScheme.onSurface) },
-        text = { Text("¿Estás seguro de que quieres eliminar la tarea? \nEsta acción no se puede deshacer.", color = MaterialTheme.colorScheme.onSurface) },
+        text = { Text("¿Estás seguro de que quieres eliminar la tarea? Esta acción no se puede deshacer.", color = MaterialTheme.colorScheme.onSurface) },
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -891,7 +909,7 @@ fun EditTaskDialog(
 fun GreetingPreview() {
     //AppNav()
     App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {}, onPreferences = {})
-    //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { })
+    //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { }
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
     //Preferences(onBack = {})
