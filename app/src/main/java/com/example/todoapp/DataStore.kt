@@ -4,6 +4,7 @@ package com.example.todoapp
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -13,6 +14,13 @@ val Context.dataStore by preferencesDataStore(name = "settings")
 
 class SettingsPreferences(private val context: Context)
 {
+    private val TASK_TEXT_COLOR_KEY = stringPreferencesKey("task_text_color")
+
+    // Expón el color como un Flow<String>. El valor por defecto puede ser "Default" o un color inicial.
+    val taskTextColor: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[TASK_TEXT_COLOR_KEY] ?: "Default" // Usamos "Default" como valor inicial
+        }
 
     // Clave para guardar el estado del modo oscuro (true = activado)
     private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode_enabled")
@@ -28,6 +36,13 @@ class SettingsPreferences(private val context: Context)
     suspend fun setDarkMode(isEnabled: Boolean) {
         context.dataStore.edit { settings ->
             settings[DARK_MODE_KEY] = isEnabled
+        }
+    }
+
+    // Función para guardar el nuevo color
+    suspend fun setTaskTextColor(colorName: String) {
+        context.dataStore.edit { preferences ->
+            preferences[TASK_TEXT_COLOR_KEY] = colorName
         }
     }
 }

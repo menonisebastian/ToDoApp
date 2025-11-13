@@ -1,8 +1,6 @@
 package com.example.todoapp
 
 import android.os.Bundle
-import android.provider.CalendarContract
-import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,9 +12,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
@@ -37,11 +35,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -66,16 +62,29 @@ class MainActivity : ComponentActivity() {
 
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
 
+            // 1. Lee el nombre del color desde DataStore.
+
+            val textColorName by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
+
+
+            // 2. Convierte el nombre del color a un valor Color de Compose.
+            val taskTextColor = when (textColorName) {
+                "Naranja" -> Color(0xFFFD6310)
+                "Azul" -> Color(0xFF017FFC)
+                "Celeste" -> Color(0xFF95AFD9)
+                else -> MaterialTheme.colorScheme.onSurface // Color por defecto del tema
+            }
+
             ToDoAppTheme(darkTheme = isDarkMode)
             {
-                AppNav()
+                AppNav(taskTextColor = taskTextColor)
             }
         }
     }
 }
 
 @Composable
-fun AppNav() {
+fun AppNav(taskTextColor: Color) {
     val navController = rememberNavController()
 
     NavHost(navController, startDestination = "login") {
@@ -97,6 +106,7 @@ fun AppNav() {
                 nombre = nombre,
                 alias = alias,
                 onBack = { navController.popBackStack() },
+                taskTextColor = taskTextColor,
                 onPreferences = { navController.navigate("preferences") }
             )
         }
@@ -194,7 +204,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
 
 // ============ MAIN APP SCREEN ============
 @Composable
-fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> Unit)
+fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit, onPreferences: () -> Unit)
 {
     var tarea by remember { mutableStateOf("") }
     val tareas = remember { mutableStateListOf<Tarea>() }
@@ -211,6 +221,7 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
         {
             tareas.filter { it.texto.contains(searchQuery, ignoreCase = true) }
         }
+
     val context = LocalContext.current
 
 
@@ -256,45 +267,33 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
             onPreferences = onPreferences
         )
 
-        Spacer(Modifier.height(10.dp))
-
-
-        // AÑADE LA LLAMADA A LA BARRA DE BÚSQUEDA
-        CustomizableSearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-            onSearch = { /* La búsqueda ya es en tiempo real, puedes dejar esto vacío o añadir lógica extra */ },
-            searchResults = filteredTareas,
-            onResultClick = { tarea ->
-                // Acción al hacer clic en un resultado, por ejemplo, abrir el diálogo de edición.
-                tareaEditando = tarea
-                searchQuery = "" // Limpiar la búsqueda
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // Separador para que el primer TaskItem no se solape con la barra
-        Spacer(Modifier.height(60.dp))
-
-        if (filteredTareas.isEmpty() && tareas.isNotEmpty()) {
-            Text(
-                "No se encontraron tareas con: \"$searchQuery\"",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 20.dp)
-            )
-        } else if (tareas.isEmpty()) {
+        if (tareas.isEmpty()) {
             EmptyTasksMessage()
         } else {
-            //HorizontalDivider(Modifier.padding(20.dp))
+
+            CustomizableSearchBar(
+                query = searchQuery,
+                onQueryChange = { searchQuery = it },
+                onSearch = { /* La búsqueda ya es en tiempo real, puedes dejar esto vacío o añadir lógica extra */ },
+                searchResults = filteredTareas,
+                onResultClick = { tarea ->
+                    // Acción al hacer clic en un resultado, por ejemplo, abrir el diálogo de edición.
+                    tareaEditando = tarea
+                    searchQuery = "" // Limpiar la búsqueda
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                itemsIndexed(tareas) { index, tareaItem ->
+                items(tareas) { tareaItem ->
                     TaskItem(
                         tarea = tareaItem,
                         onEdit = { tareaEditando = tareaItem },
-                        onDelete = {
+                        textColor = taskTextColor,
+                        onDelete =
+                        {
                             tareaAEliminar = tareaItem
                         }
                     )
@@ -349,15 +348,18 @@ fun App(nombre: String, alias: String, onBack: () -> Unit, onPreferences: () -> 
 @Composable
 fun Preferences(onBack: () -> Unit)
 {
-    val colorTexto = remember { mutableListOf("Naranja", "Azul", "Azul Oscuro") }
+    val colorTexto = remember { mutableListOf("Negro", "Naranja", "Azul", "Celeste") }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settingsPreferences = remember { SettingsPreferences(context) }
-    var selectedColor by remember { mutableStateOf(colorTexto[0]) }
+    //var selectedColor by remember { mutableStateOf(colorTexto[0]) }
 
     // 1. Lee el valor del modo oscuro desde DataStore y lo convierte en un estado de Compose.
     // El valor 'initial' es importante para la primera composición.
     val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
+
+    // OBTENER EL COLOR ACTUAL ---
+    val colorSeleccionado by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
 
 
     // --- FIN DE CAMBIOS ---
@@ -415,11 +417,14 @@ fun Preferences(onBack: () -> Unit)
                         .width(110.dp)
                 ) {
                     RadioButton(
-                        selected = selectedColor == color,
-                        onClick = { selectedColor = color },
+                        selected = colorSeleccionado == color,
+                        onClick = { scope.launch {
+                            settingsPreferences.setTaskTextColor(color)
+                        } },
                         colors = RadioButtonDefaults.colors(
                             selectedColor = when (color)
                             {
+                                "Negro" -> Color.Black
                                 "Naranja" -> Color(0xFFFD6310)
                                 "Azul" -> Color(0xFF017FFC)
                                 "Celeste" -> Color(0xFF95AFD9)
@@ -597,35 +602,40 @@ fun CustomizableSearchBar(
     // Modificamos el tipo de la lista para que acepte Tareas
     searchResults: List<Tarea>,
     onResultClick: (Tarea) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholder: @Composable () -> Unit = { Text("Buscar tarea") },
-    leadingIcon: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
-    trailingIcon: @Composable (() -> Unit)? = null,
+    modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = modifier
             .semantics { isTraversalGroup = true }
+
     ) {
         SearchBar(
+            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            shadowElevation = 10.dp,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .semantics { traversalIndex = 0f }
-                .padding(horizontal = 16.dp), // Añadimos padding para que no ocupe todo el ancho
+                .semantics { traversalIndex = 0f },
+
             inputField = {
                 SearchBarDefaults.InputField(
                     query = query,
+                    colors = TextFieldDefaults.colors(),
                     onQueryChange = onQueryChange,
                     onSearch = {
                         onSearch(query)
                         expanded = false
+                        onQueryChange("")
                     },
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                    placeholder = placeholder,
-                    leadingIcon = leadingIcon,
-                    trailingIcon = trailingIcon
+                    placeholder = { Text("Buscar tarea") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                    trailingIcon = { Icon(Icons.Default.Close, contentDescription = "Close",
+                        modifier = Modifier
+                            .clickable { expanded = false
+                                onQueryChange("") })}
                 )
             },
             expanded = expanded,
@@ -636,7 +646,7 @@ fun CustomizableSearchBar(
                 items(searchResults) { tarea ->
                     ListItem(
                         headlineContent = { Text(tarea.texto) },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
                         modifier = Modifier
                             .clickable {
                                 onResultClick(tarea)
@@ -657,6 +667,7 @@ fun CustomizableSearchBar(
 @Composable
 fun TaskItem(
     tarea: Tarea,
+    textColor: Color,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -676,7 +687,7 @@ fun TaskItem(
             verticalAlignment = Alignment.CenterVertically
         )
         {
-            Text(text = tarea.texto)
+            Text(text = tarea.texto, color = textColor)
             Spacer(modifier = Modifier.weight(1f))
 
             IconButton(onClick = onEdit)
@@ -832,9 +843,9 @@ fun EditTaskDialog(
 @Composable
 fun GreetingPreview() {
     //AppNav()
-    //App(nombre = "Sebastian", alias = "Menoni", onBack = {})
+    App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {}, onPreferences = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { })
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
-    Preferences(onBack = {})
+    //Preferences(onBack = {})
 }
