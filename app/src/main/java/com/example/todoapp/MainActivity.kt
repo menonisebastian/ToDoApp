@@ -226,7 +226,6 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
 
     val context = LocalContext.current
 
-
     // ESTRUCTURA: Column con LazyColumn solo para la lista
     Column(
         modifier = Modifier
