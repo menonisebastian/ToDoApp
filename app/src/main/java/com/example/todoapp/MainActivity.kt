@@ -17,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -45,14 +47,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 // ============ DATA CLASS ============
 data class Tarea(
     val id: Int,
     val texto: String,
     var completada: Boolean = false,
-    val fechaCreacion: Date = Date()
+    val fechaCreacion: Date = Date(),
+    // simple date format
+    val sdf: SimpleDateFormat = SimpleDateFormat("'dd-MM-yyyy'", Locale.getDefault()),
+
+    // current date and time and calling a simple date format
+    val currentDateAndTime: String = sdf.format(Date())
 )
 
 // ============ ACTIVITY ============
@@ -638,12 +647,23 @@ fun CustomizableSearchBar(
                     trailingIcon = {
                         if (expanded) {
                             Icon(
-                                imageVector = Icons.Default.Close,
+                                imageVector = Icons.Default.KeyboardArrowUp,
                                 contentDescription = "Close",
                                 modifier = Modifier.clickable
                                 {
                                     onQueryChange("")
                                     expanded = false
+                                }
+                            )
+                        }
+                        else
+                        {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Close",
+                                modifier = Modifier.clickable
+                                {
+                                    expanded = true
                                 }
                             )
                         }
@@ -792,7 +812,7 @@ fun DetailTaskDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Tarea  #${tarea.id+1}") },
+        title = { Text("Tarea  #${tarea.id+1} - ${tarea.currentDateAndTime}") },
         text = { Text(tarea.texto) },
         confirmButton = {
             TextButton(onClick = onDismiss) {
