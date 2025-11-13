@@ -63,15 +63,15 @@ class MainActivity : ComponentActivity() {
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
 
             // 1. Lee el nombre del color desde DataStore.
-
             val textColorName by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
 
-
             // 2. Convierte el nombre del color a un valor Color de Compose.
-            val taskTextColor = when (textColorName) {
+            val taskTextColor = when (textColorName)
+            {
+                "Negro" -> Color.Black
                 "Naranja" -> Color(0xFFFD6310)
                 "Azul" -> Color(0xFF017FFC)
-                "Celeste" -> Color(0xFF95AFD9)
+                "Blanco" -> Color(0xFFF1F1F1)
                 else -> MaterialTheme.colorScheme.onSurface // Color por defecto del tema
             }
 
@@ -348,7 +348,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
 @Composable
 fun Preferences(onBack: () -> Unit)
 {
-    val colorTexto = remember { mutableListOf("Negro", "Naranja", "Azul", "Celeste") }
+    val colorTexto = remember { mutableListOf("Negro", "Naranja", "Azul", "Blanco") }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settingsPreferences = remember { SettingsPreferences(context) }
@@ -427,7 +427,7 @@ fun Preferences(onBack: () -> Unit)
                                 "Negro" -> Color.Black
                                 "Naranja" -> Color(0xFFFD6310)
                                 "Azul" -> Color(0xFF017FFC)
-                                "Celeste" -> Color(0xFF95AFD9)
+                                "Blanco" -> Color(0xFFF1F1F1)
                                 else -> Color.LightGray
                             }
                         )
