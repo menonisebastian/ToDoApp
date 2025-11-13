@@ -368,7 +368,6 @@ fun Preferences(onBack: () -> Unit)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settingsPreferences = remember { SettingsPreferences(context) }
-    //var selectedColor by remember { mutableStateOf(colorTexto[0]) }
 
     // 1. Lee el valor del modo oscuro desde DataStore y lo convierte en un estado de Compose.
     // El valor 'initial' es importante para la primera composición.
@@ -376,12 +375,6 @@ fun Preferences(onBack: () -> Unit)
 
     // OBTENER EL COLOR ACTUAL ---
     val colorSeleccionado by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
-
-
-    // --- FIN DE CAMBIOS ---
-
-    // La variable 'checked' local ya no es necesaria, usamos 'isDarkMode' directamente.
-    //var checked by remember { mutableStateOf(false) }
 
 
     Column(Modifier
@@ -660,7 +653,7 @@ fun CustomizableSearchBar(
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
-            LazyColumn(modifier = Modifier.heightIn(max = 300.dp))
+            LazyColumn()
 
             {
                 if (searchResults.isEmpty())

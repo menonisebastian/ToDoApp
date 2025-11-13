@@ -1,6 +1,5 @@
 package com.example.todoapp
 
-// Puedes crear un nuevo archivo .kt para esta clase o añadirla a MainActivity.kt
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
