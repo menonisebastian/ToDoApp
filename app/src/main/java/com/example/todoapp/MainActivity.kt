@@ -213,6 +213,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
+    var tareaAMostrar by remember { mutableStateOf<Tarea?>(null) }
     var showClearDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     val filteredTareas =
@@ -272,6 +273,8 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
             EmptyTasksMessage()
         } else {
 
+            Spacer(Modifier.height(20.dp))
+
             CustomizableSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
@@ -281,8 +284,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
                     // Acción al hacer clic en un resultado, por ejemplo, abrir el diálogo de edición.
                     tareaEditando = tarea
                     searchQuery = "" // Limpiar la búsqueda
-                },
-                modifier = Modifier.fillMaxWidth()
+                }
             )
 
             LazyColumn(
@@ -331,6 +333,19 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
                 }
             )
         }
+
+        if (tareaAMostrar != null)
+        {
+            val tarea = tareaAMostrar!!
+            DetailTaskDialog(
+                tarea = tarea,
+                onDismiss = { tareaAMostrar = null },
+                onConfirm = {
+                    tareaAMostrar = null
+                }
+            )
+        }
+
 
         if (showClearDialog) {
             ConfirmClearDialog(
@@ -601,7 +616,6 @@ fun CustomizableSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
-    // Modificamos el tipo de la lista para que acepte Tareas
     searchResults: List<Tarea>,
     onResultClick: (Tarea) -> Unit,
     modifier: Modifier = Modifier
@@ -611,40 +625,39 @@ fun CustomizableSearchBar(
     Box(
         modifier = modifier
             .semantics { isTraversalGroup = true }
-
     ) {
-        SearchBar(
+        DockedSearchBar(
             colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             shadowElevation = 10.dp,
             modifier = Modifier
-                .align(Alignment.TopCenter)
                 .semantics { traversalIndex = 0f },
-
             inputField = {
                 SearchBarDefaults.InputField(
                     query = query,
-                    colors = TextFieldDefaults.colors(),
                     onQueryChange = onQueryChange,
                     onSearch = {
-                        onSearch(query)
+                        onSearch(it)
                         expanded = false
-                        onQueryChange("")
                     },
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
                     placeholder = { Text("Buscar tarea") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                    trailingIcon = { Icon(Icons.Default.Close, contentDescription = "Close",
-                        modifier = Modifier
-                            .clickable { expanded = false
-                                onQueryChange("") })}
+                    trailingIcon = {
+                        if (expanded) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
+                                modifier = Modifier.clickable { expanded = false }
+                            )
+                        }
+                    }
                 )
             },
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
-            // Mostramos los resultados en una LazyColumn
-            LazyColumn {
+            LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
                 items(searchResults) { tarea ->
                     ListItem(
                         headlineContent = { Text(tarea.texto) },
@@ -737,6 +750,35 @@ fun ConfirmClearDialog(
         onDismissRequest = onDismiss,
         title = { Text("Vaciar lista de tareas") },
         text = { Text("¿Estás seguro de que quieres eliminar todas las tareas? \nEsta acción no se puede deshacer.") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Aceptar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(10.dp)
+    )
+}
+
+// ============ DIALOGO DE VISTA DE TAREA ============ //
+@Composable
+fun DetailTaskDialog(
+    tarea: Tarea,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Tarea") },
+        text = { Text(tarea.texto) },
         confirmButton = {
             Button(
                 onClick = onConfirm,
