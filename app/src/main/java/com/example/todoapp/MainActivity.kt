@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
         setContent{
             val settingsPreferences = remember { SettingsPreferences(applicationContext) }
 
+            // 1. Lee el valor del modo oscuro desde DataStore.
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
 
             // 1. Lee el nombre del color desde DataStore.
@@ -87,7 +88,8 @@ class MainActivity : ComponentActivity() {
 fun AppNav(taskTextColor: Color) {
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = "login") {
+    NavHost(navController, startDestination = "login")
+    {
         composable("login") {
             Login(onEnviar = { nombre, alias ->
                 navController.currentBackStackEntry?.savedStateHandle?.apply {
@@ -321,7 +323,8 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
         }
 
         if (tareaAEliminar != null) {
-            ConfirmDeleteDialog(        onDismiss = { tareaAEliminar = null },
+            ConfirmDeleteDialog(
+                onDismiss = { tareaAEliminar = null },
                 onConfirm = {
                     tareas.remove(tareaAEliminar)
                     Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT).show()
@@ -487,7 +490,7 @@ fun Preferences(onBack: () -> Unit)
     }
 }
 
-// ============ COMPONENTES REUTILIZABLES ============
+// ============ TARJETA SUPERIOR DE APP ============ //
 
 @Composable
 fun TopCard(
@@ -591,8 +594,8 @@ fun TopCard(
     }
 }
 
-// ... (Justo después de TopCard o al final de la sección de componentes)
 
+// ============ BUSCADOR ============ //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomizableSearchBar(
@@ -661,8 +664,7 @@ fun CustomizableSearchBar(
     }
 }
 
-// ============ TaskItem, EmptyTasksMessage, etc. van aquí debajo ============
-
+// ============ TaskItem ============ //
 
 @Composable
 fun TaskItem(
@@ -704,6 +706,8 @@ fun TaskItem(
 
 }
 
+// ============ MENSAJE DE LISTA VACIA ============ //
+
 @Composable
 fun EmptyTasksMessage()
 {
@@ -724,6 +728,7 @@ fun EmptyTasksMessage()
     }
 }
 
+// ============ DIALOGO DE VACIAR LISTA ============ //
 @Composable
 fun ConfirmClearDialog(
     onDismiss: () -> Unit,
@@ -751,6 +756,7 @@ fun ConfirmClearDialog(
     )
 }
 
+// ============ DIALOGO DE ELIMINAR TAREA ============ //
 @Composable
 fun ConfirmDeleteDialog(
     onDismiss: () -> Unit,
@@ -778,6 +784,7 @@ fun ConfirmDeleteDialog(
     )
 }
 
+// ============ DIALOGO DE EDITAR TAREA ============ //
 @Composable
 fun EditTaskDialog(
     tarea: Tarea,
@@ -799,7 +806,6 @@ fun EditTaskDialog(
                 )
             },
         text = {
-            // El contenido principal del diálogo va aquí
             OutlinedTextField(
                 value = textoEditado,
                 onValueChange = { textoEditado = it },
@@ -834,7 +840,7 @@ fun EditTaskDialog(
                 Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
             }
         },
-        shape = RoundedCornerShape(10.dp) // Mantienes los bordes redondeados
+        shape = RoundedCornerShape(10.dp)
     )
 }
 
