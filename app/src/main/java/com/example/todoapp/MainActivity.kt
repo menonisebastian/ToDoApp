@@ -1,5 +1,8 @@
 package com.example.todoapp
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -225,6 +228,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
+    var ultimaTareaEliminada by remember { mutableStateOf<Pair<Int, Tarea>?>(null) }        //POR IMPLEMENTAR SHAKEDETECTOR
     var showClearDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
@@ -238,6 +242,10 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
         }
 
     val context = LocalContext.current
+    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager   //POR IMPLEMENTAR SHAKEDETECTOR
+    val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)           //POR IMPLEMENTAR SHAKEDETECTOR
+
+
 
     // ESTRUCTURA: Column con LazyColumn solo para la lista
     Column(
