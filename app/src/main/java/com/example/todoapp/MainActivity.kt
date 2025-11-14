@@ -82,8 +82,8 @@ class MainActivity : ComponentActivity() {
             val taskTextColor = when (textColorName)
             {
                 "Negro" -> Color.Black
-                "Naranja" -> Color(0xFFFD6310)
-                "Azul" -> Color(0xFF017FFC)
+                "Naranja" -> MaterialTheme.colorScheme.primary
+                "Azul" -> MaterialTheme.colorScheme.secondary
                 "Blanco" -> Color(0xFFF1F1F1)
                 else -> MaterialTheme.colorScheme.onSurface // Color por defecto del tema
             }
