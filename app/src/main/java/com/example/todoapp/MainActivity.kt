@@ -13,6 +13,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -717,7 +718,7 @@ fun CustomizableSearchBar(
             colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             shadowElevation = 10.dp,
             modifier = Modifier
-                .semantics { traversalIndex = 0f },
+                .semantics { traversalIndex = 0f }.animateContentSize(),
             inputField = {
                 SearchBarDefaults.InputField(
                     query = query,
@@ -759,39 +760,44 @@ fun CustomizableSearchBar(
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
-            LazyColumn()
-
-            {
-                if (searchResults.isEmpty())
-                {
+            // --- INICIO DE LA MODIFICACIÓN ---
+            LazyColumn(
+                modifier = Modifier
+                    // 1. Anima suavemente el cambio de altura
+                    .animateContentSize()
+                    // 2. Limita la altura máxima para que no sea infinita
+                    .heightIn(max = 280.dp) // Puedes ajustar este valor
+            ) {
+                if (searchResults.isEmpty()) {
                     item {
-                        Column(modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center)
-                        {
-                            Spacer(modifier = Modifier.height(100.dp))
-
+                        // Centra el mensaje de "No se encontraron resultados"
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Text("No se encontraron resultados", color = Color.Gray)
                         }
                     }
-                }
-                else
-                {
-                    items(searchResults) { tarea ->
+                } else {
+                    // Añadimos 'key' para optimizar el rendimiento de la lista
+                    items(searchResults, key = { it.id }) { tarea ->
                         ListItem(
                             headlineContent = { Text(tarea.texto) },
-                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                            // El color de fondo debe ser transparente para heredar el del DockedSearchBar
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier
                                 .clickable {
                                     onResultClick(tarea)
                                     expanded = false
                                 }
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
                         )
                     }
                 }
             }
+            // --- FIN DE LA MODIFICACIÓN ---
         }
     }
 }
