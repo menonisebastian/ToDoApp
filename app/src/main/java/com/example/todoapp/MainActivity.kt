@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -239,7 +240,10 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
-    var ultimaTareaEliminada by remember { mutableStateOf<Pair<Int, Tarea>?>(null) }
+    var ultimaTareaEliminada by rememberSaveable(stateSaver = UltimaTareaSaver) {
+        mutableStateOf<Pair<Int, Tarea>?>(null)
+    }
+
     var showClearDialog by remember { mutableStateOf(false) }
     var showPreferencesDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
