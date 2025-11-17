@@ -1013,9 +1013,9 @@ fun EditTaskDialog(
 @Composable
 fun GreetingPreview() {
     //AppNav()
-    App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {}, onPreferences = {})
+    //App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {}, onPreferences = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { }
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
-    //Preferences(onBack = {})
+    Preferences(onBack = {})
 }
