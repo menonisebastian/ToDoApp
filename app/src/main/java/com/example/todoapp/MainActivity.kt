@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
                 "Naranja" -> MaterialTheme.colorScheme.primary
                 "Azul" -> MaterialTheme.colorScheme.secondary
                 "Dinamico" -> MaterialTheme.colorScheme.onSurface
-                else -> MaterialTheme.colorScheme.onSurface // Color por defecto del tema
+                else -> Color.LightGray
             }
 
             ToDoAppTheme(darkTheme = isDarkMode)
@@ -464,7 +464,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Column(
             Modifier
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
                 .padding(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -527,7 +527,6 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                     }
                 }
             }
-
 
             Spacer(modifier = Modifier.height(20.dp))
 

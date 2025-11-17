@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.LinearGradient
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
@@ -16,9 +17,6 @@ val Black = Color(0xFF000000)
 val SoftBlack = Color(0xFF1E1F22)
 val GrayBlack = Color(0xFF181818)
 val SoftWhite = Color(0xFFF8F8F8)
-
-
-
 
 //--------------------------------------------//
 
