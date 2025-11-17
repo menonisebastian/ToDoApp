@@ -281,7 +281,8 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(Unit)
+    {
         sensorManager.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
         onDispose {
             sensorManager.unregisterListener(shakeDetector)
@@ -290,9 +291,11 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
 
     val inactivityNotifier = remember { InactivityNotifier(context) }
     var hasNotificationPermission by remember { mutableStateOf(
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        {
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-        } else {
+        } else
+        {
             true
         }
     )}
@@ -304,15 +307,19 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         }
     )
 
-    LaunchedEffect(key1 = hasNotificationPermission) {
-        if (!hasNotificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    LaunchedEffect(key1 = hasNotificationPermission)
+    {
+        if (!hasNotificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
-    LaunchedEffect(key1 = tareas.size) { // Se reinicia si el tamaño de la lista cambia
-        delay(80000) // 3 minutos
-        if (hasNotificationPermission) {
+    LaunchedEffect(key1 = tareas.size)
+    { // Se reinicia si el tamaño de la lista cambia
+        delay(60000) // 1 minuto
+        if (hasNotificationPermission)
+        {
             inactivityNotifier.showNotification()
         }
     }
@@ -363,37 +370,35 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
             EmptyTasksMessage()
         } else {
 
-            Spacer(Modifier.height(20.dp))
-
-
             CustomizableSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
-                onSearch = { /* La búsqueda ya es en tiempo real, puedes dejar esto vacío o añadir lógica extra */ },
-                searchResults = filteredTareas,
-                onResultClick = { tarea ->
-                    // Acción al hacer clic en un resultado, por ejemplo, abrir el diálogo de edición.
-                    tareaDetallada = tarea
-                    searchQuery = "" // Limpiar la búsqueda
-                },
-                //modifier = Modifier.fillMaxWidth()
             )
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(tareas) { tareaItem ->
-                    TaskItem(
-                        tarea = tareaItem,
-                        onTaskClick = { tareaDetallada = tareaItem },
-                        onEdit = { tareaEditando = tareaItem },
-                        textColor = taskTextColor,
-                        onDelete =
-                        {
-                            tareaAEliminar = tareaItem
-                        }
-                    )
-                    Spacer(Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (filteredTareas.isEmpty())
+            {
+                EmptySearchMessage()
+            }
+            else
+            {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(filteredTareas) { tareaItem ->
+                        TaskItem(
+                            tarea = tareaItem,
+                            onTaskClick = { tareaDetallada = tareaItem },
+                            onEdit = { tareaEditando = tareaItem },
+                            textColor = taskTextColor,
+                            onDelete =
+                                {
+                                    tareaAEliminar = tareaItem
+                                }
+                        )
+                        Spacer(Modifier.height(10.dp))
+                    }
                 }
             }
         }
@@ -466,11 +471,9 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
         Column(
             Modifier
                 .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                .padding(20.dp),
+                .padding(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
-
             Image(
                 painter = painterResource(id = R.drawable.fontlogo),
                 modifier = Modifier
@@ -663,6 +666,7 @@ fun TopCard(
                 onValueChange = onTareaChange,
                 label = { Text("Nueva tarea") },
                 modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(20.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF017FFC),
                     //unfocusedBorderColor = Color(0xFFFD6310),
@@ -691,86 +695,27 @@ fun TopCard(
 fun CustomizableSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    searchResults: List<Tarea>,
-    onResultClick: (Tarea) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-
-    Box(
-        modifier = modifier
-            .semantics { isTraversalGroup = true }
-            .animateContentSize()
-    ) {
-        DockedSearchBar(
-            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            shadowElevation = 10.dp,
-            modifier = Modifier
-                .semantics { traversalIndex = 0f },
-            inputField = {
-                SearchBarDefaults.InputField(
-                    query = query,
-                    onQueryChange = onQueryChange,
-                    onSearch = {
-                        onSearch(it)
-                        expanded = false
-                    },
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
-                    placeholder = { Text("Buscar tarea") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                    trailingIcon = {
-                        if (expanded) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
-                                modifier = Modifier.clickable
-                                {
-                                    onQueryChange("")
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                )
-            },
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
-        ) {
-            LazyColumn(modifier = Modifier.heightIn(max = 224.dp)) {
-                if (searchResults.isEmpty())
-                {
-                    item {
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 64.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center)
-                        {
-                            Text("No se encontraron resultados", color = Color.Gray)
-                        }
-                    }
-                }
-                else
-                {
-                    items(searchResults) { tarea ->
-                        ListItem(
-                            headlineContent = { Text(tarea.texto) },
-                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-                            modifier = Modifier
-                                .clickable {
-                                    onResultClick(tarea)
-                                    expanded = false
-                                }
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                    }
+    SearchBar(
+        query = query,
+        onQueryChange = onQueryChange,
+        onSearch = { }, // Search is real-time, so this is not strictly needed
+        active = false, // This is the crucial part to prevent the expanded view
+        onActiveChange = { },
+        modifier = modifier.fillMaxWidth(),
+        placeholder = { Text("Buscar tarea") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Default.Close, contentDescription = "Clear search")
                 }
             }
-        }
-    }
+        },
+        colors = SearchBarDefaults.colors(MaterialTheme.colorScheme.surface),
+        shadowElevation = 10.dp
+    ) { }
 }
 
 // ============ TaskItem ============ //
@@ -783,10 +728,6 @@ fun TaskItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    if (tarea.id==0)
-    {
-        Spacer(modifier = Modifier.height(20.dp))
-    }
     Card(modifier = Modifier
         .fillMaxWidth()
         .clickable { onTaskClick() },
@@ -838,6 +779,29 @@ fun EmptyTasksMessage()
         )
     }
 }
+
+// ============ MENSAJE DE BUSQUEDA VACIA ============ //
+
+@Composable
+fun EmptySearchMessage()
+{
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    )
+    {
+        Text(
+            "No se ha encontrado la tarea",
+            fontSize = 20.sp,
+            fontStyle = FontStyle.Italic,
+            color = Color.Gray
+        )
+    }
+}
+
 
 // ============ DIALOGO DE VACIAR LISTA ============ //
 @Composable
@@ -986,10 +950,9 @@ fun EditTaskDialog(
 @Composable
 fun GreetingPreview() {
     //AppNav()
-    //App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {})
+    App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { }
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { }
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})\
     //PreferencesDialog(onDismiss = {})
-    PreferencesDialog(onDismiss = {})
 }
