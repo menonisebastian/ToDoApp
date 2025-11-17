@@ -101,8 +101,8 @@ class MainActivity : ComponentActivity() {
             // 2. Convierte el nombre del color a un valor Color de Compose.
             val taskTextColor = when (textColorName)
             {
-                "Naranja" -> MaterialTheme.colorScheme.primary
-                "Azul" -> MaterialTheme.colorScheme.secondary
+                "Naranja" -> Color(0xFFFD6310)
+                "Azul" -> Color(0xFF1B3B68)
                 "Dinamico" -> MaterialTheme.colorScheme.onSurface
                 else -> Color.LightGray
             }
