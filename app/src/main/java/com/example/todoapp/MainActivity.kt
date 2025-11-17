@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
             {
                 "Naranja" -> MaterialTheme.colorScheme.primary
                 "Azul" -> MaterialTheme.colorScheme.secondary
-                "Dinámico" -> MaterialTheme.colorScheme.onSurface
+                "Dinamico" -> MaterialTheme.colorScheme.onSurface
                 else -> MaterialTheme.colorScheme.onSurface // Color por defecto del tema
             }
 
@@ -454,7 +454,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
 // ============ PREFERENCES DIALOG ============
 @Composable
 fun PreferencesDialog(onDismiss: () -> Unit) {
-    val colorTexto = remember { mutableListOf("Naranja", "Azul", "Dinámico") }
+    val colorTexto = remember { mutableListOf("Naranja", "Azul", "Dinamico") }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settingsPreferences = remember { SettingsPreferences(context) }
@@ -518,7 +518,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                                 {
                                     "Naranja" -> MaterialTheme.colorScheme.primary
                                     "Azul" -> MaterialTheme.colorScheme.secondary
-                                    "Dinámico" -> MaterialTheme.colorScheme.onSurface
+                                    "Dinamico" -> MaterialTheme.colorScheme.onSurface
                                     else -> Color.LightGray
                                 }
                             )
@@ -698,7 +698,7 @@ fun CustomizableSearchBar(
         active = false, // This is the crucial part to prevent the expanded view
         onActiveChange = { },
         modifier = modifier.fillMaxWidth(),
-        placeholder = { Text("Buscar tarea") },
+        placeholder = { Text("Buscar tarea", color = Color.Gray) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
         trailingIcon = {
             if (query.isNotEmpty()) {
@@ -749,7 +749,6 @@ fun TaskItem(
             }
         }
     }
-
 }
 
 // ============ MENSAJE DE LISTA VACIA ============ //
