@@ -61,13 +61,7 @@ import kotlinx.coroutines.launch
 data class Tarea(
     val id: Int,
     val texto: String,
-    var completada: Boolean = false,
-//    val fechaCreacion: Date = Date(),
-//    // simple date format
-//    val sdf: SimpleDateFormat = SimpleDateFormat("'dd-MM-yyyy'", Locale.getDefault()),
-//
-//    // current date and time and calling a simple date format
-//    val currentDateAndTime: String = sdf.format(Date())
+    //var completada: Boolean = false
 )
 
 // ============ ACTIVITY ============
