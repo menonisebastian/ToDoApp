@@ -1,13 +1,18 @@
 package com.example.todoapp
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,11 +49,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -74,6 +81,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent{
             val settingsPreferences = remember { SettingsPreferences(applicationContext) }
+            val scope = rememberCoroutineScope()
+
+            // Sensor de luz para el modo oscuro
+            val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            val lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
+
+            val lightSensorDetector = remember {
+                LightSensorDetector {
+                    scope.launch {
+                        settingsPreferences.setDarkMode(it)
+                    }
+                }
+            }
+
+            DisposableEffect(Unit) {
+                sensorManager.registerListener(lightSensorDetector, lightSensor, SensorManager.SENSOR_DELAY_UI)
+                onDispose {
+                    sensorManager.unregisterListener(lightSensorDetector)
+                }
+            }
 
             // 1. Lee el valor del modo oscuro desde DataStore.
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
@@ -223,12 +250,14 @@ fun Login(onEnviar: (String, String) -> Unit) {
 @Composable
 fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit, onPreferences: () -> Unit)
 {
+
+    //VARIABLES Y VALORES A USAR
     var tarea by remember { mutableStateOf("") }
     val tareas = remember { mutableStateListOf<Tarea>() }
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
-    var ultimaTareaEliminada by remember { mutableStateOf<Pair<Int, Tarea>?>(null) }        //POR IMPLEMENTAR SHAKEDETECTOR
+    var ultimaTareaEliminada by remember { mutableStateOf<Pair<Int, Tarea>?>(null) }
     var showClearDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
@@ -242,10 +271,54 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
         }
 
     val context = LocalContext.current
-    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager   //POR IMPLEMENTAR SHAKEDETECTOR
-    val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)           //POR IMPLEMENTAR SHAKEDETECTOR
+    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
+    val shakeDetector = remember {
+        ShakeDetector {
+            ultimaTareaEliminada?.let { (index, task) ->
+                tareas.add(index, task)
+                ultimaTareaEliminada = null
+                Toast.makeText(context, "Tarea restaurada", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
+    DisposableEffect(Unit) {
+        sensorManager.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        onDispose {
+            sensorManager.unregisterListener(shakeDetector)
+        }
+    }
+
+    val inactivityNotifier = remember { InactivityNotifier(context) }
+    var hasNotificationPermission by remember { mutableStateOf(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    )}
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            hasNotificationPermission = isGranted
+        }
+    )
+
+    LaunchedEffect(key1 = hasNotificationPermission) {
+        if (!hasNotificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    LaunchedEffect(key1 = tareas.size) { // Se reinicia si el tamaño de la lista cambia
+        delay(80000) // 3 minutos
+        if (hasNotificationPermission) {
+            inactivityNotifier.showNotification()
+        }
+    }
 
     // ESTRUCTURA: Column con LazyColumn solo para la lista
     Column(
@@ -350,8 +423,13 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
             ConfirmDeleteDialog(
                 onDismiss = { tareaAEliminar = null },
                 onConfirm = {
-                    tareas.remove(tareaAEliminar)
-                    Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT).show()
+                    val taskToDelete = tareaAEliminar!!
+                    val index = tareas.indexOf(taskToDelete)
+                    if (index != -1) {
+                        ultimaTareaEliminada = Pair(index, taskToDelete)
+                        tareas.remove(taskToDelete)
+                        Toast.makeText(context, "Tarea eliminada. Agita para deshacer.", Toast.LENGTH_SHORT).show()
+                    }
                     tareaAEliminar = null
                 }
             )
