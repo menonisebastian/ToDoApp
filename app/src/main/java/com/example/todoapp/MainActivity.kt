@@ -95,20 +95,20 @@ class MainActivity : ComponentActivity() {
             // 1. Lee el valor del modo oscuro desde DataStore.
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
 
-            // 1. Lee el nombre del color desde DataStore.
-            val textColorName by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
-
-            // 2. Convierte el nombre del color a un valor Color de Compose.
-            val taskTextColor = when (textColorName)
-            {
-                "Naranja" -> Color(0xFFFD6310)
-                "Azul" -> Color(0xFF1B3B68)
-                "Dinamico" -> MaterialTheme.colorScheme.onSurface
-                else -> Color.LightGray
-            }
-
             ToDoAppTheme(darkTheme = isDarkMode)
             {
+                // 1. Lee el nombre del color desde DataStore.
+                val textColorName by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
+
+                // 2. Convierte el nombre del color a un valor Color de Compose.
+                val taskTextColor = when (textColorName)
+                {
+                    "Naranja" -> MaterialTheme.colorScheme.primary
+                    "Azul" -> MaterialTheme.colorScheme.secondary
+                    "Dinamico" -> MaterialTheme.colorScheme.onSurface
+                    else -> Color.LightGray
+                }
+
                 AppNav(taskTextColor = taskTextColor)
             }
         }
@@ -147,7 +147,8 @@ fun AppNav(taskTextColor: Color) {
 
 // ============ LOGIN SCREEN ============
 @Composable
-fun Login(onEnviar: (String, String) -> Unit) {
+fun Login(onEnviar: (String, String) -> Unit)
+{
     var nombres by remember { mutableStateOf("") }
     var alias by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -159,7 +160,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(150.dp))
         Image(
             painter = painterResource(R.drawable.cutlogoapp),
             modifier = Modifier
@@ -178,8 +179,8 @@ fun Login(onEnviar: (String, String) -> Unit) {
         Spacer(Modifier.height(20.dp))
         Column(
             modifier = Modifier
-                .shadow(15.dp, RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
+                .shadow(15.dp, RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
                 .padding(20.dp)
                 .width(300.dp),
             verticalArrangement = Arrangement.SpaceAround,
@@ -661,10 +662,10 @@ fun TopCard(
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(20.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF017FFC),
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     //unfocusedBorderColor = Color(0xFFFD6310),
-                    focusedLabelColor = Color(0xFFFD6310),
-                    unfocusedLabelColor = Color(0xFF017FFC)
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.tertiary,
                 ),
                 singleLine = true
             )
@@ -675,7 +676,7 @@ fun TopCard(
                 onClick = onAddTarea,
                 colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = Color.White)
+                Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }
