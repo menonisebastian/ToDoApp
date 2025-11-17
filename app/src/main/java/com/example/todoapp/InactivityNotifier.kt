@@ -1,10 +1,11 @@
 package com.example.todoapp
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
@@ -33,7 +34,7 @@ class InactivityNotifier(private val context: Context) {
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun showNotification() {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.applogo) // Asegúrate de tener un ícono en drawable
@@ -43,7 +44,6 @@ class InactivityNotifier(private val context: Context) {
             .setAutoCancel(true) // La notificación desaparece al pulsarla
 
         with(NotificationManagerCompat.from(context)) {
-            // notificationId is a unique int for each notification that you must define
             notify(NOTIFICATION_ID, builder.build())
         }
     }
