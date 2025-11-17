@@ -26,8 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -46,10 +44,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -58,21 +56,18 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 // ============ DATA CLASS ============
 data class Tarea(
     val id: Int,
     val texto: String,
     var completada: Boolean = false,
-    val fechaCreacion: Date = Date(),
-    // simple date format
-    val sdf: SimpleDateFormat = SimpleDateFormat("'dd-MM-yyyy'", Locale.getDefault()),
-
-    // current date and time and calling a simple date format
-    val currentDateAndTime: String = sdf.format(Date())
+//    val fechaCreacion: Date = Date(),
+//    // simple date format
+//    val sdf: SimpleDateFormat = SimpleDateFormat("'dd-MM-yyyy'", Locale.getDefault()),
+//
+//    // current date and time and calling a simple date format
+//    val currentDateAndTime: String = sdf.format(Date())
 )
 
 // ============ ACTIVITY ============
@@ -114,7 +109,7 @@ class MainActivity : ComponentActivity() {
             {
                 "Naranja" -> MaterialTheme.colorScheme.primary
                 "Azul" -> MaterialTheme.colorScheme.secondary
-                "Predeterminado" -> MaterialTheme.colorScheme.onSurface
+                "Dinámico" -> MaterialTheme.colorScheme.onSurface
                 else -> MaterialTheme.colorScheme.onSurface // Color por defecto del tema
             }
 
@@ -150,13 +145,8 @@ fun AppNav(taskTextColor: Color) {
                 nombre = nombre,
                 alias = alias,
                 onBack = { navController.popBackStack() },
-                taskTextColor = taskTextColor,
-                onPreferences = { navController.navigate("preferences") }
+                taskTextColor = taskTextColor
             )
-        }
-        composable ("preferences" )
-        {
-            Preferences (onBack = { navController.popBackStack() })
         }
     }
 }
@@ -205,6 +195,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
                 value = nombres,
                 onValueChange = { nombres = it },
                 singleLine = true,
+                shape = RoundedCornerShape(20.dp),
                 label = { Text("Nombre") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1B3B68),
@@ -218,6 +209,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
                 value = alias,
                 onValueChange = { alias = it },
                 singleLine = true,
+                shape = RoundedCornerShape(20.dp),
                 label = { Text("Alias") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1B3B68),
@@ -248,7 +240,7 @@ fun Login(onEnviar: (String, String) -> Unit) {
 
 // ============ MAIN APP SCREEN ============
 @Composable
-fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit, onPreferences: () -> Unit)
+fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
 {
 
     //VARIABLES Y VALORES A USAR
@@ -259,6 +251,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
     var ultimaTareaEliminada by remember { mutableStateOf<Pair<Int, Tarea>?>(null) }
     var showClearDialog by remember { mutableStateOf(false) }
+    var showPreferencesDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
     val filteredTareas =
@@ -273,6 +266,10 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
     val context = LocalContext.current
     val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+    if (showPreferencesDialog) {
+        PreferencesDialog(onDismiss = { showPreferencesDialog = false })
+    }
 
     val shakeDetector = remember {
         ShakeDetector {
@@ -359,7 +356,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
                     Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
             },
             onBack = onBack,
-            onPreferences = onPreferences
+            onPreferences = { showPreferencesDialog = true }
         )
 
         if (tareas.isEmpty()) {
@@ -455,140 +452,133 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit,
     }
 }
 
-// ============ VENTANA PREFERENCIAS ============
+// ============ PREFERENCES DIALOG ============
 @Composable
-fun Preferences(onBack: () -> Unit)
-{
-    val colorTexto = remember { mutableListOf("Negro", "Naranja", "Azul", "Blanco") }
+fun PreferencesDialog(onDismiss: () -> Unit) {
+    val colorTexto = remember { mutableListOf("Naranja", "Azul", "Dinámico") }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settingsPreferences = remember { SettingsPreferences(context) }
-
-    // 1. Lee el valor del modo oscuro desde DataStore y lo convierte en un estado de Compose.
-    // El valor 'initial' es importante para la primera composición.
     val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
-
-    // OBTENER EL COLOR ACTUAL ---
     val colorSeleccionado by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
 
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            Modifier
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(20.dp))
 
-    Column(Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
-        .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally)
-    {
-        Spacer(modifier = Modifier.height(40.dp))
+            Image(
+                painter = painterResource(id = R.drawable.fontlogo),
+                modifier = Modifier
+                    .width(100.dp)
+                    .padding(10.dp),
+                contentDescription = "logo texto"
+            )
 
-        Image(
-            painter = painterResource(id = R.drawable.fontlogo),
-            modifier = Modifier
-                .width(100.dp)
-                .padding(10.dp),
-            contentDescription = "logo texto"
-        )
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = "Preferencias",
-            fontWeight = FontWeight.Bold,
-            fontSize = 15.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .shadow(10.dp, RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
-                .padding(10.dp)
-                .width(160.dp))
-        {
-            Text(text = "Colores del Texto",
-                modifier = Modifier.padding(10.dp),
+            Text(
+                text = "Preferencias",
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.onSurface)
+                color = MaterialTheme.colorScheme.onSurface,
+            )
 
-            colorTexto.forEach { color ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .width(110.dp)
-                ) {
-                    RadioButton(
-                        selected = colorSeleccionado == color,
-                        onClick = { scope.launch {
-                            settingsPreferences.setTaskTextColor(color)
-                        } },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = when (color)
-                            {
-                                "Naranja" -> Color(0xFFFD6310)
-                                "Azul" -> Color(0xFF017FFC)
-                                "Predeterminado" -> MaterialTheme.colorScheme.onSurface
-                                else -> Color.LightGray
-                            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .shadow(10.dp, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
+                    .padding(10.dp)
+                    .width(160.dp))
+            {
+                Text(text = "Colores del Texto",
+                    modifier = Modifier.padding(10.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onSurface)
+
+                colorTexto.forEach { color ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                            .width(120.dp)
+                    ) {
+                        RadioButton(
+                            selected = colorSeleccionado == color,
+                            onClick = { scope.launch {
+                                settingsPreferences.setTaskTextColor(color)
+                            } },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = when (color)
+                                {
+                                    "Naranja" -> MaterialTheme.colorScheme.primary
+                                    "Azul" -> MaterialTheme.colorScheme.secondary
+                                    "Dinámico" -> MaterialTheme.colorScheme.onSurface
+                                    else -> Color.LightGray
+                                }
+                            )
                         )
-                    )
-                    Text(color, color = MaterialTheme.colorScheme.onSurface, fontSize = 15.sp)
+                        Text(color, color = MaterialTheme.colorScheme.onSurface, fontSize = 15.sp)
+                    }
                 }
             }
-        }
 
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Column (horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .shadow(10.dp, RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
-                .padding(10.dp)
-                .width(160.dp))
-        {
-            Text(text = "Modo Oscuro",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
+            Column (horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .padding(top = 10.dp)
-                    .padding(horizontal = 20.dp)
-            )
-            Switch(checked = isDarkMode, onCheckedChange = { nuevoValor ->
-                scope.launch {
-                    settingsPreferences.setDarkMode(nuevoValor)
-                }
-            },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.onSurface,
-                    checkedTrackColor = MaterialTheme.colorScheme.background,
-                    checkedBorderColor = MaterialTheme.colorScheme.onSurface,
-                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.background,
-                    uncheckedBorderColor = MaterialTheme.colorScheme.onSurface
+                    .shadow(10.dp, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
+                    .padding(10.dp)
+                    .width(160.dp))
+            {
+                Text(text = "Modo Oscuro",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .padding(horizontal = 20.dp)
                 )
+                Switch(checked = isDarkMode, onCheckedChange = { nuevoValor ->
+                    scope.launch {
+                        settingsPreferences.setDarkMode(nuevoValor)
+                    }
+                },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.onSurface,
+                        checkedTrackColor = MaterialTheme.colorScheme.background,
+                        checkedBorderColor = MaterialTheme.colorScheme.onSurface,
+                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.background,
+                        uncheckedBorderColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Button(
+                onClick = { onDismiss() },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             )
+            {
+                Text("Cerrar")
+            }
         }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Button(
-            onClick = { onBack() },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-        )
-        {
-            Text("Guardar")
-        }
-
-        TextButton(onClick = { onBack() })
-        { Text("Volver a la pantalla principal", color = MaterialTheme.colorScheme.secondary) }
     }
 }
+
 
 // ============ TARJETA SUPERIOR DE APP ============ //
 
@@ -711,12 +701,13 @@ fun CustomizableSearchBar(
     Box(
         modifier = modifier
             .semantics { isTraversalGroup = true }
+            .animateContentSize()
     ) {
         DockedSearchBar(
             colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             shadowElevation = 10.dp,
             modifier = Modifier
-                .semantics { traversalIndex = 0f }.animateContentSize(),
+                .semantics { traversalIndex = 0f },
             inputField = {
                 SearchBarDefaults.InputField(
                     query = query,
@@ -732,23 +723,12 @@ fun CustomizableSearchBar(
                     trailingIcon = {
                         if (expanded) {
                             Icon(
-                                imageVector = Icons.Default.KeyboardArrowUp,
+                                imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
                                 modifier = Modifier.clickable
                                 {
                                     onQueryChange("")
                                     expanded = false
-                                }
-                            )
-                        }
-                        else
-                        {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Close",
-                                modifier = Modifier.clickable
-                                {
-                                    expanded = true
                                 }
                             )
                         }
@@ -758,44 +738,37 @@ fun CustomizableSearchBar(
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
-            // --- INICIO DE LA MODIFICACIÓN ---
-            LazyColumn(
-                modifier = Modifier
-                    // 1. Anima suavemente el cambio de altura
-                    .animateContentSize()
-                    // 2. Limita la altura máxima para que no sea infinita
-                    .heightIn(max = 280.dp) // Puedes ajustar este valor
-            ) {
-                if (searchResults.isEmpty()) {
+            LazyColumn(modifier = Modifier.heightIn(max = 224.dp)) {
+                if (searchResults.isEmpty())
+                {
                     item {
-                        // Centra el mensaje de "No se encontraron resultados"
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 48.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 64.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center)
+                        {
                             Text("No se encontraron resultados", color = Color.Gray)
                         }
                     }
-                } else {
-                    // Añadimos 'key' para optimizar el rendimiento de la lista
-                    items(searchResults, key = { it.id }) { tarea ->
+                }
+                else
+                {
+                    items(searchResults) { tarea ->
                         ListItem(
                             headlineContent = { Text(tarea.texto) },
-                            // El color de fondo debe ser transparente para heredar el del DockedSearchBar
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
                             modifier = Modifier
                                 .clickable {
                                     onResultClick(tarea)
                                     expanded = false
                                 }
                                 .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
                         )
                     }
                 }
             }
-            // --- FIN DE LA MODIFICACIÓN ---
         }
     }
 }
@@ -902,7 +875,7 @@ fun DetailTaskDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Tarea  #${tarea.id+1} - ${tarea.currentDateAndTime}") },
+        title = { Text("Tarea  #${tarea.id+1}") },
         text = { Text(tarea.texto) },
         confirmButton = {
             TextButton(onClick = onDismiss) {
@@ -1013,9 +986,10 @@ fun EditTaskDialog(
 @Composable
 fun GreetingPreview() {
     //AppNav()
-    //App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {}, onPreferences = {})
+    //App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { }
-    //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { })
-    //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
-    Preferences(onBack = {})
+    //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { }
+    //ConfirmClearDialog(onDismiss = {}, onConfirm = {})\
+    //PreferencesDialog(onDismiss = {})
+    PreferencesDialog(onDismiss = {})
 }
