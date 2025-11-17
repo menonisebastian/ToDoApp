@@ -47,7 +47,7 @@ class ShakeDetector(
     }
 
     companion object {
-        private const val SHAKE_THRESHOLD = 2.7f // Umbral de fuerza G para detectar agitación
-        private const val MIN_SHAKES = 2 // Número mínimo de agitaciones en un corto período
+        private const val SHAKE_THRESHOLD = 2.0f // Umbral de fuerza G para detectar agitación
+        private const val MIN_SHAKES = 1 // Número mínimo de agitaciones en un corto período
     }
 }

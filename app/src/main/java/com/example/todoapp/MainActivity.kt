@@ -438,6 +438,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                 onConfirm = {
                     tareas.clear()
                     nextId = 0
+                    ultimaTareaEliminada = null
                     Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
                     showClearDialog = false
                 }
