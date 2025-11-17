@@ -112,10 +112,9 @@ class MainActivity : ComponentActivity() {
             // 2. Convierte el nombre del color a un valor Color de Compose.
             val taskTextColor = when (textColorName)
             {
-                "Negro" -> Color.Black
                 "Naranja" -> MaterialTheme.colorScheme.primary
                 "Azul" -> MaterialTheme.colorScheme.secondary
-                "Blanco" -> Color(0xFFF1F1F1)
+                "Predeterminado" -> MaterialTheme.colorScheme.onSurface
                 else -> MaterialTheme.colorScheme.onSurface // Color por defecto del tema
             }
 
@@ -529,10 +528,9 @@ fun Preferences(onBack: () -> Unit)
                         colors = RadioButtonDefaults.colors(
                             selectedColor = when (color)
                             {
-                                "Negro" -> Color.Black
                                 "Naranja" -> Color(0xFFFD6310)
                                 "Azul" -> Color(0xFF017FFC)
-                                "Blanco" -> Color(0xFFF1F1F1)
+                                "Predeterminado" -> MaterialTheme.colorScheme.onSurface
                                 else -> Color.LightGray
                             }
                         )
