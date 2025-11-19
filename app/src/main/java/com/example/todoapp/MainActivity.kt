@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
                     "Naranja" -> MaterialTheme.colorScheme.primary
                     "Azul" -> MaterialTheme.colorScheme.secondary
                     "Dinamico" -> MaterialTheme.colorScheme.onSurface
-                    else -> Color.LightGray
+                    else -> MaterialTheme.colorScheme.onSurface
                 }
                 AppNav(taskTextColor = taskTextColor)
             }
@@ -307,7 +307,8 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // HEADER FIJO
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.windowInsetsTopHeight(
+            WindowInsets.statusBars))
 
         Image(
             painter = painterResource(id = R.drawable.fontlogo),
@@ -342,7 +343,9 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         )
 
         // SI la lista de tareas NO está vacía, muestra la barra de búsqueda y la lista.
-        if (tareas.isNotEmpty()) {
+        if (tareas.isNotEmpty())
+        {
+            Spacer(modifier = Modifier.height(20.dp))
 
             CustomizableSearchBar(
                 query = searchQuery,
@@ -387,9 +390,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                 onSave = { nuevoTexto ->
                     val index = tareas.indexOf(tarea)
                     if (index != -1) {
-                        tareas[index] = tarea.copy(
-                            texto = nuevoTexto
-                        )
+                        tareas[index] = tarea.copy(texto = nuevoTexto)
                     }
                     tareaEditando = null
                     Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
@@ -504,7 +505,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                                     "Naranja" -> MaterialTheme.colorScheme.primary
                                     "Azul" -> MaterialTheme.colorScheme.secondary
                                     "Dinamico" -> MaterialTheme.colorScheme.onSurface
-                                    else -> Color.LightGray
+                                    else -> MaterialTheme.colorScheme.onSurface
                                 }
                             )
                         )
@@ -579,6 +580,7 @@ fun TopCard(
 
     Column(
         modifier = Modifier
+            .fillMaxWidth()
             .shadow(15.dp, RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
             .padding(horizontal = 20.dp, vertical = 10.dp)
@@ -674,12 +676,12 @@ fun CustomizableSearchBar(
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SearchBar(
+    DockedSearchBar(
         query = query,
         onQueryChange = onQueryChange,
-        onSearch = { }, // No se usa en este caso
-        active = false, // No se usa en este caso
-        onActiveChange = { },
+        onSearch = {},
+        active = false,
+        onActiveChange = {},
         modifier = modifier.fillMaxWidth(),
         placeholder = { Text("Buscar tarea", color = Color.Gray) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
@@ -690,9 +692,12 @@ fun CustomizableSearchBar(
                 }
             }
         },
-        colors = SearchBarDefaults.colors(MaterialTheme.colorScheme.surface),
+        colors = SearchBarDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            dividerColor = Color.Transparent
+        ),
         shadowElevation = 10.dp
-    ) { }
+    ) {}
 }
 
 // ============ TaskItem ============ //
