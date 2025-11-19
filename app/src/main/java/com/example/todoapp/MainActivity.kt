@@ -352,8 +352,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
             Spacer(modifier = Modifier.height(20.dp))
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally // Centra el contenido
+                modifier = Modifier.fillMaxSize()
             ) {
                 if (filteredTareas.isEmpty()) {
                     // Si no hay resultados de búsqueda, muestra el mensaje DENTRO de la LazyColumn
