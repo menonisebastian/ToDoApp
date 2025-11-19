@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -224,6 +225,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
 
     var showClearDialog by remember { mutableStateOf(false) }
     var showPreferencesDialog by remember { mutableStateOf(false) }
+    var showHelpDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
     val filteredTareas =
@@ -335,7 +337,8 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                     Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
             },
             onBack = onBack,
-            onPreferences = { showPreferencesDialog = true }
+            onPreferences = { showPreferencesDialog = true },
+            onHelp = { showHelpDialog = true }
         )
 
         if (tareas.isEmpty()) {
@@ -427,6 +430,10 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                 tarea = tareaDetallada!!,
                 onDismiss = { tareaDetallada = null }
             )
+        }
+        if (showHelpDialog) {
+            HelpDialog(
+                onDismiss = { showHelpDialog = false })
         }
     }
 }
@@ -565,7 +572,8 @@ fun TopCard(
     onAddTarea: () -> Unit,
     onVaciarLista: () -> Unit,
     onBack: () -> Unit,
-    onPreferences: () -> Unit
+    onPreferences: () -> Unit,
+    onHelp: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -604,7 +612,7 @@ fun TopCard(
                     DropdownMenuItem(
                         text = { Text("Ayuda") },
                         leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                        onClick = { /* por implementar */ }
+                        onClick = { onHelp() }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
@@ -898,6 +906,35 @@ fun EditTaskDialog(
         },
         shape = RoundedCornerShape(10.dp)
     )
+}
+
+// ============ DIALOGO DE AYUDA ============ //
+@Composable
+fun HelpDialog(
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss)
+    {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                .padding(10.dp))
+        {
+            Text("Ayuda", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(top = 10.dp))
+            Text("AYUDAAAAAAAAAAAAAAAAAAAA", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(10.dp), fontSize = 16.sp)
+            Image(
+                painter = painterResource(id = R.drawable.ayuda),
+                modifier = Modifier
+                    .width(80.dp)
+                    .padding(vertical = 10.dp),
+                contentDescription = "logo texto"
+            )
+            TextButton(onClick = onDismiss)
+            {
+                Text("Cerrar", color = MaterialTheme.colorScheme.secondary)
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
