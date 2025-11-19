@@ -839,12 +839,6 @@ fun DetailTaskDialog(
                 Text("Listo", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
             }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss /* por implementar */)
-            {
-                Text("Editar", color = MaterialTheme.colorScheme.secondary)
-            }
-        },
         containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp)
     )
