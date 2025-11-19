@@ -24,6 +24,8 @@ class SettingsPreferences(private val context: Context)
 
     // Clave para guardar el estado del modo oscuro (true = activado)
     private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode_enabled")
+    private val AUTO_DARK_MODE_KEY = booleanPreferencesKey("auto_dark_mode_enabled")
+
 
     // Flow para leer el valor del modo oscuro.
     // Emite un nuevo valor cada vez que cambia. Por defecto es 'false'.
@@ -32,10 +34,21 @@ class SettingsPreferences(private val context: Context)
             preferences[DARK_MODE_KEY] ?: false
         }
 
+    val isAutoDarkMode: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[AUTO_DARK_MODE_KEY] ?: true
+        }
+
     // Función suspendida para escribir el valor del modo oscuro.
     suspend fun setDarkMode(isEnabled: Boolean) {
         context.dataStore.edit { settings ->
             settings[DARK_MODE_KEY] = isEnabled
+        }
+    }
+
+    suspend fun setAutoDarkMode(isEnabled: Boolean) {
+        context.dataStore.edit { settings ->
+            settings[AUTO_DARK_MODE_KEY] = isEnabled
         }
     }
 

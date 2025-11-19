@@ -73,6 +73,8 @@ class MainActivity : ComponentActivity() {
             val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
             val lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
 
+            val isAutoDarkMode by settingsPreferences.isAutoDarkMode.collectAsStateWithLifecycle(initialValue = true)
+
             val lightSensorDetector = remember {
                 LightSensorDetector {
                     scope.launch {
@@ -81,10 +83,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            DisposableEffect(Unit) {
-                sensorManager.registerListener(lightSensorDetector, lightSensor, SensorManager.SENSOR_DELAY_UI)
-                onDispose {
-                    sensorManager.unregisterListener(lightSensorDetector)
+            DisposableEffect(isAutoDarkMode) {
+                if (isAutoDarkMode) {
+                    sensorManager.registerListener(lightSensorDetector, lightSensor, SensorManager.SENSOR_DELAY_UI)
+                    onDispose {
+                        sensorManager.unregisterListener(lightSensorDetector)
+                    }
+                } else {
+                    onDispose {  }
                 }
             }
 
@@ -452,7 +458,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
     }
 }
 
-// ============ PREFERENCES DIALOG ============
+// ============ PREFERENCES DIALOG ============ 
 @Composable
 fun PreferencesDialog(onDismiss: () -> Unit) {
     val colorTexto = remember { mutableListOf("Naranja", "Azul", "Dinamico") }
@@ -461,6 +467,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
     val settingsPreferences = remember { SettingsPreferences(context) }
     val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
     val colorSeleccionado by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
+    val isAutoDarkMode by settingsPreferences.isAutoDarkMode.collectAsStateWithLifecycle(initialValue = true)
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -559,8 +566,30 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                         uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
                         uncheckedTrackColor = MaterialTheme.colorScheme.background,
                         uncheckedBorderColor = MaterialTheme.colorScheme.onSurface
-                    )
+                    ),
+                    enabled = !isAutoDarkMode
                 )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .shadow(10.dp, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
+                    .padding(10.dp)
+                    .width(160.dp)
+            ) {
+                Checkbox(
+                    checked = isAutoDarkMode,
+                    onCheckedChange = { nuevoValor ->
+                        scope.launch {
+                            settingsPreferences.setAutoDarkMode(nuevoValor)
+                        }
+                    }
+                )
+                Text("Modo Oscuro Automático", color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -828,14 +857,15 @@ fun ConfirmClearDialog(
 @Composable
 fun DetailTaskDialog(
     tarea: Tarea,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit   
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Tarea  #${tarea.id+1}") },
-        text = { Text(tarea.texto, fontSize = 16.sp) },
+        text = { Text(tarea.texto, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface) },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss) 
+            {
                 Text("Listo", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
             }
         },
@@ -940,6 +970,6 @@ fun GreetingPreview() {
     App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { }
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { }
-    //ConfirmClearDialog(onDismiss = {}, onConfirm = {})\
+    //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
     //PreferencesDialog(onDismiss = {})
 }
