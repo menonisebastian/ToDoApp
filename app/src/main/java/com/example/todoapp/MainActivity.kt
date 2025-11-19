@@ -170,7 +170,6 @@ fun Login(onEnviar: (String, String) -> Unit)
                 label = { Text("Nombre") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1B3B68),
-                    //unfocusedBorderColor = Color(0xFFFD6310),
                     focusedLabelColor = Color(0xFFFD6310),
                     unfocusedLabelColor = Color(0xFF868686)
                 )
@@ -184,7 +183,6 @@ fun Login(onEnviar: (String, String) -> Unit)
                 label = { Text("Alias") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1B3B68),
-                    //unfocusedBorderColor = Color(0xFFFD6310),
                     focusedLabelColor = Color(0xFFFD6310),
                     unfocusedLabelColor = Color(0xFF868686)
                 )
@@ -642,9 +640,7 @@ fun TopCard(
                 shape = RoundedCornerShape(20.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    //unfocusedBorderColor = Color(0xFFFD6310),
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 singleLine = true
             )
@@ -879,11 +875,12 @@ fun EditTaskDialog(
                 onValueChange = { textoEditado = it },
                 label = { Text("Descripción") },
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF017FFC),
-                    unfocusedBorderColor = Color(0xFFFD6310),
-                    focusedLabelColor = Color(0xFFFD6310),
-                    unfocusedLabelColor = Color(0xFF017FFC)
+                    focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = Color.Gray
                 ),
                 singleLine = true
             )
@@ -891,27 +888,17 @@ fun EditTaskDialog(
         confirmButton =
             {
                 Button(
-                    onClick =
-                        {
-                            if (textoEditado.isNotBlank())
-                            {
-                                onSave(textoEditado)
-                            }
-                        },
+                    onClick = { if (textoEditado.isNotBlank())
+                            { onSave(textoEditado) } },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Guardar")
-                }
+                ) { Text("Guardar") }
             },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
-            }
+            TextButton(onClick = onDismiss) { Text("Cancelar", color = MaterialTheme.colorScheme.secondary)}
         },
         shape = RoundedCornerShape(10.dp)
     )
 }
-
 
 @Preview(showBackground = true)
 @Composable
