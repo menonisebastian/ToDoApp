@@ -833,7 +833,7 @@ fun DetailTaskDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Tarea  #${tarea.id+1}") },
-        text = { Text(tarea.texto) },
+        text = { Text(tarea.texto, fontSize = 16.sp) },
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text("Listo", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
