@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,7 +69,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent{
             val settingsPreferences = remember { SettingsPreferences(applicationContext) }
-            val scope = rememberCoroutineScope()
 
             // 1. Lee el valor del modo oscuro desde DataStore.
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
@@ -298,7 +298,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         }
     }
 
-    // ESTRUCTURA: Column con LazyColumn solo para la lista
+    // ========= ESTRUCTURA =========== //
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -306,9 +306,8 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // HEADER FIJO
-        Spacer(Modifier.windowInsetsTopHeight(
-            WindowInsets.statusBars))
+        // Espacio para el notch segun dispositivo
+        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
         Image(
             painter = painterResource(id = R.drawable.fontlogo),
@@ -347,6 +346,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         {
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Barra de búsqueda
             CustomizableSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
@@ -432,10 +432,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                 onDismiss = { tareaDetallada = null }
             )
         }
-        if (showHelpDialog) {
-            HelpDialog(
-                onDismiss = { showHelpDialog = false })
-        }
+        if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
     }
 }
 
@@ -561,9 +558,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
     }
 }
 
-
 // ============ TARJETA SUPERIOR DE APP ============ //
-
 @Composable
 fun TopCard(
     nombre: String,
@@ -596,6 +591,8 @@ fun TopCard(
             Spacer(Modifier.weight(1f))
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(Icons.Outlined.MoreVert, contentDescription = "Preferencias", tint = MaterialTheme.colorScheme.onSurface)
+
+                // MENU DESPLEGABLE
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -700,8 +697,7 @@ fun CustomizableSearchBar(
     ) {}
 }
 
-// ============ TaskItem ============ //
-
+// ============ Tarjeta de Tarea ============ //
 @Composable
 fun TaskItem(
     tarea: Tarea,
@@ -743,9 +739,10 @@ fun TaskItem(
 @Composable
 fun EmptyTasksMessage()
 {
-    Box(
+    Column(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             "Tu lista de tareas está vacía",
@@ -760,13 +757,18 @@ fun EmptyTasksMessage()
 @Composable
 fun EmptySearchMessage()
 {
-    Text(
-        "No se ha encontrado la tarea",
-        fontSize = 20.sp,
-        fontStyle = FontStyle.Italic,
-        color = Color.Gray,
-        modifier = Modifier.padding(vertical = 20.dp)
-    )
+    Column(modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center)
+    {
+        Text(
+            "No se ha encontrado la tarea",
+            fontSize = 20.sp,
+            fontStyle = FontStyle.Italic,
+            color = Color.Gray,
+            modifier = Modifier.padding(vertical = 20.dp)
+        )
+    }
 }
 
 // ============ DIALOGO DE VACIAR LISTA ============ //
