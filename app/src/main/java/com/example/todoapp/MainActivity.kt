@@ -341,11 +341,9 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
             onHelp = { showHelpDialog = true }
         )
 
-        if (tareas.isEmpty()) {
-            EmptyTasksMessage()
-        }
-        else
-        {
+        // SI la lista de tareas NO está vacía, muestra la barra de búsqueda y la lista.
+        if (tareas.isNotEmpty()) {
+
             CustomizableSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
@@ -353,31 +351,34 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (filteredTareas.isEmpty())
-            {
-                EmptySearchMessage()
-            }
-            else
-            {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(filteredTareas) { tareaItem ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally // Centra el contenido
+            ) {
+                if (filteredTareas.isEmpty()) {
+                    // Si no hay resultados de búsqueda, muestra el mensaje DENTRO de la LazyColumn
+                    item {
+                        EmptySearchMessage()
+                    }
+                } else {
+                    // Si hay resultados, muéstralos
+                    items(filteredTareas, key = { it.id }) { tareaItem ->
                         TaskItem(
                             tarea = tareaItem,
                             onTaskClick = { tareaDetallada = tareaItem },
                             onEdit = { tareaEditando = tareaItem },
                             textColor = taskTextColor,
-                            onDelete =
-                                {
-                                    tareaAEliminar = tareaItem
-                                }
+                            onDelete = {
+                                tareaAEliminar = tareaItem
+                            }
                         )
                         Spacer(Modifier.height(10.dp))
                     }
                 }
             }
         }
+        // SI la lista de tareas SÍ está vacía, muestra el mensaje correspondiente.
+        else { EmptyTasksMessage() }
 
         if (tareaEditando != null) {
             val tarea = tareaEditando!!
@@ -735,18 +736,13 @@ fun TaskItem(
 }
 
 // ============ MENSAJE DE LISTA VACIA ============ //
-
 @Composable
 fun EmptyTasksMessage()
 {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    )
-    {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Text(
             "Tu lista de tareas está vacía",
             fontSize = 20.sp,
@@ -757,27 +753,17 @@ fun EmptyTasksMessage()
 }
 
 // ============ MENSAJE DE BUSQUEDA VACIA ============ //
-
 @Composable
 fun EmptySearchMessage()
 {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Text(
+        "No se ha encontrado la tarea",
+        fontSize = 20.sp,
+        fontStyle = FontStyle.Italic,
+        color = Color.Gray,
+        modifier = Modifier.padding(vertical = 20.dp)
     )
-    {
-        Text(
-            "No se ha encontrado la tarea",
-            fontSize = 20.sp,
-            fontStyle = FontStyle.Italic,
-            color = Color.Gray
-        )
-    }
 }
-
 
 // ============ DIALOGO DE VACIAR LISTA ============ //
 @Composable
