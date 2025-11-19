@@ -69,31 +69,6 @@ class MainActivity : ComponentActivity() {
             val settingsPreferences = remember { SettingsPreferences(applicationContext) }
             val scope = rememberCoroutineScope()
 
-            // Sensor de luz para el modo oscuro
-            val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            val lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
-
-            val isAutoDarkMode by settingsPreferences.isAutoDarkMode.collectAsStateWithLifecycle(initialValue = true)
-
-            val lightSensorDetector = remember {
-                LightSensorDetector {
-                    scope.launch {
-                        settingsPreferences.setDarkMode(it)
-                    }
-                }
-            }
-
-            DisposableEffect(isAutoDarkMode) {
-                if (isAutoDarkMode) {
-                    sensorManager.registerListener(lightSensorDetector, lightSensor, SensorManager.SENSOR_DELAY_UI)
-                    onDispose {
-                        sensorManager.unregisterListener(lightSensorDetector)
-                    }
-                } else {
-                    onDispose {  }
-                }
-            }
-
             // 1. Lee el valor del modo oscuro desde DataStore.
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
 
@@ -110,7 +85,6 @@ class MainActivity : ComponentActivity() {
                     "Dinamico" -> MaterialTheme.colorScheme.onSurface
                     else -> Color.LightGray
                 }
-
                 AppNav(taskTextColor = taskTextColor)
             }
         }
@@ -333,7 +307,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // HEADER FIJO
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(30.dp))
 
         Image(
             painter = painterResource(id = R.drawable.fontlogo),
@@ -368,8 +342,9 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
 
         if (tareas.isEmpty()) {
             EmptyTasksMessage()
-        } else {
-
+        }
+        else
+        {
             CustomizableSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
@@ -467,33 +442,30 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
     val settingsPreferences = remember { SettingsPreferences(context) }
     val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
     val colorSeleccionado by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
-    val isAutoDarkMode by settingsPreferences.isAutoDarkMode.collectAsStateWithLifecycle(initialValue = true)
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(onDismissRequest = onDismiss)
+    {
         Column(
             Modifier
                 .background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
-                .padding(40.dp),
+                .padding(horizontal = 60.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.fontlogo),
                 modifier = Modifier
-                    .width(100.dp)
-                    .padding(10.dp),
+                    .width(80.dp)
+                    .padding(top = 10.dp),
                 contentDescription = "logo texto"
             )
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = "Preferencias",
                 fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
+                fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(vertical = 15.dp)
             )
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -501,7 +473,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                     .shadow(10.dp, RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
                     .padding(10.dp)
-                    .width(160.dp))
+                    .width(180.dp))
             {
                 Text(text = "Colores del Texto",
                     modifier = Modifier.padding(10.dp),
@@ -544,7 +516,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                     .shadow(10.dp, RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
                     .padding(10.dp)
-                    .width(160.dp))
+                    .width(180.dp))
             {
                 Text(text = "Modo Oscuro",
                     color = MaterialTheme.colorScheme.onSurface,
@@ -566,33 +538,11 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                         uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
                         uncheckedTrackColor = MaterialTheme.colorScheme.background,
                         uncheckedBorderColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    enabled = !isAutoDarkMode
+                    )
                 )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .shadow(10.dp, RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
-                    .padding(10.dp)
-                    .width(160.dp)
-            ) {
-                Checkbox(
-                    checked = isAutoDarkMode,
-                    onCheckedChange = { nuevoValor ->
-                        scope.launch {
-                            settingsPreferences.setAutoDarkMode(nuevoValor)
-                        }
-                    }
-                )
-                Text("Modo Oscuro Automático", color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp)
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             Button(
                 onClick = { onDismiss() },
@@ -723,8 +673,8 @@ fun CustomizableSearchBar(
     SearchBar(
         query = query,
         onQueryChange = onQueryChange,
-        onSearch = { }, // Search is real-time, so this is not strictly needed
-        active = false, // This is the crucial part to prevent the expanded view
+        onSearch = { }, // No se usa en este caso
+        active = false, // No se usa en este caso
         onActiveChange = { },
         modifier = modifier.fillMaxWidth(),
         placeholder = { Text("Buscar tarea", color = Color.Gray) },
@@ -834,7 +784,7 @@ fun ConfirmClearDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Vaciar lista de tareas") },
-        text = { Text("¿Estás seguro de que quieres eliminar todas las tareas? Esta acción no se puede deshacer.") },
+        text = { Text("¿Estás seguro de que quieres eliminar todas las tareas? \nEsta acción se puede deshacer al agitar el dispositivo.") },
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -883,7 +833,7 @@ fun ConfirmDeleteDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Eliminar tarea", color = MaterialTheme.colorScheme.onSurface) },
-        text = { Text("¿Estás seguro de que quieres eliminar la tarea? Esta acción no se puede deshacer.", color = MaterialTheme.colorScheme.onSurface) },
+        text = { Text("¿Estás seguro de que quieres eliminar la tarea? \nEsta acción se puede deshacer al agitar el dispositivo.", color = MaterialTheme.colorScheme.onSurface) },
         confirmButton = {
             Button(
                 onClick = onConfirm,
