@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.todoapp
 
 import android.Manifest
+import android.app.DatePickerDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.Sensor
@@ -22,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -40,12 +44,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -170,9 +172,9 @@ fun Login(onEnviar: (String, String) -> Unit)
                 shape = RoundedCornerShape(20.dp),
                 label = { Text("Nombre") },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF1B3B68),
-                    focusedLabelColor = Color(0xFFFD6310),
-                    unfocusedLabelColor = Color(0xFF868686)
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
                 )
             )
             Spacer(Modifier.height(10.dp))
@@ -183,9 +185,9 @@ fun Login(onEnviar: (String, String) -> Unit)
                 shape = RoundedCornerShape(20.dp),
                 label = { Text("Alias") },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF1B3B68),
-                    focusedLabelColor = Color(0xFFFD6310),
-                    unfocusedLabelColor = Color(0xFF868686)
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
                 )
             )
 
@@ -222,7 +224,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
     var ultimaTareaEliminada by rememberSaveable(stateSaver = UltimaTareaSaver) {
         mutableStateOf<Pair<Int, Tarea>?>(null)
     }
-
+    var showAddTareaDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
     var showPreferencesDialog by remember { mutableStateOf(false) }
     var showHelpDialog by remember { mutableStateOf(false) }
@@ -298,142 +300,171 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
         }
     }
 
-    // ========= ESTRUCTURA =========== //
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Espacio para el notch segun dispositivo
-        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-
-        Image(
-            painter = painterResource(id = R.drawable.fontlogo),
+    // ========= ESTRUCTURA CON SCAFFOLD ===========
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    showAddTareaDialog = true
+                },
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Añadir Tarea"
+                )
+            }
+        }
+    ) { paddingValues -> // El padding que proporciona el Scaffold
+        Column(
             modifier = Modifier
-                .width(100.dp)
-                .padding(10.dp),
-            contentDescription = "logo texto"
-        )
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(paddingValues) // Aplicamos el padding aquí
+                .padding(horizontal = 20.dp), // Mantenemos tu padding horizontal
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Espacio para el notch segun dispositivo
+            Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
-        // CARD SUPERIOR FIJA
-        TopCard(
-            nombre = nombre,
-            alias = alias,
-            tarea = tarea,
-            onTareaChange = { tarea = it },
-            onAddTarea = {
-                if (tarea.isNotBlank()) {
-                    tareas.add(Tarea(id = nextId++, texto = tarea))
-                    tarea = ""
-                    Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
-                }
-            },
-            onVaciarLista = {
-                if (!tareas.isEmpty())
-                    showClearDialog = true
-                else
-                    Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
-            },
-            onBack = onBack,
-            onPreferences = { showPreferencesDialog = true },
-            onHelp = { showHelpDialog = true }
-        )
-
-        // SI la lista de tareas NO está vacía, muestra la barra de búsqueda y la lista.
-        if (tareas.isNotEmpty())
-        {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Barra de búsqueda
-            CustomizableSearchBar(
-                query = searchQuery,
-                onQueryChange = { searchQuery = it },
+            Image(
+                painter = painterResource(id = R.drawable.fontlogo),
+                modifier = Modifier
+                    .width(100.dp)
+                    .padding(10.dp),
+                contentDescription = "logo texto"
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (filteredTareas.isEmpty()) {
-                    // Si no hay resultados de búsqueda, muestra el mensaje DENTRO de la LazyColumn
-                    item {
-                        EmptySearchMessage()
+            // CARD SUPERIOR FIJA
+            TopCard(
+                nombre = nombre,
+                alias = alias,
+                tarea = tarea,
+                onTareaChange = { tarea = it },
+                // La acción onAddTarea ahora está en el FAB, puedes removerla de aquí si quieres.
+                // Si la dejas, funcionarán tanto el botón original como el FAB.
+                onAddTarea = {
+                    if (tarea.isNotBlank()) {
+                        tareas.add(Tarea(id = nextId++, texto = tarea))
+                        tarea = ""
+                        Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    // Si hay resultados, muéstralos
-                    items(filteredTareas, key = { it.id }) { tareaItem ->
-                        TaskItem(
-                            tarea = tareaItem,
-                            onTaskClick = { tareaDetallada = tareaItem },
-                            onEdit = { tareaEditando = tareaItem },
-                            textColor = taskTextColor,
-                            onDelete = {
-                                tareaAEliminar = tareaItem
-                            }
-                        )
-                        Spacer(Modifier.height(10.dp))
+                },
+                onVaciarLista = {
+                    if (!tareas.isEmpty())
+                        showClearDialog = true
+                    else
+                        Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
+                },
+                onBack = onBack,
+                onPreferences = { showPreferencesDialog = true },
+                onHelp = { showHelpDialog = true }
+            )
+
+            // SI la lista de tareas NO está vacía, muestra la barra de búsqueda y la lista.
+            if (tareas.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Barra de búsqueda
+                CustomizableSearchBar(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                LazyColumn(
+                    // No necesita fillMaxSize() aquí porque la Column padre ya lo tiene
+                    modifier = Modifier.weight(1f) // Usa weight para que ocupe el espacio restante
+                ) {
+                    if (filteredTareas.isEmpty()) {
+                        item { EmptySearchMessage() }
+                    } else {
+                        items(filteredTareas, key = { it.id }) { tareaItem ->
+                            TaskItem(
+                                tarea = tareaItem,
+                                onTaskClick = { tareaDetallada = tareaItem },
+                                onEdit = { tareaEditando = tareaItem },
+                                textColor = taskTextColor,
+                                onDelete = { tareaAEliminar = tareaItem }
+                            )
+                            Spacer(Modifier.height(10.dp))
+                        }
                     }
                 }
             }
+            // SI la lista de tareas SÍ está vacía, muestra el mensaje correspondiente.
+            else { EmptyTasksMessage() }
         }
-        // SI la lista de tareas SÍ está vacía, muestra el mensaje correspondiente.
-        else { EmptyTasksMessage() }
-
-        if (tareaEditando != null) {
-            val tarea = tareaEditando!!
-            EditTaskDialog(
-                tarea = tarea,
-                onDismiss = { tareaEditando = null },
-                onSave = { nuevoTexto ->
-                    val index = tareas.indexOf(tarea)
-                    if (index != -1) {
-                        tareas[index] = tarea.copy(texto = nuevoTexto)
-                    }
-                    tareaEditando = null
-                    Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
-                }
-            )
-        }
-
-        if (tareaAEliminar != null) {
-            ConfirmDeleteDialog(
-                onDismiss = { tareaAEliminar = null },
-                onConfirm = {
-                    val taskToDelete = tareaAEliminar!!
-                    val index = tareas.indexOf(taskToDelete)
-                    if (index != -1) {
-                        ultimaTareaEliminada = Pair(index, taskToDelete)
-                        tareas.remove(taskToDelete)
-                        Toast.makeText(context, "Tarea eliminada. Agita para deshacer.", Toast.LENGTH_SHORT).show()
-                    }
-                    tareaAEliminar = null
-                }
-            )
-        }
-
-        if (showClearDialog) {
-            ConfirmClearDialog(
-                onDismiss = { showClearDialog = false },
-                onConfirm = {
-                    tareas.clear()
-                    nextId = 0
-                    ultimaTareaEliminada = null
-                    Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
-                    showClearDialog = false
-                }
-            )
-        }
-        if (tareaDetallada != null) {
-            DetailTaskDialog(
-                tarea = tareaDetallada!!,
-                onDismiss = { tareaDetallada = null }
-            )
-        }
-        if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
     }
+
+    if (showAddTareaDialog) {
+        AggTareaDialog(
+            onDismiss = { showAddTareaDialog = false },
+            tarea = tarea,
+            onTareaChange = { tarea = it },
+            fecha = "",
+            onFechaChange = {},
+            onAddTarea = {
+                showAddTareaDialog = false
+                Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    // --- Los diálogos se mantienen fuera del Scaffold para que se superpongan correctamente ---
+    if (tareaEditando != null) {
+        val tarea = tareaEditando!!
+        EditTaskDialog(
+            tarea = tarea,
+            onDismiss = { tareaEditando = null },
+            onSave = { nuevoTexto ->
+                val index = tareas.indexOf(tarea)
+                if (index != -1) {
+                    tareas[index] = tarea.copy(texto = nuevoTexto)
+                }
+                tareaEditando = null
+                Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    if (tareaAEliminar != null) {
+        ConfirmDeleteDialog(
+            onDismiss = { tareaAEliminar = null },
+            onConfirm = {
+                val taskToDelete = tareaAEliminar!!
+                val index = tareas.indexOf(taskToDelete)
+                if (index != -1) {
+                    ultimaTareaEliminada = Pair(index, taskToDelete)
+                    tareas.remove(taskToDelete)
+                    Toast.makeText(context, "Tarea eliminada. Agita para deshacer.", Toast.LENGTH_SHORT).show()
+                }
+                tareaAEliminar = null
+            }
+        )
+    }
+
+    if (showClearDialog) {
+        ConfirmClearDialog(
+            onDismiss = { showClearDialog = false },
+            onConfirm = {
+                tareas.clear()
+                nextId = 0
+                ultimaTareaEliminada = null
+                Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
+                showClearDialog = false
+            }
+        )
+    }
+    if (tareaDetallada != null) {
+        DetailTaskDialog(
+            tarea = tareaDetallada!!,
+            onDismiss = { tareaDetallada = null }
+        )
+    }
+    if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
 }
 
 // ============ PREFERENCES DIALOG ============ 
@@ -543,6 +574,121 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                         uncheckedBorderColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = { onDismiss() },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            )
+            {
+                Text("Cerrar")
+            }
+        }
+    }
+}
+
+// ============ AÑADIR TAREA DIALOG ============
+@Composable
+fun AggTareaDialog(onDismiss: () -> Unit, tarea: String, fecha: String, onTareaChange: (String) -> Unit, onFechaChange: (String) -> Unit,onAddTarea: () -> Unit)
+{
+    val context = LocalContext.current
+
+    Dialog(onDismissRequest = onDismiss)
+    {
+        Column(
+            Modifier
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
+                .padding(horizontal = 40.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.fontlogo),
+                modifier = Modifier
+                    .width(80.dp)
+                    .padding(top = 10.dp),
+                contentDescription = "logo texto"
+            )
+
+            Text(
+                text = "Añade una tarea",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(vertical = 15.dp)
+            )
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .shadow(20.dp, RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                    .padding(30.dp)
+                    .width(300.dp))
+            {
+                // FILA AGREGAR NUEVA TAREA
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = tarea,
+                        onValueChange = onTareaChange,
+                        label = { Text("Titulo", color = MaterialTheme.colorScheme.inversePrimary) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        ),
+                        singleLine = true
+                    )
+                }
+
+                // FILA FECHA
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = fecha,
+                        onValueChange = onFechaChange,
+                        label = { Text("Fecha", color = MaterialTheme.colorScheme.inversePrimary) },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("MM/DD/YYYY") },
+                        shape = RoundedCornerShape(20.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        ),
+                        singleLine = true,
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    val datePicker = DatePickerDialog(context)
+                                    datePicker.show()
+                                    datePicker.setOnDateSetListener { _, year, month, dayOfMonth ->
+                                        onFechaChange("$dayOfMonth/${month + 1}/$year")
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Outlined.DateRange, contentDescription = "Fecha", tint = MaterialTheme.colorScheme.inversePrimary)
+                            }
+                        }
+                    )
+                }
+
+                IconButton(
+                    onClick = onAddTarea,
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -929,13 +1075,41 @@ fun HelpDialog(
     }
 }
 
+@Composable
+fun DatePickerModal(
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     //AppNav()
-    App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {})
+    //App(nombre = "Sebastian", alias = "Menoni", taskTextColor = Color(12312312313),onBack = {})
     //TaskItem(tarea = Tarea(0, "Tarea de prueba"), onEdit = { }, onDelete = { }
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { }
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
     //PreferencesDialog(onDismiss = {})
+    AggTareaDialog(onDismiss = {}, tarea = "", onTareaChange = {}, onAddTarea = {}, onFechaChange = {}, fecha = "")
 }
