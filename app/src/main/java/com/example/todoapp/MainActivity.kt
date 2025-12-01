@@ -3,9 +3,9 @@
 package com.example.todoapp
 
 import android.Manifest
-import android.app.DatePickerDialog
 import android.content.Context
 import android.content.pm.PackageManager
+import java.util.Locale
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Build
@@ -56,11 +56,19 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.rememberDatePickerState
+import java.text.SimpleDateFormat
 
 // ============ DATA CLASS ============
 data class Tarea(
     val id: Int,
     val texto: String,
+    val fecha: String,
     //var completada: Boolean = false
 )
 
@@ -201,7 +209,6 @@ fun Login(onEnviar: (String, String) -> Unit)
                         Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).show()
                     }
                 },
-                modifier = Modifier.width(275.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(text = "Continuar", fontWeight = FontWeight.Bold)
@@ -218,6 +225,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
     //VARIABLES Y VALORES A USAR
     var tarea by remember { mutableStateOf("") }
     val tareas = remember { mutableStateListOf<Tarea>() }
+    var fecha by remember { mutableStateOf("") }
     var nextId by remember { mutableIntStateOf(0) }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
@@ -346,7 +354,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                 // Si la dejas, funcionarán tanto el botón original como el FAB.
                 onAddTarea = {
                     if (tarea.isNotBlank()) {
-                        tareas.add(Tarea(id = nextId++, texto = tarea))
+                        tareas.add(Tarea(id = nextId++, texto = tarea, fecha = ""))
                         tarea = ""
                         Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
                     }
@@ -404,11 +412,17 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
             onDismiss = { showAddTareaDialog = false },
             tarea = tarea,
             onTareaChange = { tarea = it },
-            fecha = "",
-            onFechaChange = {},
-            onAddTarea = {
-                showAddTareaDialog = false
-                Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
+            fecha = fecha, // <-- PASA EL ESTADO DE LA FECHA
+            onFechaChange = { fecha = it }, // <-- PASA EL LAMBDA PARA ACTUALIZARLA
+            onAddTarea = { nuevaTarea, nuevaFecha ->
+                if(nuevaTarea.isNotBlank()) {
+                    // Asumo que tu data class Tarea tiene un campo 'fecha' de tipo String
+                    tareas.add(Tarea(id = nextId++, texto = nuevaTarea, fecha = nuevaFecha))
+                    tarea = "" // Resetea el campo de texto de la tarea
+                    fecha = "" // Resetea el campo de texto de la fecha
+                    showAddTareaDialog = false
+                    Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
+                }
             }
         )
     }
@@ -590,119 +604,132 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 }
 
 // ============ AÑADIR TAREA DIALOG ============
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AggTareaDialog(onDismiss: () -> Unit, tarea: String, fecha: String, onTareaChange: (String) -> Unit, onFechaChange: (String) -> Unit,onAddTarea: () -> Unit)
-{
+fun AggTareaDialog(
+    onDismiss: () -> Unit,
+    tarea: String,
+    onTareaChange: (String) -> Unit,
+    fecha: String,
+    onFechaChange: (String) -> Unit,
+    onAddTarea: (String, String) -> Unit
+) {
     val context = LocalContext.current
 
-    Dialog(onDismissRequest = onDismiss)
-    {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis(),
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis >= System.currentTimeMillis() - 86400000
+            }
+        }
+    )
+
+    // --- DatePickerDialog ---
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDatePicker = false
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            onFechaChange(sdf.format(millis))
+                        }
+                    }
+                ) { Text("Aceptar") }
+            },
+            dismissButton = {
+                Button(onClick = { showDatePicker = false }) { Text("Cancelar") }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                title = {
+                    Text(
+                        text = "Seleccionar fecha",
+                        modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp, bottom = 12.dp)
+                    )
+                }
+            )
+        }
+
+    }
+
+
+    Dialog(onDismissRequest = onDismiss) {
         Column(
-            Modifier
-                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
-                .padding(horizontal = 40.dp, vertical = 20.dp),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.fontlogo),
                 modifier = Modifier
                     .width(80.dp)
-                    .padding(top = 10.dp),
+                    .padding(top = 10.dp, bottom = 20.dp),
                 contentDescription = "logo texto"
             )
-
             Text(
-                text = "Añade una tarea",
+                "Añadir Tarea",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(vertical = 15.dp)
+                modifier = Modifier.padding(bottom = 15.dp),
+                color = MaterialTheme.colorScheme.onSurface
             )
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .shadow(20.dp, RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                    .padding(30.dp)
-                    .width(300.dp))
-            {
-                // FILA AGREGAR NUEVA TAREA
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = tarea,
-                        onValueChange = onTareaChange,
-                        label = { Text("Titulo", color = MaterialTheme.colorScheme.inversePrimary) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                // FILA FECHA
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = fecha,
-                        onValueChange = onFechaChange,
-                        label = { Text("Fecha", color = MaterialTheme.colorScheme.inversePrimary) },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("MM/DD/YYYY") },
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary
-                        ),
-                        singleLine = true,
-                        trailingIcon = {
-                            IconButton(
-                                onClick = {
-                                    val datePicker = DatePickerDialog(context)
-                                    datePicker.show()
-                                    datePicker.setOnDateSetListener { _, year, month, dayOfMonth ->
-                                        onFechaChange("$dayOfMonth/${month + 1}/$year")
-                                    }
-                                }
-                            ) {
-                                Icon(Icons.Outlined.DateRange, contentDescription = "Fecha", tint = MaterialTheme.colorScheme.inversePrimary)
-                            }
-                        }
-                    )
-                }
-
-                IconButton(
-                    onClick = onAddTarea,
-                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = { onDismiss() },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            // Campo de texto para la tarea
+            OutlinedTextField(
+                value = tarea,
+                onValueChange = onTareaChange,
+                label = { Text("Describe tu tarea") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp)
             )
-            {
-                Text("Cerrar")
+
+            Spacer(Modifier.height(10.dp))
+
+            // Campo de texto para la fecha con icono para abrir el DatePicker
+            OutlinedTextField(
+                value = fecha,
+                onValueChange = onFechaChange, // Permite edición manual si se desea
+                label = { Text("Fecha (Opcional)") },
+                placeholder = { Text("dd/MM/yyyy") },
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true, // Impide escribir directamente, fuerza el uso del picker
+                trailingIcon = {
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Seleccionar fecha"
+                        )
+                    }
+                },
+                shape = RoundedCornerShape(20.dp)
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            // Botón para añadir la tarea
+            IconButton(
+                onClick = {
+                    if (tarea.isNotBlank()) {
+                        onAddTarea(tarea, fecha) // Pasamos ambos valores
+                    } else {
+                        Toast.makeText(context, "La descripción de la tarea no puede estar vacía", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }
 }
+
 
 // ============ TARJETA SUPERIOR DE APP ============ //
 @Composable
@@ -865,7 +892,18 @@ fun TaskItem(
             verticalAlignment = Alignment.CenterVertically
         )
         {
-            Text(text = tarea.texto, color = textColor)
+            if (tarea.fecha.isNotBlank())
+            {
+                Column()
+                {
+                    Text(text = tarea.texto, color = textColor)
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary)
+                }
+            }
+            else
+                Text(text = tarea.texto, color = textColor)
+
             Spacer(modifier = Modifier.weight(1f))
 
             IconButton(onClick = onEdit)
@@ -954,7 +992,14 @@ fun DetailTaskDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Tarea  #${tarea.id+1}") },
-        text = { Text(tarea.texto, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface) },
+        text = {
+            Column()
+            {
+                Text(text = tarea.texto,fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary)
+            }
+       },
         confirmButton = {
             TextButton(onClick = onDismiss) 
             {
@@ -1016,20 +1061,26 @@ fun EditTaskDialog(
                 )
             },
         text = {
-            OutlinedTextField(
-                value = textoEditado,
-                onValueChange = { textoEditado = it },
-                label = { Text("Descripción") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = Color.Gray
-                ),
-                singleLine = true
-            )
+            Column()
+            {
+                OutlinedTextField(
+                    value = textoEditado,
+                    onValueChange = { textoEditado = it },
+                    label = { Text("Descripción") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = Color.Gray
+                    ),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = "Fecha : ${tarea.fecha}", color = MaterialTheme.colorScheme.inversePrimary)
+            }
+
         },
         confirmButton =
             {
@@ -1075,33 +1126,6 @@ fun HelpDialog(
     }
 }
 
-@Composable
-fun DatePickerModal(
-    onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val datePickerState = rememberDatePickerState()
-
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
-                onDismiss()
-            }) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    ) {
-        DatePicker(state = datePickerState)
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
@@ -1111,5 +1135,5 @@ fun GreetingPreview() {
     //EditTaskDialog(tarea = Tarea(0, "Tarea de prueba"), onDismiss = { }, onSave = { }
     //ConfirmClearDialog(onDismiss = {}, onConfirm = {})
     //PreferencesDialog(onDismiss = {})
-    AggTareaDialog(onDismiss = {}, tarea = "", onTareaChange = {}, onAddTarea = {}, onFechaChange = {}, fecha = "")
+    //AggTareaDialog(onDismiss = {}, tarea = "", onTareaChange = {}, onAddTarea = {} as (String, String) -> Unit, onFechaChange = {}, fecha = "")
 }
