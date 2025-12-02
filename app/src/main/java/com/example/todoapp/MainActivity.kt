@@ -234,7 +234,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
     }
     var showAddTareaDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
-    var showPreferencesDialog by remember { mutableStateOf(false) }
+    val showPreferencesDialog = remember { mutableStateOf(false) }
     var showHelpDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
@@ -251,8 +251,8 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
     val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-    if (showPreferencesDialog) {
-        PreferencesDialog(onDismiss = { showPreferencesDialog = false })
+    if (showPreferencesDialog.value) {
+        PreferencesDialog(onDismiss = { showPreferencesDialog.value = false })
     }
 
     val shakeDetector = remember {
@@ -334,7 +334,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Espacio para el notch segun dispositivo
-            Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+            //Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
 
             Image(
                 painter = painterResource(id = R.drawable.fontlogo),
@@ -366,7 +366,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                         Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
                 },
                 onBack = onBack,
-                onPreferences = { showPreferencesDialog = true },
+                onPreferences = { showPreferencesDialog.value = true },
                 onHelp = { showHelpDialog = true }
             )
 
@@ -745,6 +745,7 @@ fun TopCard(
     onHelp: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -785,6 +786,14 @@ fun TopCard(
                         text = { Text("Ayuda") },
                         leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
                         onClick = { onHelp() }
+                    )
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text("Exportar tareas \n(por implementar)") },
+                        leadingIcon = { Icon(Icons.Outlined.CheckCircle, contentDescription = null) },
+                        onClick = {
+                            Toast.makeText(context, "Tareas exportadas a tareas.txt", Toast.LENGTH_SHORT).show()
+                        }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
@@ -996,8 +1005,11 @@ fun DetailTaskDialog(
             Column()
             {
                 Text(text = tarea.texto,fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary)
+                if (tarea.fecha.isNotBlank())
+                {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary)
+                }
             }
        },
         confirmButton = {
@@ -1077,8 +1089,11 @@ fun EditTaskDialog(
                     ),
                     singleLine = true
                 )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(text = "Fecha : ${tarea.fecha}", color = MaterialTheme.colorScheme.inversePrimary)
+                if (tarea.fecha.isNotBlank())
+                {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(text = "Fecha : ${tarea.fecha}", color = MaterialTheme.colorScheme.inversePrimary)
+                }
             }
 
         },
