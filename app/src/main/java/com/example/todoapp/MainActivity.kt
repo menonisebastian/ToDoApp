@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -630,10 +631,7 @@ fun AggTareaDialog(
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = {
-                    IconButton(onClick = {
-                        showDatePicker = true
-                    }
-                    )
+                    IconButton(onClick = { showDatePicker = true })
                     {
                         Icon(imageVector = Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
                     }
@@ -642,19 +640,30 @@ fun AggTareaDialog(
             )
             Spacer(Modifier.height(20.dp))
 
-            IconButton(onClick = {
-                if (tarea.isNotBlank())
-                {
-                    onAddTarea(tarea, fecha)
-                }
-                else
-                {
-                    Toast.makeText(context, "La descripción de la tarea no puede estar vacía", Toast.LENGTH_SHORT).show()
-                }
-            },
-                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary))
+            Row()
             {
-                Icon(Icons.Outlined.Check, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
+                IconButton(onClick = { onDismiss() },
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary), modifier = Modifier.size(60.dp))
+                {
+                    Icon(Icons.Filled.Close, contentDescription = "Cancelar", tint = MaterialTheme.colorScheme.onPrimary)
+                }
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                IconButton(onClick = {
+                    if (tarea.isNotBlank())
+                    {
+                        onAddTarea(tarea, fecha)
+                    }
+                    else
+                    {
+                        Toast.makeText(context, "La descripción de la tarea no puede estar vacía", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary), modifier = Modifier.size(60.dp))
+                {
+                    Icon(Icons.Filled.Check, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
+                }
             }
         }
     }
