@@ -826,8 +826,11 @@ fun TaskItem(
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary)
                 }
-            } else
+            }
+            else
+            {
                 Text(text = tarea.texto, color = textColor)
+            }
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar") }
             IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar") }
