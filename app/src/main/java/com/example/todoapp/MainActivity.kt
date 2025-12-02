@@ -735,6 +735,7 @@ fun TopCard(
                 }
             }
         }
+        /*
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 10.dp),
@@ -761,7 +762,7 @@ fun TopCard(
                 contentDescription = "Añadir",
                 tint = MaterialTheme.colorScheme.onPrimary)
             }
-        }
+        }*/
     }
 }
 
@@ -860,7 +861,7 @@ fun EmptySearchMessage() {
             fontSize = 20.sp,
             fontStyle = FontStyle.Italic,
             color = Color.Gray,
-            modifier = Modifier.padding(vertical = 20.dp))
+            modifier = Modifier.padding(vertical = 50.dp))
     }
 }
 
@@ -971,7 +972,7 @@ fun ConfirmDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit)
 fun EditTaskDialog(
     tarea: Tarea,
     onDismiss: () -> Unit,
-    onSave: (String, String) -> Unit // Cambiado para aceptar texto y fecha
+    onSave: (String, String) -> Unit // texto y fecha
 ) {
     var textoEditado by remember(tarea) { mutableStateOf(tarea.texto) }
     var fechaEditada by remember(tarea) { mutableStateOf(tarea.fecha) }
@@ -1152,5 +1153,6 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
 @Composable
 fun GreetingPreview()
 {
+
 
 }
