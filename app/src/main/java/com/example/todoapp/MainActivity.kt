@@ -712,18 +712,15 @@ fun TopCard(
                 {
                     DropdownMenuItem(
                         text = { Text("Preferencias") },
-                        leadingIcon = {
-                            Icon(Icons.Outlined.Settings, contentDescription = null)
-                        },
+                        leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                         onClick = { expanded = false; onPreferences() })
                     HorizontalDivider()
 
                     DropdownMenuItem(
                         text = { Text("Ayuda") },
-                        leadingIcon = {
-                            Icon(Icons.Outlined.Info, contentDescription = null)
-                            },
-                        onClick = { onHelp() })
+                        leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+                        onClick = { onHelp() }
+                    )
                     HorizontalDivider()
 
                     DropdownMenuItem(
