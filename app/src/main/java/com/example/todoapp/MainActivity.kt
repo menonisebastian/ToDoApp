@@ -60,6 +60,7 @@ import com.example.todoapp.ui.theme.ToDoAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -189,12 +190,19 @@ fun Login(onEnviar: (String, String) -> Unit)
                 onValueChange = { alias = it },
                 singleLine = true,
                 shape = RoundedCornerShape(20.dp),
-                label = { Text("Alias") },
+                label = { Text("Contraseña") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     focusedLabelColor = MaterialTheme.colorScheme.primary,
                     unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                )
+                ),
+                trailingIcon =
+                {
+                    IconButton(onClick = {}
+                    ) {
+                        Icon(Icons.Default.Lock, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                    }
+                }
             )
 
             Spacer(Modifier.height(10.dp))
