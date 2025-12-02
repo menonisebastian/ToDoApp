@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -59,13 +60,17 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -111,10 +116,10 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
     NavHost(navController, startDestination = "login")
     {
         composable("login") {
-            Login(onEnviar = { nombre, alias ->
+            Login(onEnviar = { nombre, pass ->
                 navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("nombre", nombre)
-                    set("alias", alias)
+                    set("nombre", nombre.trim())
+                    set("pass", pass)
                 }
                 navController.navigate("app")
             })
@@ -122,11 +127,9 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
         composable("app") {
             val prev = navController.previousBackStackEntry?.savedStateHandle
             val nombre = prev?.get<String>("nombre").orEmpty()
-            val alias = prev?.get<String>("alias").orEmpty()
 
             App(
                 nombre = nombre,
-                alias = alias,
                 onBack = { navController.popBackStack() },
                 taskTextColor = taskTextColor,
                 viewModel = viewModel
@@ -140,7 +143,8 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 fun Login(onEnviar: (String, String) -> Unit)
 {
     var nombres by remember { mutableStateOf("") }
-    var alias by remember { mutableStateOf("") }
+    var pass by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Column(
@@ -148,17 +152,18 @@ fun Login(onEnviar: (String, String) -> Unit)
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Spacer(Modifier.height(150.dp))
+        Spacer(Modifier.height(175.dp))
         Image(
             painter = painterResource(R.drawable.cutlogoapp),
-            modifier = Modifier.size(90.dp).padding(10.dp),
+            modifier = Modifier.size(60.dp).padding(10.dp),
             contentDescription = "Logo"
         )
         Image(
             painter = painterResource(R.drawable.fontlogo),
-            modifier = Modifier.width(200.dp).padding(top = 10.dp),
+            modifier = Modifier.width(150.dp).padding(top = 10.dp),
             contentDescription = "logo texto"
         )
 
@@ -176,7 +181,7 @@ fun Login(onEnviar: (String, String) -> Unit)
                 value = nombres,
                 onValueChange = { nombres = it },
                 singleLine = true,
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(30.dp),
                 label = { Text("Nombre") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
@@ -186,21 +191,31 @@ fun Login(onEnviar: (String, String) -> Unit)
             )
             Spacer(Modifier.height(10.dp))
             OutlinedTextField(
-                value = alias,
-                onValueChange = { alias = it },
+                value = pass,
+                onValueChange = { pass = it },
                 singleLine = true,
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(30.dp),
                 label = { Text("Contraseña") },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     focusedLabelColor = MaterialTheme.colorScheme.primary,
                     unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
                 ),
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon =
                 {
-                    IconButton(onClick = {}
-                    ) {
-                        Icon(Icons.Default.Lock, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                    if (pass.isNotBlank())
+                    {
+                        IconButton(onClick = {
+                            showPassword = !showPassword
+                        }
+                        ) {
+                            if (!showPassword)
+                                Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                            else
+                                Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                        }
                     }
                 }
             )
@@ -209,17 +224,25 @@ fun Login(onEnviar: (String, String) -> Unit)
 
             Button(
                 onClick = {
-                    if (nombres.isNotBlank() && alias.isNotBlank()) {
-                        onEnviar(nombres, alias)
+                    if (nombres.isNotBlank() && pass.isNotBlank()) {
+                        onEnviar(nombres, pass)
                     } else {
                         Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).show()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text(text = "Continuar", fontWeight = FontWeight.Bold)
+                Text(text = "Iniciar sesión", fontWeight = FontWeight.Bold)
             }
+
+            TextButton(onClick = { Toast.makeText(context, "No tienes una cuenta? Registrate", Toast.LENGTH_SHORT).show() },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
+            { Text("Registrarme") }
         }
+
+        Spacer(Modifier.weight(1f))
+
+        Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
     }
 }
 
@@ -227,7 +250,6 @@ fun Login(onEnviar: (String, String) -> Unit)
 @Composable
 fun App(
     nombre: String,
-    alias: String,
     taskTextColor: Color,
     onBack: () -> Unit,
     viewModel: TareasViewModel
@@ -314,7 +336,8 @@ fun App(
             FloatingActionButton(
                 onClick = { showAddTareaDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(end = 20.dp, bottom = 20.dp)
+                modifier = Modifier.padding(end = 20.dp, bottom = 20.dp),
+                shape = CircleShape
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir Tarea")
             }
@@ -336,7 +359,6 @@ fun App(
 
             TopCard(
                 nombre = nombre,
-                alias = alias,
                 tarea = tarea,
                 listaTareas = tareas,
                 onTareaChange = { tarea = it },
@@ -627,7 +649,7 @@ fun AggTareaDialog(
                 onValueChange = onTareaChange,
                 label = { Text("Describe tu tarea") },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp))
+                shape = RoundedCornerShape(30.dp))
 
             Spacer(Modifier.height(10.dp))
 
@@ -644,7 +666,7 @@ fun AggTareaDialog(
                         Icon(imageVector = Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
                     }
                },
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(30.dp)
             )
             Spacer(Modifier.height(20.dp))
 
@@ -680,7 +702,6 @@ fun AggTareaDialog(
 @Composable
 fun TopCard(
     nombre: String,
-    alias: String,
     tarea: String,
     listaTareas: List<Tarea>,
     onTareaChange: (String) -> Unit,
@@ -701,7 +722,7 @@ fun TopCard(
     {
         Row(verticalAlignment = Alignment.CenterVertically)
         {
-            Text(text = "Hola, $nombre ($alias)",
+            Text(text = "Hola $nombre!",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface)
@@ -1042,7 +1063,7 @@ fun EditTaskDialog(
                     onValueChange = { textoEditado = it },
                     label = { Text("Descripción") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(30.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.secondary,
                         unfocusedBorderColor = Color.Gray,
@@ -1067,7 +1088,7 @@ fun EditTaskDialog(
                             Icon(imageVector = Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
                         }
                     },
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(30.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.secondary,
                         unfocusedBorderColor = Color.Gray,
@@ -1169,5 +1190,5 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
 fun GreetingPreview()
 {
 
-
+    Login (onEnviar = {_,_ ->})
 }
