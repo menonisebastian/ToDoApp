@@ -3,6 +3,7 @@
 package com.example.todoapp
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import java.util.Locale
@@ -10,6 +11,8 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -62,6 +65,8 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.rememberDatePickerState
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 
 // ============ DATA CLASS ============
@@ -349,6 +354,7 @@ fun App(nombre: String, alias: String, taskTextColor: Color, onBack: () -> Unit)
                 nombre = nombre,
                 alias = alias,
                 tarea = tarea,
+                listaTareas = tareas,
                 onTareaChange = { tarea = it },
                 // La acción onAddTarea ahora está en el FAB, puedes removerla de aquí si quieres.
                 // Si la dejas, funcionarán tanto el botón original como el FAB.
@@ -737,6 +743,7 @@ fun TopCard(
     nombre: String,
     alias: String,
     tarea: String,
+    listaTareas: List<Tarea>,
     onTareaChange: (String) -> Unit,
     onAddTarea: () -> Unit,
     onVaciarLista: () -> Unit,
@@ -789,10 +796,11 @@ fun TopCard(
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("Exportar tareas \n(por implementar)") },
+                        text = { Text("Exportar tareas") },
                         leadingIcon = { Icon(Icons.Outlined.CheckCircle, contentDescription = null) },
                         onClick = {
-                            Toast.makeText(context, "Tareas exportadas a tareas.txt", Toast.LENGTH_SHORT).show()
+                            exportarTareas(context, listaTareas)
+                            expanded = false
                         }
                     )
                     HorizontalDivider()
@@ -1139,6 +1147,65 @@ fun HelpDialog(
             }
         }
     }
+}
+
+fun exportarTareas(
+    context: Context, // 1. Ahora el contexto se debe recibir como argumento
+    listaTareas: List<Tarea>
+) {
+    // 2. Construimos el texto
+    val stringBuilder = StringBuilder()
+
+    listaTareas.forEach { tarea ->
+        stringBuilder.append("ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n")
+    }
+
+    val texto = stringBuilder.toString()
+    val nombreArchivo = "tareas.txt"
+    var mensaje = ""
+
+    if (listaTareas.isEmpty())
+        mensaje = "No hay tareas para exportar"
+    else
+    {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10+ (Scoped Storage)
+                val values = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, nombreArchivo)
+                    put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+
+                val resolver = context.contentResolver
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+
+                uri?.let { outputUri ->
+                    resolver.openOutputStream(outputUri)?.use { output ->
+                        output.write(texto.toByteArray())
+                    }
+                    mensaje = "Guardado exitosamente en Descargas"
+                } ?: run {
+                    mensaje = "Error: No se pudo crear el archivo URI"
+                }
+
+            } else {
+                // Android 9 o inferior
+                val dir =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (!dir.exists()) dir.mkdirs()
+                val archivo = File(dir, nombreArchivo)
+                FileOutputStream(archivo).use { it.write(texto.toByteArray()) }
+                mensaje = "Guardado en: ${archivo.absolutePath}"
+            }
+        } catch (e: Exception) {
+            mensaje = "Error al guardar: ${e.message}"
+            e.printStackTrace()
+        }
+    }
+
+    // 4. Usamos Toast para el feedback en lugar de Text()
+    Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
 }
 
 @Preview(showBackground = true)
