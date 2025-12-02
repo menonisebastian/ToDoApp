@@ -304,7 +304,8 @@ fun App(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddTareaDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = 20.dp, bottom = 20.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir Tarea")
             }
@@ -439,8 +440,8 @@ fun App(
     if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
 }
 
-// ============ UI COMPONENTS ============
-// (Puedes mover estos también a un archivo Components.kt si quisieras limpiar aún más)
+// ============ UI COMPONENTES ============
+// (Se pueden mover estos también a un archivo Components.kt para limpiar el codigo)
 
 @Composable
 fun PreferencesDialog(onDismiss: () -> Unit) {
@@ -653,7 +654,7 @@ fun AggTareaDialog(
             },
                 colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary))
             {
-                Icon(Icons.Outlined.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(Icons.Outlined.Check, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }
