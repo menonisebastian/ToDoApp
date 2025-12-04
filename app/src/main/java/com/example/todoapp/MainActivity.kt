@@ -359,16 +359,7 @@ fun App(
 
             TopCard(
                 nombre = nombre,
-                tarea = tarea,
                 listaTareas = tareas,
-                onTareaChange = { tarea = it },
-                onAddTarea = {
-                    if (tarea.isNotBlank()) {
-                        viewModel.agregarTarea(tarea, "")
-                        tarea = ""
-                        Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
-                    }
-                },
                 onVaciarLista = {
                     if (tareas.isNotEmpty()) showClearDialog = true
                     else Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
@@ -645,11 +636,12 @@ fun AggTareaDialog(
                 color = MaterialTheme.colorScheme.onSurface)
 
             OutlinedTextField(
-                value = tarea,
+                value = tarea.trim(),
                 onValueChange = onTareaChange,
                 label = { Text("Describe tu tarea") },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(30.dp))
+                shape = RoundedCornerShape(30.dp),
+                singleLine = true)
 
             Spacer(Modifier.height(10.dp))
 
@@ -702,10 +694,7 @@ fun AggTareaDialog(
 @Composable
 fun TopCard(
     nombre: String,
-    tarea: String,
     listaTareas: List<Tarea>,
-    onTareaChange: (String) -> Unit,
-    onAddTarea: () -> Unit,
     onVaciarLista: () -> Unit,
     onBack: () -> Unit,
     onPreferences: () -> Unit,
@@ -771,34 +760,6 @@ fun TopCard(
                 }
             }
         }
-        /*
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically)
-        {
-            OutlinedTextField(
-                value = tarea,
-                onValueChange = onTareaChange,
-                label = { Text("Nueva tarea") },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(20.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary),
-                singleLine = true)
-
-            Spacer(modifier = Modifier.width(5.dp))
-
-            IconButton(
-                onClick = onAddTarea,
-                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary))
-            {
-                Icon(Icons.Outlined.Add,
-                contentDescription = "Añadir",
-                tint = MaterialTheme.colorScheme.onPrimary)
-            }
-        }*/
     }
 }
 
