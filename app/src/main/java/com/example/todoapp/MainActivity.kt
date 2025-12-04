@@ -215,6 +215,15 @@ fun Login(onEnviar: (String, String) -> Unit)
                                 Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
                             else
                                 Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                            /*
+                            Iconos de material-icons-extended
+
+                            TOML:
+                            materialIconsExtended = "1.7.8"
+                            androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+
+                            BUILD.GRADLE:
+                            implementation(libs.androidx.compose.material.icons.extended)*/
                         }
                     }
                 }
@@ -272,11 +281,8 @@ fun App(
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
 
-    val filteredTareas = if (searchQuery.isBlank()) {
-        tareas
-    } else {
-        tareas.filter { it.texto.contains(searchQuery, ignoreCase = true) }
-    }
+    val filteredTareas = if (searchQuery.isBlank()) { tareas }
+    else { tareas.filter { it.texto.contains(searchQuery, ignoreCase = true) } }
 
     val context = LocalContext.current
     val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -599,9 +605,10 @@ fun AggTareaDialog(
                         }
                     }
                 )
-                { Text("Aceptar") }
+                { Icon(Icons.Filled.Check, contentDescription = "Aceptar", tint = MaterialTheme.colorScheme.onPrimary) }
             },
-            dismissButton = { Button(onClick = { showDatePicker = false }) { Text("Cancelar") } }
+            dismissButton = { Button(onClick = { showDatePicker = false }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inversePrimary))
+            { Icon(Icons.Filled.Close, contentDescription = "Cancelar", tint = MaterialTheme.colorScheme.onPrimary) } }
         ) {
             DatePicker(
                 state = datePickerState,
@@ -655,7 +662,7 @@ fun AggTareaDialog(
                 trailingIcon = {
                     IconButton(onClick = { showDatePicker = true })
                     {
-                        Icon(imageVector = Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                        Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = "Seleccionar fecha")
                     }
                },
                 shape = RoundedCornerShape(30.dp)
