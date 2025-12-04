@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TareaDao
 {
-    @Query("SELECT * FROM tareas ORDER BY id DESC")
+    @Query("SELECT * FROM tareas ORDER BY fecha, id")
     fun obtenerTodas(): Flow<List<Tarea>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
