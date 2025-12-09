@@ -375,15 +375,12 @@ fun App(
                 },
                 onBack = onBack,
                 onPreferences = { showPreferencesDialog.value = true },
-                onHelp = { showHelpDialog = true }
+                onHelp = { showHelpDialog = true },
+                query = searchQuery,
+                onQueryChange = { searchQuery = it }
             )
 
             if (tareas.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(20.dp))
-                CustomizableSearchBar(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                )
                 Spacer(modifier = Modifier.height(20.dp))
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
@@ -391,6 +388,7 @@ fun App(
                         item { EmptySearchMessage() }
                     } else {
                         items(filteredTareas, key = { it.id }) { tareaItem ->
+                            Spacer(Modifier.height(10.dp))
                             TaskItem(
                                 tarea = tareaItem,
                                 onTaskClick = { tareaDetallada = tareaItem },
@@ -398,7 +396,7 @@ fun App(
                                 textColor = taskTextColor,
                                 onDelete = { tareaAEliminar = tareaItem }
                             )
-                            Spacer(Modifier.height(10.dp))
+
                         }
                     }
                 }
@@ -708,7 +706,9 @@ fun TopCard(
     onVaciarLista: () -> Unit,
     onBack: () -> Unit,
     onPreferences: () -> Unit,
-    onHelp: () -> Unit
+    onHelp: () -> Unit,
+    query: String,                   // <--- Nuevo parámetro
+    onQueryChange: (String) -> Unit // <--- Nuevo parámetro
 )
 {
     var expanded by remember { mutableStateOf(false) }
@@ -770,6 +770,15 @@ fun TopCard(
                 }
             }
         }
+        // --- Barra de búsqueda insertada aquí ---
+        if (listaTareas.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(10.dp))
+            CustomizableSearchBar(
+                query = query,
+                onQueryChange = onQueryChange
+            )
+            Spacer(modifier = Modifier.height(5.dp)) // Un pequeño margen inferior opcional
+        }
     }
 }
 
@@ -804,7 +813,7 @@ fun CustomizableSearchBar(
             }
         }
     }, colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.background,
             dividerColor = Color.Transparent),
         shadowElevation = 10.dp)
     {}
