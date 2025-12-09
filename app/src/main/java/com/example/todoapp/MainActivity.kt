@@ -646,7 +646,7 @@ fun AggTareaDialog(
                 color = MaterialTheme.colorScheme.onSurface)
 
             OutlinedTextField(
-                value = tarea.trim(),
+                value = tarea,
                 onValueChange = onTareaChange,
                 label = { Text("Describe tu tarea") },
                 modifier = Modifier.fillMaxWidth(),
@@ -685,7 +685,7 @@ fun AggTareaDialog(
                 IconButton(onClick = {
                     if (tarea.isNotBlank())
                     {
-                        onAddTarea(tarea, fecha)
+                        onAddTarea(tarea.trim(), fecha)
                     }
                     else
                     {
@@ -927,7 +927,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                 Column{
                     HorizontalDivider(Modifier.padding(bottom = 20.dp))
                     Text(text = tarea.texto,
-                        fontSize = 16.sp,
+                        fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.onSurface)
                     if (tarea.fecha.isNotBlank())
                     {
