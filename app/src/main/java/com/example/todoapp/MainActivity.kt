@@ -396,7 +396,6 @@ fun App(
                                 textColor = taskTextColor,
                                 onDelete = { tareaAEliminar = tareaItem }
                             )
-
                         }
                     }
                 }
