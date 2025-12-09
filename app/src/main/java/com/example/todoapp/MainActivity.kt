@@ -75,6 +75,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 // ============ ACTIVITY ============
 class MainActivity : ComponentActivity() {
@@ -904,20 +907,34 @@ fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 @Composable
 fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
 {
+    val priority = determinePriority(tarea.fecha)
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Tarea  #${tarea.id}") },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically)
+            {
+                Text("Tarea  °${tarea.id}")
+                if (tarea.fecha.isNotBlank())
+                {
+                    Spacer(modifier = Modifier.weight(1f))
+                    PriorityChip(priority)
+                }
+            }
+        },
         text =
             {
                 Column{
+                    HorizontalDivider(Modifier.padding(bottom = 20.dp))
                     Text(text = tarea.texto,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface)
                     if (tarea.fecha.isNotBlank())
                     {
-                        Spacer(modifier = Modifier
-                            .height(10.dp))
-                        Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary)
+                        Text(text = tarea.fecha,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.inversePrimary,
+                            modifier = Modifier.padding(vertical = 10.dp))
                     }
                 }
             },
@@ -926,7 +943,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                 TextButton(onClick = onDismiss)
                 {
                     Text("Listo",
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.secondary,
                         fontSize = 20.sp)
                 }
             },
@@ -1151,6 +1168,52 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
         } catch (e: Exception) { mensaje = "Error al guardar: ${e.message}"; e.printStackTrace() }
     }
     Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
+}
+
+fun determinePriority(dateString: String): TaskPriority {
+    return try {
+        // 1. Definir el formato esperado de la fecha (ej: 25/12/2023)
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+        // 2. Parsear el string a LocalDate
+        val dueDate = LocalDate.parse(dateString, formatter)
+        val today = LocalDate.now()
+
+        // 3. Calcular diferencia de días
+        val daysUntil = ChronoUnit.DAYS.between(today, dueDate)
+
+        // 4. Determinar prioridad según reglas de negocio
+        when {
+            daysUntil < 0 -> TaskPriority.EXPIRED  // Tarea vencida (Urgente)
+            daysUntil <= 7 -> TaskPriority.HIGH // Faltan 7 días o menos
+            daysUntil <= 14 -> TaskPriority.MEDIUM // Falta dos semanas o menos
+            else -> TaskPriority.LOW            // Falta más de dos semanas
+        }
+    } catch (e: Exception) {
+        // Si el string no tiene el formato correcto
+        TaskPriority.UNKNOWN
+    }
+}
+
+@Composable
+fun PriorityChip(priority: TaskPriority) {
+    Box(
+        modifier = Modifier
+            .background(
+                color = priority.color.copy(alpha = 0.2f), // Fondo suave
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .width(if (priority == TaskPriority.EXPIRED) 50.dp else 40.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = priority.label,
+            color = priority.color, // Texto del color fuerte
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp
+        )
+    }
 }
 
 @Preview(showBackground = true)
