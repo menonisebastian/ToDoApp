@@ -1190,7 +1190,7 @@ fun determinePriority(dateString: String): TaskPriority {
         // 3. Calcular diferencia de días
         val daysUntil = ChronoUnit.DAYS.between(today, dueDate)
 
-        // 4. Determinar prioridad según reglas de negocio
+        // 4. Determinar prioridad
         when {
             daysUntil < 0 -> TaskPriority.EXPIRED  // Tarea vencida (Urgente)
             daysUntil <= 7 -> TaskPriority.HIGH // Faltan 7 días o menos
