@@ -203,7 +203,8 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     focusedLabelColor = MaterialTheme.colorScheme.primary,
                     unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                )
+                ),
+                modifier = Modifier.padding(top = 20.dp)
             )
             Spacer(Modifier.height(20.dp))
             OutlinedTextField(
@@ -309,7 +310,7 @@ fun Registrar(onRegistrar: (String, String) -> Unit)
             modifier = Modifier
                 .shadow(15.dp, RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                .padding(20.dp)
+                .padding(30.dp)
                 .width(300.dp),
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally
