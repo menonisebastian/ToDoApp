@@ -125,6 +125,19 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
                     set("pass", pass)
                 }
                 navController.navigate("app")
+            },
+                onRegistrar = {
+                    navController.navigate("register")}
+            )
+        }
+
+        composable("register") {
+            Registrar(onRegistrar = { nombre, pass ->
+                navController.currentBackStackEntry?.savedStateHandle?.apply {
+                    set("nombre", nombre.trim())
+                    set("pass", pass)
+                }
+                navController.navigate("app")
             })
         }
         composable("app") {
@@ -143,7 +156,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 
 // ============ LOGIN SCREEN ============
 @Composable
-fun Login(onEnviar: (String, String) -> Unit)
+fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 {
     var nombres by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
@@ -247,9 +260,152 @@ fun Login(onEnviar: (String, String) -> Unit)
                 Text(text = "Iniciar sesión", fontWeight = FontWeight.Bold)
             }
 
-            TextButton(onClick = { Toast.makeText(context, "No tienes una cuenta? Registrate", Toast.LENGTH_SHORT).show() },
+            TextButton(onClick = {
+                onRegistrar()
+            },
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
             { Text("Registrarme") }
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
+    }
+}
+
+// ============ REGISTER SCREEN ============
+@Composable
+fun Registrar(onRegistrar: (String, String) -> Unit)
+{
+    var nombres by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
+    var pass by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        Image(
+            painter = painterResource(R.drawable.cutlogoapp),
+            modifier = Modifier.size(60.dp).padding(10.dp),
+            contentDescription = "Logo"
+        )
+        Image(
+            painter = painterResource(R.drawable.fontlogo),
+            modifier = Modifier.width(150.dp).padding(top = 10.dp),
+            contentDescription = "logo texto"
+        )
+
+        Spacer(Modifier.height(20.dp))
+        Column(
+            modifier = Modifier
+                .shadow(15.dp, RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                .padding(20.dp)
+                .width(300.dp),
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                value = nombres,
+                onValueChange = { nombres = it },
+                singleLine = true,
+                shape = RoundedCornerShape(30.dp),
+                label = { Text("Nombre") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                )
+            )
+            Spacer(Modifier.height(20.dp))
+            TextField(
+                value = userName,
+                onValueChange = { userName = it },
+                singleLine = true,
+                shape = RoundedCornerShape(30.dp),
+                label = { Text("Usuario") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                )
+            )
+            Spacer(Modifier.height(20.dp))
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                singleLine = true,
+                shape = RoundedCornerShape(30.dp),
+                label = { Text("Email") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                )
+            )
+            Spacer(Modifier.height(20.dp))
+            TextField(
+                value = pass,
+                onValueChange = { pass = it },
+                singleLine = true,
+                shape = RoundedCornerShape(30.dp),
+                label = { Text("Contraseña") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                ),
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon =
+                    {
+                        if (pass.isNotBlank())
+                        {
+                            IconButton(onClick = {
+                                showPassword = !showPassword
+                            }
+                            ) {
+                                if (!showPassword)
+                                    Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                else
+                                    Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                /*
+                                Iconos de material-icons-extended
+
+                                TOML:
+                                materialIconsExtended = "1.7.8"
+                                androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+
+                                BUILD.GRADLE:
+                                implementation(libs.androidx.compose.material.icons.extended)*/
+                            }
+                        }
+                    }
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    if (nombres.isNotBlank() && pass.isNotBlank()) {
+                        onRegistrar(nombres, pass)
+                    } else {
+                        Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text(text = "Registrarme", fontWeight = FontWeight.Bold)
+            }
         }
 
         Spacer(Modifier.weight(1f))
@@ -1228,6 +1384,7 @@ fun PriorityChip(priority: TaskPriority) {
 @Composable
 fun GreetingPreview()
 {
-
-    Login (onEnviar = {_,_ ->})
+    ToDoAppTheme {
+        Registrar(onRegistrar = {_,_ ->})
+    }
 }
