@@ -3,12 +3,14 @@
 package com.example.todoapp
 
 import android.Manifest
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import java.util.Locale
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -1601,43 +1603,74 @@ fun HelpDialog(onDismiss: () -> Unit)
 
 fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
     val stringBuilder = StringBuilder()
-    listaTareas.forEach { tarea -> stringBuilder.append(
-        if (tarea.fecha.isNotBlank())
-            "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
-        else
-            "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
-    )
+    listaTareas.forEach { tarea ->
+        stringBuilder.append(
+            if (tarea.fecha.isNotBlank())
+                "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
+            else
+                "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
+        )
     }
+
     val texto = stringBuilder.toString()
     val nombreArchivo = "tareas.txt"
     var mensaje = ""
-    if (listaTareas.isEmpty()) mensaje = "No hay tareas para exportar"
-    else {
+
+    if (listaTareas.isEmpty()) {
+        mensaje = "No hay tareas para exportar"
+    } else {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val values = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, nombreArchivo)
-                    put(MediaStore.Downloads.MIME_TYPE, "text/plain")
-                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
                 val resolver = context.contentResolver
-                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-                uri?.let {
-                    outputUri -> resolver.openOutputStream(outputUri)?.use {
-                    output -> output.write(texto.toByteArray())
+                val contentUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+
+                // 1. Buscamos si el archivo ya existe
+                val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ?"
+                val selectionArgs = arrayOf(nombreArchivo)
+
+                var uriExistente: Uri? = null
+
+                resolver.query(contentUri, arrayOf(MediaStore.Downloads._ID), selection, selectionArgs, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Downloads._ID)
+                        val id = cursor.getLong(idColumn)
+                        uriExistente = ContentUris.withAppendedId(contentUri, id)
+                    }
                 }
-                    mensaje = "Guardado exitosamente en Descargas"
-                } ?: run { mensaje = "Error: No se pudo crear el archivo URI" }
-            }
-            else
-            {
+
+                // 2. Si existe usamos esa URI, si no, creamos una nueva (insert)
+                val uriFinal = uriExistente ?: run {
+                    val values = ContentValues().apply {
+                        put(MediaStore.Downloads.DISPLAY_NAME, nombreArchivo)
+                        put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                        put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    }
+                    resolver.insert(contentUri, values)
+                }
+
+                // 3. Escribimos en el archivo (modo "wt" = Write & Truncate para borrar contenido previo)
+                uriFinal?.let { uri ->
+                    resolver.openOutputStream(uri, "wt")?.use { output ->
+                        output.write(texto.toByteArray())
+                    }
+                    mensaje = if (uriExistente != null) "Archivo actualizado en Descargas" else "Archivo creado en Descargas"
+                } ?: run {
+                    mensaje = "Error: No se pudo acceder al archivo"
+                }
+
+            } else {
+                // Lógica para Android 9 o inferior (Legacy)
+                // FileOutputStream por defecto sobrescribe, así que esto ya funcionaba bien
                 val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 if (!dir.exists()) dir.mkdirs()
                 val archivo = File(dir, nombreArchivo)
                 FileOutputStream(archivo).use { it.write(texto.toByteArray()) }
                 mensaje = "Guardado en: ${archivo.absolutePath}"
             }
-        } catch (e: Exception) { mensaje = "Error al guardar: ${e.message}"; e.printStackTrace() }
+        } catch (e: Exception) {
+            mensaje = "Error al guardar: ${e.message}"
+            e.printStackTrace()
+        }
     }
     Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
 }
