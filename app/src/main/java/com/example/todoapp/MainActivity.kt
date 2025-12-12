@@ -66,6 +66,10 @@ import java.io.FileOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
+import java.time.ZoneId
 
 // ============ ACTIVITY ============
 class MainActivity : ComponentActivity() {
@@ -685,6 +689,10 @@ fun App(
             onAddTarea = { nuevaTarea, nuevaFecha ->
                 if(nuevaTarea.isNotBlank()) {
                     viewModel.agregarTarea(nuevaTarea, nuevaFecha)
+                    if (nuevaFecha.isNotBlank())
+                    {
+                        scheduleTaskNotification(context, nuevaTarea, nuevaFecha)
+                    }
                     tarea = ""
                     fecha = ""
                     showAddTareaDialog = false
@@ -840,6 +848,47 @@ fun determinePriority(dateString: String): TaskPriority {
         // Si el string no tiene el formato correcto
         e.printStackTrace()
         TaskPriority.UNKNOWN
+    }
+}
+
+fun scheduleTaskNotification(context: Context, taskName: String, taskDate: String) {
+    try {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, TaskNotificationReceiver::class.java).apply {
+            putExtra("TASK_NAME", taskName)
+        }
+
+        // Creamos un ID único basado en el hash del nombre para no sobrescribir alarmas diferentes
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            taskName.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Parseamos la fecha (dd/MM/yyyy)
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val date = LocalDate.parse(taskDate, formatter)
+
+        // Configuramos la hora a las 9:00 AM
+        val dateTime = date.atTime(15, 0)
+        val triggerTime = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        // Solo programar si la fecha es futura
+        if (triggerTime > System.currentTimeMillis()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                } else {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                }
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+            }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Toast.makeText(context, "No se pudo programar la notificación", Toast.LENGTH_SHORT).show()
     }
 }
 
