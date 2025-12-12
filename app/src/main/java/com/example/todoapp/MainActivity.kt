@@ -111,9 +111,9 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
     NavHost(navController, startDestination = "login")
     {
         composable("login") {
-            Login(onEnviar = { nombre, pass ->
+            Login(onEnviar = { user, pass ->
                 navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("nombre", nombre.trim())
+                    set("user", user.trim())
                     set("pass", pass)
                 }
                 navController.navigate("app")
@@ -150,7 +150,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 @Composable
 fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 {
-    var nombres by remember { mutableStateOf("") }
+    var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
@@ -190,8 +190,8 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
-                    value = nombres,
-                    onValueChange = { nombres = it },
+                    value = user,
+                    onValueChange = { user = it },
                     singleLine = true,
                     shape = RoundedCornerShape(30.dp),
                     label = { Text("Usuario") },
@@ -248,7 +248,7 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 
                 Button(
                     onClick = {
-                        if (nombres.isNotBlank() && pass.isNotBlank()) {
+                        if (user.isNotBlank() && pass.isNotBlank()) {
                             showDialog = true
                         } else {
                             Toast.makeText(context, "Introduce usuario y contraseña para continuar", Toast.LENGTH_SHORT).show()
@@ -287,7 +287,7 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
             LaunchedEffect(Unit) {
                 delay(1000) // Espera
                 showDialog = false // Cierra el diálogo cambiando el estado
-                onEnviar(nombres, pass)
+                onEnviar(user, pass)
             }
         }
     }
