@@ -133,10 +133,9 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
         }
 
         composable("register") {
-            Registrar(onRegistrar = { nombre, pass ->
+            Registrar(onRegistrar = { listaDatos ->
                 navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("nombre", nombre.trim())
-                    set("pass", pass)
+                    set("listaDatos", listaDatos)
                 }
                 navController.navigate("login")
             },
@@ -305,13 +304,15 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 
 // ============ REGISTER SCREEN ============
 @Composable
-fun Registrar(onRegistrar: (String, String) -> Unit, onBack: () -> Unit)
+fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
 {
     var nombres by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
     var passConf by remember { mutableStateOf("") }
+    val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    val listaDatos = listOf(nombres, email, userName, pass, fechaAlta)
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val formularioValido = nombres.isNotBlank() && email.isNotBlank() &&
@@ -532,7 +533,7 @@ fun Registrar(onRegistrar: (String, String) -> Unit, onBack: () -> Unit)
             LaunchedEffect(Unit) {
                 delay(3000) // Espera
                 showDialog = false // Cierra el diálogo cambiando el estado
-                onRegistrar(nombres, pass)
+                onRegistrar(listaDatos)
             }
         }
     }
@@ -857,15 +858,11 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
     }
 }
 
-// ============ PREFERENCIAS DEL USUARIO ============ //
+// ============ CUENTA DEL USUARIO ============ //
 
 @Composable
 fun CuentaDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val settingsPreferences = remember { SettingsPreferences(context) }
-    val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
-    val colorSeleccionado by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -1604,7 +1601,13 @@ fun HelpDialog(onDismiss: () -> Unit)
 
 fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
     val stringBuilder = StringBuilder()
-    listaTareas.forEach { tarea -> stringBuilder.append("ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n") }
+    listaTareas.forEach { tarea -> stringBuilder.append(
+        if (tarea.fecha.isNotBlank())
+            "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
+        else
+            "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
+    )
+    }
     val texto = stringBuilder.toString()
     val nombreArchivo = "tareas.txt"
     var mensaje = ""
@@ -1690,6 +1693,6 @@ fun PriorityChip(priority: TaskPriority) {
 fun GreetingPreview()
 {
     ToDoAppTheme {
-        Registrar(onRegistrar = {_,_ ->}, onBack = {})
+        Registrar(onRegistrar = {}, onBack = {})
     }
 }
