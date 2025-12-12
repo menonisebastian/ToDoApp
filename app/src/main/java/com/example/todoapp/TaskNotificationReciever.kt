@@ -47,6 +47,7 @@ class TaskNotificationReceiver : BroadcastReceiver() {
             .setContentText("Hoy tienes: $taskName")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
+            .setContentIntent(pendingIntent) // Vincula el click con la Activity
             .build()
 
         notificationManager.notify(taskName.hashCode(), notification)

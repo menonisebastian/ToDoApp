@@ -705,6 +705,10 @@ fun App(
             onDismiss = { tareaEditando = null },
             onSave = { nuevoTexto, nuevaFecha ->
                 viewModel.actualizarTarea(tareaToEdit.copy(texto = nuevoTexto, fecha = nuevaFecha))
+                if (nuevaFecha.isNotBlank())
+                {
+                    scheduleTaskNotification(context, nuevoTexto, nuevaFecha)
+                }
                 tareaEditando = null
                 Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
             }
@@ -867,7 +871,7 @@ fun scheduleTaskNotification(context: Context, taskName: String, taskDate: Strin
         val date = LocalDate.parse(taskDate, formatter)
 
         // Configuramos la hora a las 9:00 AM
-        val dateTime = date.atTime(16, 5)
+        val dateTime = date.atTime(12, 32)
         val triggerTime = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         // Solo programar si la fecha es futura
