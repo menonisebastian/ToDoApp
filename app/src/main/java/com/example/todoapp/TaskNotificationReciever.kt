@@ -26,7 +26,7 @@ class TaskNotificationReceiver : BroadcastReceiver() {
         }
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Puedes cambiarlo por R.drawable.cutlogoapp
+            .setSmallIcon(R.drawable.applogo) // Puedes cambiarlo por R.drawable.cutlogoapp
             .setContentTitle("Recordatorio de Tarea")
             .setContentText("Hoy tienes: $taskName")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
