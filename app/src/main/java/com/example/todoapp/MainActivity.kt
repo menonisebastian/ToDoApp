@@ -838,6 +838,7 @@ fun determinePriority(dateString: String): TaskPriority {
         }
     } catch (e: Exception) {
         // Si el string no tiene el formato correcto
+        e.printStackTrace()
         TaskPriority.UNKNOWN
     }
 }
