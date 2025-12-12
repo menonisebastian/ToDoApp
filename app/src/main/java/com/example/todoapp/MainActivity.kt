@@ -67,6 +67,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -137,8 +138,9 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
                     set("nombre", nombre.trim())
                     set("pass", pass)
                 }
-                navController.navigate("app")
-            })
+                navController.navigate("login")
+            },
+                onBack = { navController.popBackStack() })
         }
         composable("app") {
             val prev = navController.previousBackStackEntry?.savedStateHandle
@@ -161,257 +163,378 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
     var nombres by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Spacer(Modifier.height(175.dp))
-        Image(
-            painter = painterResource(R.drawable.cutlogoapp),
-            modifier = Modifier.size(60.dp).padding(10.dp),
-            contentDescription = "Logo"
-        )
-        Image(
-            painter = painterResource(R.drawable.fontlogo),
-            modifier = Modifier.width(150.dp).padding(top = 10.dp),
-            contentDescription = "logo texto"
-        )
-
-        Spacer(Modifier.height(20.dp))
+    Scaffold()
+    {
+        paddingValues ->
         Column(
             modifier = Modifier
-                .shadow(15.dp, RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                .padding(20.dp)
-                .width(300.dp),
-            verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(paddingValues)
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            OutlinedTextField(
-                value = nombres,
-                onValueChange = { nombres = it },
-                singleLine = true,
-                shape = RoundedCornerShape(30.dp),
-                label = { Text("Nombre") },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                ),
-                modifier = Modifier.padding(top = 20.dp)
+            //Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+            Image(
+                painter = painterResource(R.drawable.cutlogoapp),
+                modifier = Modifier.size(60.dp).padding(10.dp),
+                contentDescription = "Logo"
             )
-            Spacer(Modifier.height(20.dp))
-            OutlinedTextField(
-                value = pass,
-                onValueChange = { pass = it },
-                singleLine = true,
-                shape = RoundedCornerShape(30.dp),
-                label = { Text("Contraseña") },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                ),
-                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon =
-                {
-                    if (pass.isNotBlank())
-                    {
-                        IconButton(onClick = {
-                            showPassword = !showPassword
-                        }
-                        ) {
-                            if (!showPassword)
-                                Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
-                            else
-                                Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
-                            /*
-                            Iconos de material-icons-extended
-
-                            TOML:
-                            materialIconsExtended = "1.7.8"
-                            androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
-
-                            BUILD.GRADLE:
-                            implementation(libs.androidx.compose.material.icons.extended)*/
-                        }
-                    }
-                }
+            Image(
+                painter = painterResource(R.drawable.fontlogo),
+                modifier = Modifier.width(150.dp).padding(top = 10.dp),
+                contentDescription = "logo texto"
             )
-
-            Spacer(Modifier.height(20.dp))
-
-            Button(
-                onClick = {
-                    if (nombres.isNotBlank() && pass.isNotBlank()) {
-                        onEnviar(nombres, pass)
-                    } else {
-                        Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.height(150.dp))
+            Column(
+                modifier = Modifier
+                    .shadow(15.dp, RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                    .padding(20.dp)
+                    .width(300.dp),
+                verticalArrangement = Arrangement.SpaceAround,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Iniciar sesión", fontWeight = FontWeight.Bold)
+                OutlinedTextField(
+                    value = nombres,
+                    onValueChange = { nombres = it },
+                    singleLine = true,
+                    shape = RoundedCornerShape(30.dp),
+                    label = { Text("Usuario") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    ),
+                    modifier = Modifier.padding(top = 20.dp),
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Usuario") }
+                )
+                Spacer(Modifier.height(20.dp))
+                OutlinedTextField(
+                    value = pass,
+                    onValueChange = { pass = it },
+                    singleLine = true,
+                    shape = RoundedCornerShape(30.dp),
+                    label = { Text("Contraseña") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    ),
+                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
+                    trailingIcon =
+                        {
+                            if (pass.isNotBlank())
+                            {
+                                IconButton(onClick = {
+                                    showPassword = !showPassword
+                                }
+                                ) {
+                                    if (!showPassword)
+                                        Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                    else
+                                        Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                    /*
+                                    Iconos de material-icons-extended
+
+                                    TOML:
+                                    materialIconsExtended = "1.7.8"
+                                    androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+
+                                    BUILD.GRADLE:
+                                    implementation(libs.androidx.compose.material.icons.extended)*/
+                                }
+                            }
+                        }
+                )
+
+                Spacer(Modifier.height(20.dp))
+
+                Button(
+                    onClick = {
+                        if (nombres.isNotBlank() && pass.isNotBlank()) {
+                            showDialog = true
+                        } else {
+                            Toast.makeText(context, "Introduce usuario y contraseña para continuar", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(text = "Iniciar sesión", fontWeight = FontWeight.Bold)
+                }
+
+                TextButton(onClick = {
+                    onRegistrar()
+                },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
+                { Text("Registrarme") }
             }
 
-            TextButton(onClick = {
-                onRegistrar()
-            },
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
-            { Text("Registrarme") }
+            Spacer(Modifier.weight(1f))
+
+            Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
         }
-
-        Spacer(Modifier.weight(1f))
-
-        Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
+    }
+    if (showDialog)
+    {
+        Dialog(onDismissRequest = {})
+        {
+            Column(modifier = Modifier.background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
+                .padding(40.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally)
+            {
+                Text("INICIO DE SESIÓN EXITOSO", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp, fontStyle = FontStyle.Italic)
+                Spacer(Modifier.height(20.dp))
+                Icon(Icons.Default.CheckCircle, contentDescription = "ok", tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(60.dp))
+            }
+            LaunchedEffect(Unit) {
+                delay(1000) // Espera
+                showDialog = false // Cierra el diálogo cambiando el estado
+                onEnviar(nombres, pass)
+            }
+        }
     }
 }
 
 // ============ REGISTER SCREEN ============
 @Composable
-fun Registrar(onRegistrar: (String, String) -> Unit)
+fun Registrar(onRegistrar: (String, String) -> Unit, onBack: () -> Unit)
 {
     var nombres by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
+    var passConf by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+    val formularioValido = nombres.isNotBlank() && email.isNotBlank() &&
+            userName.isNotBlank() && pass.isNotBlank() &&
+            passConf.isNotBlank()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-        Image(
-            painter = painterResource(R.drawable.cutlogoapp),
-            modifier = Modifier.size(60.dp).padding(10.dp),
-            contentDescription = "Logo"
-        )
-        Image(
-            painter = painterResource(R.drawable.fontlogo),
-            modifier = Modifier.width(150.dp).padding(top = 10.dp),
-            contentDescription = "logo texto"
-        )
-
-        Spacer(Modifier.height(20.dp))
-        Column(
-            modifier = Modifier
-                .shadow(15.dp, RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                .padding(30.dp)
-                .width(300.dp),
-            verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TextField(
-                value = nombres,
-                onValueChange = { nombres = it },
-                singleLine = true,
-                shape = RoundedCornerShape(30.dp),
-                label = { Text("Nombre") },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                )
-            )
-            Spacer(Modifier.height(20.dp))
-            TextField(
-                value = userName,
-                onValueChange = { userName = it },
-                singleLine = true,
-                shape = RoundedCornerShape(30.dp),
-                label = { Text("Usuario") },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                )
-            )
-            Spacer(Modifier.height(20.dp))
-            TextField(
-                value = email,
-                onValueChange = { email = it },
-                singleLine = true,
-                shape = RoundedCornerShape(30.dp),
-                label = { Text("Email") },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                )
-            )
-            Spacer(Modifier.height(20.dp))
-            TextField(
-                value = pass,
-                onValueChange = { pass = it },
-                singleLine = true,
-                shape = RoundedCornerShape(30.dp),
-                label = { Text("Contraseña") },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
-                ),
-                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon =
-                    {
-                        if (pass.isNotBlank())
-                        {
-                            IconButton(onClick = {
-                                showPassword = !showPassword
-                            }
-                            ) {
-                                if (!showPassword)
-                                    Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
-                                else
-                                    Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
-                                /*
-                                Iconos de material-icons-extended
-
-                                TOML:
-                                materialIconsExtended = "1.7.8"
-                                androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
-
-                                BUILD.GRADLE:
-                                implementation(libs.androidx.compose.material.icons.extended)*/
-                            }
-                        }
-                    }
-            )
-
-            Spacer(Modifier.height(20.dp))
-
-            Button(
-                onClick = {
-                    if (nombres.isNotBlank() && pass.isNotBlank()) {
-                        onRegistrar(nombres, pass)
-                    } else {
-                        Toast.makeText(context, "Introduce nombre y alias para continuar", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState)
+    {
+        data ->
+        // Aquí personalizamos el aspecto visual
+        Snackbar(
+            snackbarData = data,
+            containerColor = Color.Red,
+            contentColor = Color.White,
+            actionColor = Color.Yellow,
+            shape = RoundedCornerShape(10.dp)
+        )} })
+        {
+            paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues)
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text(text = "Registrarme", fontWeight = FontWeight.Bold)
+                //Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+                Image(
+                    painter = painterResource(R.drawable.cutlogoapp),
+                    modifier = Modifier.size(60.dp).padding(10.dp),
+                    contentDescription = "Logo"
+                )
+                Image(
+                    painter = painterResource(R.drawable.fontlogo),
+                    modifier = Modifier.width(150.dp).padding(top = 10.dp),
+                    contentDescription = "logo texto"
+                )
+
+                Spacer(Modifier.height(20.dp))
+                Column(
+                    modifier = Modifier
+                        .shadow(20.dp, RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                        .padding(30.dp)
+                        .width(300.dp),
+                    verticalArrangement = Arrangement.SpaceAround,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Registro",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(bottom = 10.dp),
+                        color = MaterialTheme.colorScheme.onSurface)
+                    TextField(
+                        value = nombres,
+                        onValueChange = { nombres = it },
+                        singleLine = true,
+                        shape = RoundedCornerShape(30.dp),
+                        label = { Text("Nombre") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                        ),
+                        leadingIcon = { Icon(Icons.Default.AppRegistration, contentDescription = "Nombre") }
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    TextField(
+                        value = userName,
+                        onValueChange = { userName = it },
+                        singleLine = true,
+                        shape = RoundedCornerShape(30.dp),
+                        label = { Text("Usuario") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                        ),
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Usuario") }
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    TextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        singleLine = true,
+                        shape = RoundedCornerShape(30.dp),
+                        label = { Text("Email") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                        ),
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") }
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    TextField(
+                        value = pass,
+                        onValueChange = { pass = it },
+                        singleLine = true,
+                        shape = RoundedCornerShape(30.dp),
+                        label = { Text("Contraseña") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                        ),
+                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
+                        trailingIcon =
+                            {
+                                if (pass.isNotBlank())
+                                {
+                                    IconButton(onClick = {
+                                        showPassword = !showPassword
+                                    }
+                                    ) {
+                                        if (!showPassword)
+                                            Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                        else
+                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                    }
+                                }
+                            }
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    TextField(
+                        value = passConf,
+                        onValueChange = { passConf = it },
+                        singleLine = true,
+                        shape = RoundedCornerShape(30.dp),
+                        label = { Text("Confirmar contraseña") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                        ),
+                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
+                        trailingIcon =
+                            {
+                                if (passConf.isNotBlank())
+                                {
+                                    IconButton(onClick = {
+                                        showPassword = !showPassword
+                                    }
+                                    ) {
+                                        if (!showPassword)
+                                            Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                        else
+                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                    }
+                                }
+                            }
+                    )
+                    Spacer(Modifier.height(20.dp))
+
+                    Button(
+                        onClick = {
+                            if (pass != passConf)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Las contraseñas no coinciden",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            else
+                                showDialog = true
+                        },
+                        enabled = formularioValido,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            disabledContainerColor = Color.Gray
+                        )
+                    ){
+                        Text(text = "Crear cuenta", fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                TextButton(onClick = { onBack() })
+                {
+                    Row(verticalAlignment = Alignment.CenterVertically)
+                    {
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Volver", tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(15.dp))
+                        Text("Ya tengo una cuenta", color = MaterialTheme.colorScheme.secondary, modifier = Modifier.padding(start = 5.dp))
+                    }
+                }
+                Spacer(Modifier.weight(1f))
+
+                Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
             }
         }
 
-        Spacer(Modifier.weight(1f))
 
-        Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
+
+
+
+    if (showDialog)
+    {
+        Dialog(onDismissRequest = {})
+        {
+            Column(modifier = Modifier.background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
+                .padding(40.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally)
+            {
+                Text("REGISTRO EXITOSO", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp, fontStyle = FontStyle.Italic)
+                Spacer(Modifier.height(20.dp))
+                Icon(Icons.Default.CheckCircle, contentDescription = "ok", tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(60.dp))
+            }
+            LaunchedEffect(Unit) {
+                delay(3000) // Espera
+                showDialog = false // Cierra el diálogo cambiando el estado
+                onRegistrar(nombres, pass)
+            }
+        }
     }
 }
 
@@ -436,6 +559,7 @@ fun App(
 
     var showAddTareaDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
+    var showCuentaDialog by remember { mutableStateOf(false) }
     val showPreferencesDialog = remember { mutableStateOf(false) }
     var showHelpDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -534,7 +658,8 @@ fun App(
                 onPreferences = { showPreferencesDialog.value = true },
                 onHelp = { showHelpDialog = true },
                 query = searchQuery,
-                onQueryChange = { searchQuery = it }
+                onQueryChange = { searchQuery = it },
+                onCuenta = { showCuentaDialog = true}
             )
 
             if (tareas.isNotEmpty()) {
@@ -619,14 +744,21 @@ fun App(
         )
     }
 
+    if (showCuentaDialog)
+    {
+        CuentaDialog(onDismiss = { showCuentaDialog = false })
+    }
+
     if (tareaDetallada != null) {
         DetailTaskDialog(tarea = tareaDetallada!!, onDismiss = { tareaDetallada = null })
     }
     if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
 }
 
-// ============ UI COMPONENTES ============
+// ============ UI COMPONENTES ============ //
 // (Se pueden mover estos también a un archivo Components.kt para limpiar el codigo)
+
+// ============ PREFERENCIAS DEL USUARIO ============ //
 
 @Composable
 fun PreferencesDialog(onDismiss: () -> Unit) {
@@ -717,6 +849,167 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                         uncheckedTrackColor = MaterialTheme.colorScheme.background,
                         uncheckedBorderColor = MaterialTheme.colorScheme.onSurface))
             }
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(onClick = { onDismiss() },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary))
+            { Text("Cerrar") }
+        }
+    }
+}
+
+// ============ PREFERENCIAS DEL USUARIO ============ //
+
+@Composable
+fun CuentaDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val settingsPreferences = remember { SettingsPreferences(context) }
+    val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
+    val colorSeleccionado by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            Modifier.background(MaterialTheme.colorScheme.background,
+                RoundedCornerShape(20.dp))
+                .padding(horizontal = 20.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(painter = painterResource(id = R.drawable.fontlogo),
+                modifier = Modifier
+                    .width(80.dp)
+                    .padding(top = 10.dp),
+                contentDescription = "logo texto")
+
+            Text("Datos Personales",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(vertical = 15.dp))
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.shadow(10.dp,
+                    RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surface,
+                        RoundedCornerShape(20.dp))
+                    .padding(20.dp))
+            {
+                // 1. Nombre
+                OutlinedTextField(
+                    value = "Sebastián Menoni",
+                    onValueChange = {},
+                    enabled = false,
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = Color.Transparent, // Borde visible
+                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary, // Label legible
+                        disabledContainerColor = Color.Transparent // Fondo transparente
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                // 2. Usuario
+                OutlinedTextField(
+                    value = "arturomenoni",
+                    onValueChange = {},
+                    enabled = false,
+                    label = { Text("Usuario") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = Color.Transparent,
+                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                // 3. Email
+                OutlinedTextField(
+                    value = "arturomenoni@gmail.com",
+                    onValueChange = {},
+                    enabled = false,
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = Color.Transparent,
+                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                // 4. Fecha de Registro
+                OutlinedTextField(
+                    value = "10/11/2025",
+                    onValueChange = {},
+                    enabled = false,
+                    label = { Text("Fecha de Registro") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = Color.Transparent,
+                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth())
+            {
+                Column (horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.shadow(10.dp, RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surface,
+                            RoundedCornerShape(20.dp))
+                        .padding(10.dp)
+                        .width(100.dp))
+                {
+                    Text(text = "Editar",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        modifier = Modifier.padding(top = 10.dp).padding(horizontal = 20.dp))
+
+                    IconButton(onClick = {})
+                    {
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Eliminar Cuenta",
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+
+                Column (horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.shadow(10.dp, RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surface,
+                            RoundedCornerShape(20.dp))
+                        .padding(10.dp)
+                        .width(100.dp))
+                {
+                    Text(text = "Eliminar",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        modifier = Modifier.padding(top = 10.dp).padding(horizontal = 20.dp))
+
+                    IconButton(onClick = {})
+                    {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar Cuenta",
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
             Button(onClick = { onDismiss() },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary))
@@ -862,6 +1155,7 @@ fun TopCard(
     onVaciarLista: () -> Unit,
     onBack: () -> Unit,
     onPreferences: () -> Unit,
+    onCuenta: () -> Unit,
     onHelp: () -> Unit,
     query: String,                   // <--- Nuevo parámetro
     onQueryChange: (String) -> Unit // <--- Nuevo parámetro
@@ -895,6 +1189,12 @@ fun TopCard(
                 )
                 {
                     DropdownMenuItem(
+                        text = { Text("Cuenta") },
+                        leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
+                        onClick = { expanded = false; onCuenta() })
+                    HorizontalDivider()
+
+                    DropdownMenuItem(
                         text = { Text("Preferencias") },
                         leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                         onClick = { expanded = false; onPreferences() })
@@ -902,14 +1202,14 @@ fun TopCard(
 
                     DropdownMenuItem(
                         text = { Text("Ayuda") },
-                        leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null) },
                         onClick = { onHelp() }
                     )
                     HorizontalDivider()
 
                     DropdownMenuItem(
                         text = { Text("Exportar tareas") },
-                        leadingIcon = { Icon(Icons.Outlined.CheckCircle, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Outlined.SaveAlt, contentDescription = null) },
                         onClick = { exportarTareas(context, listaTareas); expanded = false })
                     HorizontalDivider()
 
@@ -997,7 +1297,7 @@ fun TaskItem(
                 Column{
                     Text(text = tarea.texto, color = textColor)
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary)
+                    Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
                 }
             }
             else
@@ -1077,29 +1377,33 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically)
+            Card(elevation = CardDefaults.cardElevation(10.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
             {
-                Text("Tarea  °${tarea.id}")
-                if (tarea.fecha.isNotBlank())
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(10.dp))
                 {
-                    Spacer(modifier = Modifier.weight(1f))
-                    PriorityChip(priority)
+                    Text("ID: ${tarea.id}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    if (tarea.fecha.isNotBlank())
+                    {
+                        Spacer(modifier = Modifier.weight(1f))
+                        PriorityChip(priority)
+                    }
                 }
             }
         },
         text =
             {
                 Column{
-                    HorizontalDivider(Modifier.padding(bottom = 20.dp))
                     Text(text = tarea.texto,
                         fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface)
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(10.dp))
                     if (tarea.fecha.isNotBlank())
                     {
                         Text(text = tarea.fecha,
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.inversePrimary,
-                            modifier = Modifier.padding(vertical = 10.dp))
+                            modifier = Modifier.padding(10.dp))
                     }
                 }
             },
@@ -1112,7 +1416,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                         fontSize = 20.sp)
                 }
             },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.background,
         shape = RoundedCornerShape(10.dp))
 }
 
@@ -1386,6 +1690,6 @@ fun PriorityChip(priority: TaskPriority) {
 fun GreetingPreview()
 {
     ToDoAppTheme {
-        Registrar(onRegistrar = {_,_ ->})
+        Registrar(onRegistrar = {_,_ ->}, onBack = {})
     }
 }
