@@ -1,8 +1,6 @@
 package com.example.todoapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.LinearGradient
-
 
 //--------------------------------------------//
 
