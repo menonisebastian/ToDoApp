@@ -2,6 +2,7 @@ package com.example.todoapp
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -24,6 +25,21 @@ class TaskNotificationReceiver : BroadcastReceiver() {
             )
             notificationManager.createNotificationChannel(channel)
         }
+
+        // 1. Crear el Intent que abre tu MainActivity
+        val intent = Intent(context, MainActivity::class.java).apply {
+            // Estos flags aseguran que si la app ya está abierta, la traiga al frente
+            // o reinicie la tarea según prefieras.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        // 2. Crear el PendingIntent (Necesario para Android 12+)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE // Importante para seguridad en versiones nuevas
+        )
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.applogo) // Puedes cambiarlo por R.drawable.cutlogoapp

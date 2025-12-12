@@ -504,10 +504,6 @@ fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
             }
         }
 
-
-
-
-
     if (showDialog)
     {
         Dialog(onDismissRequest = {})
@@ -871,7 +867,7 @@ fun scheduleTaskNotification(context: Context, taskName: String, taskDate: Strin
         val date = LocalDate.parse(taskDate, formatter)
 
         // Configuramos la hora a las 9:00 AM
-        val dateTime = date.atTime(15, 0)
+        val dateTime = date.atTime(16, 5)
         val triggerTime = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         // Solo programar si la fecha es futura
