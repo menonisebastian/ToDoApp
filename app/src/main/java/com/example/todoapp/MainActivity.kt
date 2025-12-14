@@ -134,7 +134,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
         }
         composable("app") {
             val prev = navController.previousBackStackEntry?.savedStateHandle
-            val nombre = prev?.get<String>("nombre").orEmpty()
+            val nombre = prev?.get<String>("user").orEmpty()
 
             App(
                 nombre = nombre,
@@ -334,7 +334,6 @@ fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                //Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
                 Image(
                     painter = painterResource(R.drawable.cutlogoapp),
                     modifier = Modifier.size(60.dp).padding(10.dp),
@@ -426,9 +425,9 @@ fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
                                     }
                                     ) {
                                         if (!showPassword)
-                                            Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                            Icon(Icons.Default.Visibility, contentDescription = "Mostrar", tint = MaterialTheme.colorScheme.inversePrimary)
                                         else
-                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Ocultar", tint = MaterialTheme.colorScheme.inversePrimary)
                                     }
                                 }
                             }
@@ -457,9 +456,9 @@ fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
                                     }
                                     ) {
                                         if (!showPassword)
-                                            Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                            Icon(Icons.Default.Visibility, contentDescription = "Mostrar", tint = MaterialTheme.colorScheme.inversePrimary)
                                         else
-                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
+                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Ocultar", tint = MaterialTheme.colorScheme.inversePrimary)
                                     }
                                 }
                             }
@@ -774,7 +773,7 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
                 val resolver = context.contentResolver
                 val contentUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
 
-                // 1. Buscamos si el archivo ya existe
+                // Buscar si el archivo ya existe
                 val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ?"
                 val selectionArgs = arrayOf(nombreArchivo)
 
@@ -788,7 +787,7 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
                     }
                 }
 
-                // 2. Si existe usamos esa URI, si no, creamos una nueva (insert)
+                // Si existe usar URI, si no, crear una nueva (insert)
                 val uriFinal = uriExistente ?: run {
                     val values = ContentValues().apply {
                         put(MediaStore.Downloads.DISPLAY_NAME, nombreArchivo)
@@ -798,7 +797,7 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
                     resolver.insert(contentUri, values)
                 }
 
-                // 3. Escribimos en el archivo (modo "wt" = Write & Truncate para borrar contenido previo)
+                // Escribir en el archivo (modo "wt" = Write & Truncate para borrar contenido previo)
                 uriFinal?.let { uri ->
                     resolver.openOutputStream(uri, "wt")?.use { output ->
                         output.write(texto.toByteArray())
