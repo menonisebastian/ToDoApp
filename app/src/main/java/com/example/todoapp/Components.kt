@@ -1,6 +1,7 @@
 package com.example.todoapp
 
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,19 +13,26 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.ArrowDropUp
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
@@ -72,6 +80,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -95,8 +104,11 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
-            Modifier.background(MaterialTheme.colorScheme.background,
-                RoundedCornerShape(20.dp))
+            Modifier
+                .background(
+                    MaterialTheme.colorScheme.background,
+                    RoundedCornerShape(20.dp)
+                )
                 .padding(horizontal = 60.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -114,10 +126,15 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.shadow(10.dp,
-                    RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surface,
-                        RoundedCornerShape(10.dp))
+                modifier = Modifier
+                    .shadow(
+                        10.dp,
+                        RoundedCornerShape(10.dp)
+                    )
+                    .background(
+                        MaterialTheme.colorScheme.surface,
+                        RoundedCornerShape(10.dp)
+                    )
                     .padding(10.dp)
                     .width(180.dp))
             {
@@ -129,7 +146,9 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 
                 colorTexto.forEach { color ->
                     Row(verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 20.dp).width(120.dp))
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                            .width(120.dp))
                     {
                         RadioButton(
                             selected = colorSeleccionado == color,
@@ -151,9 +170,12 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 
             Column (horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.shadow(10.dp, RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surface,
-                        RoundedCornerShape(10.dp))
+                modifier = Modifier
+                    .shadow(10.dp, RoundedCornerShape(10.dp))
+                    .background(
+                        MaterialTheme.colorScheme.surface,
+                        RoundedCornerShape(10.dp)
+                    )
                     .padding(10.dp)
                     .width(180.dp))
             {
@@ -161,7 +183,9 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    modifier = Modifier.padding(top = 10.dp).padding(horizontal = 20.dp))
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .padding(horizontal = 20.dp))
 
                 Switch(checked = isDarkMode,
                     onCheckedChange = { nuevoValor -> scope.launch { settingsPreferences.setDarkMode(nuevoValor) } },
@@ -189,8 +213,11 @@ fun CuentaDialog(onDismiss: () -> Unit) {
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
-            Modifier.background(MaterialTheme.colorScheme.background,
-                RoundedCornerShape(20.dp))
+            Modifier
+                .background(
+                    MaterialTheme.colorScheme.background,
+                    RoundedCornerShape(20.dp)
+                )
                 .padding(horizontal = 20.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -208,10 +235,15 @@ fun CuentaDialog(onDismiss: () -> Unit) {
 
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.shadow(10.dp,
-                    RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.surface,
-                        RoundedCornerShape(20.dp))
+                modifier = Modifier
+                    .shadow(
+                        10.dp,
+                        RoundedCornerShape(20.dp)
+                    )
+                    .background(
+                        MaterialTheme.colorScheme.surface,
+                        RoundedCornerShape(20.dp)
+                    )
                     .padding(20.dp))
             {
                 // 1. Nombre
@@ -287,9 +319,12 @@ fun CuentaDialog(onDismiss: () -> Unit) {
             {
                 Column (horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.shadow(10.dp, RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.surface,
-                            RoundedCornerShape(20.dp))
+                    modifier = Modifier
+                        .shadow(10.dp, RoundedCornerShape(20.dp))
+                        .background(
+                            MaterialTheme.colorScheme.surface,
+                            RoundedCornerShape(20.dp)
+                        )
                         .padding(10.dp)
                         .width(100.dp))
                 {
@@ -297,7 +332,9 @@ fun CuentaDialog(onDismiss: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        modifier = Modifier.padding(top = 10.dp).padding(horizontal = 20.dp))
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .padding(horizontal = 20.dp))
 
                     IconButton(onClick = {})
                     {
@@ -309,9 +346,12 @@ fun CuentaDialog(onDismiss: () -> Unit) {
 
                 Column (horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.shadow(10.dp, RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.surface,
-                            RoundedCornerShape(20.dp))
+                    modifier = Modifier
+                        .shadow(10.dp, RoundedCornerShape(20.dp))
+                        .background(
+                            MaterialTheme.colorScheme.surface,
+                            RoundedCornerShape(20.dp)
+                        )
                         .padding(10.dp)
                         .width(100.dp))
                 {
@@ -319,7 +359,9 @@ fun CuentaDialog(onDismiss: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        modifier = Modifier.padding(top = 10.dp).padding(horizontal = 20.dp))
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .padding(horizontal = 20.dp))
 
                     IconButton(onClick = {})
                     {
@@ -396,14 +438,18 @@ fun AggTareaDialog(
     {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface,
-                    RoundedCornerShape(20.dp))
+                .background(
+                    MaterialTheme.colorScheme.surface,
+                    RoundedCornerShape(20.dp)
+                )
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally)
         {
             Image(
                 painter = painterResource(id = R.drawable.fontlogo),
-                modifier = Modifier.width(80.dp).padding(top = 10.dp, bottom = 20.dp),
+                modifier = Modifier
+                    .width(80.dp)
+                    .padding(top = 10.dp, bottom = 20.dp),
                 contentDescription = "logo texto")
 
             Text("Añadir Tarea",
@@ -477,14 +523,15 @@ fun TopCard(
     onPreferences: () -> Unit,
     onCuenta: () -> Unit,
     onHelp: () -> Unit,
-    query: String,                   // <--- Nuevo parámetro
-    onQueryChange: (String) -> Unit // <--- Nuevo parámetro
+    query: String,
+    onQueryChange: (String) -> Unit
 )
 {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    Column(modifier = Modifier.fillMaxWidth()
+    Column(modifier = Modifier
+        .fillMaxWidth()
         .shadow(15.dp, RoundedCornerShape(15.dp))
         .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
         .padding(horizontal = 20.dp, vertical = 10.dp))
@@ -558,6 +605,58 @@ fun TopCard(
     }
 }
 
+// ============ LISTA TAREAS COMPLETADAS ============ //
+
+@Composable
+fun CompletedTasksList(
+    completedTasks: List<Tarea>,
+    viewModel: TareasViewModel
+)
+{
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .animateContentSize(),
+        elevation = CardDefaults.cardElevation(5.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+    {
+        Column{
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp))
+            {
+                Text("Completadas (${completedTasks.size})")
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = { expanded = !expanded })
+                {
+                    if (!expanded) {
+                        Icon(Icons.Outlined.ArrowDropDown,
+                            contentDescription = "Preferencias", tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                    else {
+                        Icon(Icons.Outlined.ArrowDropUp,
+                            contentDescription = "Preferencias", tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+            }
+
+            if (expanded)
+            {
+                LazyColumn(modifier = Modifier.fillMaxWidth()
+                    .heightIn(max = 350.dp))
+                {
+                    items(completedTasks, key = { it.id }) { tareaItem ->
+                        HorizontalDivider()
+                        CompletedTaskItem(tarea = tareaItem, viewModel)
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// ============ BUSCADOR DE TAREAS ============ //
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomizableSearchBar(
@@ -595,12 +694,15 @@ fun CustomizableSearchBar(
     {}
 }
 
+// ============ TAREAS ============ //
+
 @Composable
 fun TaskItem(
     tarea: Tarea,
     textColor: Color,
     onTaskClick: () -> Unit,
     onEdit: () -> Unit,
+    onCheck: () -> Unit,
     onDelete: () -> Unit)
 {
     Card(modifier = Modifier
@@ -625,9 +727,46 @@ fun TaskItem(
                 Text(text = tarea.texto, color = textColor)
             }
             Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = onCheck) { Icon(Icons.Default.Check, contentDescription = "Completar") }
             IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar") }
             IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar") }
         }
+    }
+}
+
+// ============ TAREAS COMPLETADAS ============ //
+
+@Composable
+fun CompletedTaskItem(
+    tarea: Tarea,
+    viewModel: TareasViewModel)
+{
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
+        verticalAlignment = Alignment.CenterVertically)
+    {
+        IconButton(onClick = {viewModel.descompletarTarea(tarea)}) { Icon(Icons.Default.Check, contentDescription = "Editar")}
+        if (tarea.fecha.isNotBlank())
+        {
+            Column{
+                Text(text = tarea.texto, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
+            }
+        }
+        else
+        {
+            Text(text = tarea.texto, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Default.Delete, contentDescription = "Eliminar") }
+    }
+
+    if (showDeleteDialog) {
+        ConfirmDeleteDialog(
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = { viewModel.eliminarTarea(tarea) })
     }
 }
 
@@ -897,8 +1036,10 @@ fun HelpDialog(onDismiss: () -> Unit)
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface,
-                    RoundedCornerShape(20.dp))
+                .background(
+                    MaterialTheme.colorScheme.surface,
+                    RoundedCornerShape(20.dp)
+                )
                 .padding(10.dp))
         {
             Text("Ayuda",

@@ -15,9 +15,25 @@ class TareasViewModel(private val dao: TareaDao) : ViewModel() {
     val listaTareas: StateFlow<List<Tarea>> = dao.obtenerTodas()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val listaCompletadas: StateFlow<List<Tarea>> = dao.obtenerCompletadas()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+
     fun agregarTarea(texto: String, fecha: String) {
         viewModelScope.launch {
             dao.insertar(Tarea(id = 0, texto = texto, fecha = fecha))
+        }
+    }
+
+    fun completarTarea(tarea: Tarea) {
+        viewModelScope.launch {
+            dao.actualizar(tarea.copy(completada = !tarea.completada))
+        }
+    }
+
+    fun descompletarTarea(tarea: Tarea) {
+        viewModelScope.launch {
+            dao.actualizar(tarea.copy(completada = false))
         }
     }
 

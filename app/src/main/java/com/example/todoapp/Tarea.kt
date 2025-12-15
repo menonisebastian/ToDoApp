@@ -8,5 +8,6 @@ data class Tarea(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val texto: String,
-    val fecha: String
+    val fecha: String,
+    val completada: Boolean = false
 )

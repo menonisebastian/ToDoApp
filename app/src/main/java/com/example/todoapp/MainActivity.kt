@@ -538,11 +538,13 @@ fun App(
 
     // OBSERVAMOS LA BD DESDE EL VIEWMODEL
     val tareas by viewModel.listaTareas.collectAsStateWithLifecycle()
+    val completadas by viewModel.listaCompletadas.collectAsStateWithLifecycle()
 
     var fecha by remember { mutableStateOf("") }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
     var ultimaTareaEliminada by remember { mutableStateOf<Tarea?>(null) }
+    var ultimaCompletada by remember { mutableStateOf<Tarea?>(null) }
 
     var showAddTareaDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
@@ -551,6 +553,8 @@ fun App(
     var showHelpDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val filteredTareas = if (searchQuery.isBlank()) { tareas }
     else { tareas.filter { it.texto.contains(searchQuery, ignoreCase = true) } }
@@ -618,8 +622,23 @@ fun App(
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir Tarea")
             }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)
+        {
+                data ->
+            // Aquí personalizamos el aspecto visual
+            Snackbar(
+                snackbarData = data,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                actionColor = MaterialTheme.colorScheme.secondary,
+                shape = RoundedCornerShape(10.dp)
+            )
         }
-    ) { paddingValues ->
+        }
+    ) {
+
+        paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -650,6 +669,7 @@ fun App(
             )
 
             if (tareas.isNotEmpty()) {
+
                 Spacer(modifier = Modifier.height(20.dp))
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
@@ -663,12 +683,51 @@ fun App(
                                 onTaskClick = { tareaDetallada = tareaItem },
                                 onEdit = { tareaEditando = tareaItem },
                                 textColor = taskTextColor,
-                                onDelete = { tareaAEliminar = tareaItem }
+                                onDelete = { tareaAEliminar = tareaItem },
+                                onCheck = {
+                                    viewModel.completarTarea(tareaItem)
+                                    ultimaCompletada = tareaItem
+                                    scope.launch {
+                                        val result = snackbarHostState
+                                            .showSnackbar(
+                                                message = "Tarea completada",
+                                                actionLabel = "Deshacer",
+                                                // Defaults to SnackbarDuration.Short
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        when (result) {
+                                            SnackbarResult.ActionPerformed -> {
+                                                /* Handle snackbar action performed */
+                                                viewModel.descompletarTarea(tareaItem)
+                                            }
+                                            SnackbarResult.Dismissed -> {
+                                                /* Handle snackbar dismissed */
+                                                ultimaCompletada = null
+                                            }
+                                        }
+                                    }
+                                }
                             )
+                        }
+                        if (completadas.isNotEmpty())
+                        {
+                            item()
+                            {
+                                Spacer(Modifier.height(10.dp))
+                                CompletedTasksList( completadas, viewModel)
+                            }
                         }
                     }
                 }
-            } else {
+
+
+            }
+            else
+            {
+                if (completadas.isNotEmpty()) {
+                    Spacer(Modifier.height(10.dp))
+                    CompletedTasksList(completadas, viewModel)
+                }
                 EmptyTasksMessage()
             }
         }
