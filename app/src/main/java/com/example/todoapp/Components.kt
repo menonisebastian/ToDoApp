@@ -514,7 +514,7 @@ fun AggTareaDialog(
 
 @Composable
 fun TopCard(
-    nombre: String,
+    viewModel: TareasViewModel,
     listaTareas: List<Tarea>,
     listaCompletadas: List<Tarea>,
     onVaciarLista: () -> Unit,
@@ -528,6 +528,8 @@ fun TopCard(
 {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val nombre by viewModel.nombreUsuario.collectAsStateWithLifecycle()
+
 
     Column(modifier = Modifier
         .fillMaxWidth()

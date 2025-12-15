@@ -112,13 +112,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
     NavHost(navController, startDestination = "login")
     {
         composable("login") {
-            Login(onEnviar = { email, pass ->
-                navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("user", email.trim())
-                    set("pass", pass)
-                }
-                navController.navigate("app")
-            },
+            Login(
                 onRegistrar = {
                     navController.navigate("register")},
                 onLoginSuccess = {
@@ -141,7 +135,6 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
             val nombre = prev?.get<String>("email").orEmpty()
 
             App(
-                nombre = nombre,
                 onBack = { navController.popBackStack() },
                 taskTextColor = taskTextColor,
                 viewModel = viewModel
@@ -152,8 +145,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 
 // ============ LOGIN SCREEN ============
 @Composable
-fun Login(onEnviar: (String, String) -> Unit,
-          onLoginSuccess: (String) -> Unit,
+fun Login(onLoginSuccess: (String) -> Unit,
           onRegistrar: () -> Unit)
 {
     val auth = FirebaseAuth.getInstance()
@@ -237,15 +229,6 @@ fun Login(onEnviar: (String, String) -> Unit,
                                         Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
                                     else
                                         Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
-                                    /*
-                                    Iconos de material-icons-extended
-
-                                    TOML:
-                                    materialIconsExtended = "1.7.8"
-                                    androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
-
-                                    BUILD.GRADLE:
-                                    implementation(libs.androidx.compose.material.icons.extended)*/
                                 }
                             }
                         }
@@ -257,12 +240,18 @@ fun Login(onEnviar: (String, String) -> Unit,
                     onClick = {
                         if (email.isNotBlank() && pass.isNotBlank())
                         {
-                            auth.signInWithEmailAndPassword(email, pass)
+                            auth.signInWithEmailAndPassword(email.trim(), pass.trim())
                                 .addOnSuccessListener { result ->
-                                    onLoginSuccess(result.user?.email ?: "Usuario")
                                     showDialog = true
                                 }
                                 .addOnFailureListener { e ->
+                                    // Manejo de errores comunes
+                                    val mensajeError = when {
+                                        e.message?.contains("password") == true -> "Contraseña incorrecta"
+                                        e.message?.contains("user-not-found") == true -> "El usuario no existe"
+                                        else -> "Error de conexión o credenciales"
+                                    }
+                                    Toast.makeText(context, mensajeError, Toast.LENGTH_SHORT).show()
                                     error = e.localizedMessage
                                 }
                         } else {
@@ -302,7 +291,7 @@ fun Login(onEnviar: (String, String) -> Unit,
             LaunchedEffect(Unit) {
                 delay(1000) // Espera
                 showDialog = false // Cierra el diálogo cambiando el estado
-                onEnviar(email, pass)
+                onLoginSuccess(email)
             }
         }
     }
@@ -312,6 +301,7 @@ fun Login(onEnviar: (String, String) -> Unit,
 @Composable
 fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
 {
+    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
     val auth = FirebaseAuth.getInstance()
     var nombres by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -320,7 +310,6 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
     var passConf by remember { mutableStateOf("") }
     val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
     var error by remember { mutableStateOf<String?>(null) }
-    val listaDatos = listOf(nombres, email, userName, pass, fechaAlta)
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val formularioValido = nombres.isNotBlank() && email.isNotBlank() &&
@@ -494,12 +483,37 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                 }
                             else
                                 auth.createUserWithEmailAndPassword(email, pass)
-                                    .addOnSuccessListener { result ->
-                                        onRegistrar(result.user?.email ?: "Usuario")
+                                    .addOnSuccessListener { authResult ->
+                                        val userId = authResult.user?.uid ?: ""
+
+                                        // 3. Preparar los datos para guardar en Base de Datos
+                                        val nuevoUsuario = hashMapOf(
+                                            "id" to userId,
+                                            "username" to userName.trim(), // El usuario corto para mostrar
+                                            "nombre" to nombres,
+                                            "email_contacto" to email, // El email real (gmail/hotmail) para contactar
+                                            "fechaRegistro" to fechaAlta
+                                        )
+
+                                        // 4. Guardar en Firestore: Colección "users", Documento = UID
+                                        db.collection("users").document(userId).set(nuevoUsuario)
+                                            .addOnSuccessListener {
+                                                // Todo salió bien
+                                                showDialog = true
+                                                // Pasamos el usuario limpio al login para que no tenga que escribirlo de nuevo
+                                                onRegistrar(email)
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Toast.makeText(context, "Error al guardar datos: ${e.message}", Toast.LENGTH_LONG).show()
+                                            }
                                     }
                                     .addOnFailureListener { e ->
-                                        error = e.localizedMessage
-                                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                        // Errores al crear la cuenta (ej: usuario ya existe)
+                                        val msg = if (e.message?.contains("email address is already in use") == true)
+                                            "El nombre de usuario '$userName' ya está ocupado."
+                                        else "Error: ${e.message}"
+
+                                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                                     }
 
                             showDialog = true
@@ -555,7 +569,6 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
 // ============ MAIN APP SCREEN ============
 @Composable
 fun App(
-    nombre: String,
     taskTextColor: Color,
     onBack: () -> Unit,
     viewModel: TareasViewModel
@@ -680,7 +693,7 @@ fun App(
             )
 
             TopCard(
-                nombre = nombre,
+                viewModel = viewModel,
                 listaTareas = tareas,
                 onVaciarLista = {
                     if (tareas.isNotEmpty()) showClearDialog = true

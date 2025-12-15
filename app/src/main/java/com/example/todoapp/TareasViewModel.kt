@@ -11,6 +11,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -50,6 +51,43 @@ class TareasViewModel : ViewModel() {
                 snapshotListener?.remove()
             }
         }
+    }
+
+    // 1. NUEVO: Estado para el nombre del usuario
+    private val _nombreUsuario = MutableStateFlow<String>("Cargando...")
+    val nombreUsuario: StateFlow<String> = _nombreUsuario.asStateFlow()
+
+    init {
+        auth.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                currentUserId = user.uid
+                escucharTareas(user.uid)
+
+                // 2. NUEVO: Obtener el nombre desde Firestore
+                obtenerNombreUsuario(user.uid)
+            } else {
+                currentUserId = null
+                _todasLasTareas.value = emptyList()
+                _nombreUsuario.value = "" // Limpiamos el nombre al salir
+                snapshotListener?.remove()
+            }
+        }
+    }
+
+    // 3. NUEVO: Función para leer el documento del usuario
+    fun obtenerNombreUsuario(uid: String) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // Busca el campo "nombre" o "username" que guardamos en el Registro
+                    val nombre = document.getString("nombre") ?: document.getString("username") ?: "Usuario"
+                    _nombreUsuario.value = nombre
+                }
+            }
+            .addOnFailureListener {
+                _nombreUsuario.value = "Usuario"
+            }
     }
 
     private fun escucharTareas(userId: String) {
