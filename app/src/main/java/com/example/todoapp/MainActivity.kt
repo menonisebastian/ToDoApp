@@ -70,6 +70,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
 import java.time.ZoneId
+import com.google.firebase.auth.FirebaseAuth
 
 // ============ ACTIVITY ============
 class MainActivity : ComponentActivity() {
@@ -150,6 +151,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 @Composable
 fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 {
+    val auth = FirebaseAuth.getInstance()
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
@@ -168,7 +170,6 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            //Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
             Image(
                 painter = painterResource(R.drawable.cutlogoapp),
                 modifier = Modifier.size(60.dp).padding(10.dp),
@@ -297,6 +298,7 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 @Composable
 fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
 {
+    val auth = FirebaseAuth.getInstance()
     var nombres by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
