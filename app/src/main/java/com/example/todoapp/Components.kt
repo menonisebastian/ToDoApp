@@ -24,8 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckBox
-import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
@@ -49,7 +47,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -519,6 +516,7 @@ fun AggTareaDialog(
 fun TopCard(
     nombre: String,
     listaTareas: List<Tarea>,
+    listaCompletadas: List<Tarea>,
     onVaciarLista: () -> Unit,
     onBack: () -> Unit,
     onPreferences: () -> Unit,
@@ -578,7 +576,7 @@ fun TopCard(
                     DropdownMenuItem(
                         text = { Text("Exportar tareas") },
                         leadingIcon = { Icon(Icons.Outlined.SaveAlt, contentDescription = null) },
-                        onClick = { exportarTareas(context, listaTareas); expanded = false })
+                        onClick = { exportarTareas(context, listaTareas, listaCompletadas); expanded = false })
                     HorizontalDivider()
 
                     DropdownMenuItem(

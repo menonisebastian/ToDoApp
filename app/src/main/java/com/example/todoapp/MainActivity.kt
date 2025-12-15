@@ -69,10 +69,6 @@ import java.time.temporal.ChronoUnit
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.outlined.ArrowDropDown
-import androidx.compose.material.icons.outlined.ArrowDropUp
 import java.time.ZoneId
 
 // ============ ACTIVITY ============
@@ -668,7 +664,8 @@ fun App(
                 onHelp = { showHelpDialog = true },
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
-                onCuenta = { showCuentaDialog = true}
+                onCuenta = { showCuentaDialog = true},
+                listaCompletadas = completadas
             )
 
             if (tareas.isNotEmpty()) {
@@ -813,8 +810,9 @@ fun App(
     if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
 }
 
-fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
+fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas: List<Tarea>) {
     val stringBuilder = StringBuilder()
+    stringBuilder.append("\nTAREAS:\n")
     listaTareas.forEach { tarea ->
         stringBuilder.append(
             if (tarea.fecha.isNotBlank())
@@ -822,6 +820,18 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
             else
                 "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
         )
+    }
+    if (listaCompletadas.isNotEmpty())
+    {
+        stringBuilder.append("\nTAREAS COMPLETADAS:\n")
+        listaCompletadas.forEach { tarea ->
+            stringBuilder.append(
+                if (tarea.fecha.isNotBlank())
+                    "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
+                else
+                    "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
+            )
+        }
     }
 
     val texto = stringBuilder.toString()
