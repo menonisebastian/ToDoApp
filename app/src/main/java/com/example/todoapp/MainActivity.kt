@@ -69,6 +69,10 @@ import java.time.temporal.ChronoUnit
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.ArrowDropUp
 import java.time.ZoneId
 
 // ============ ACTIVITY ============
@@ -714,13 +718,11 @@ fun App(
                             item()
                             {
                                 Spacer(Modifier.height(10.dp))
-                                CompletedTasksList( completadas, viewModel)
+                                CompletedTasksList(completadas, viewModel)
                             }
                         }
                     }
                 }
-
-
             }
             else
             {

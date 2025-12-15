@@ -49,6 +49,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -533,7 +534,7 @@ fun TopCard(
     Column(modifier = Modifier
         .fillMaxWidth()
         .shadow(15.dp, RoundedCornerShape(15.dp))
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(15.dp))
         .padding(horizontal = 20.dp, vertical = 10.dp))
     {
         Row(verticalAlignment = Alignment.CenterVertically)
@@ -615,16 +616,16 @@ fun CompletedTasksList(
 {
     var expanded by remember { mutableStateOf(false) }
 
-    Card(modifier = Modifier
+    Column(modifier = Modifier
         .fillMaxWidth()
-        .animateContentSize(),
-        elevation = CardDefaults.cardElevation(5.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+        .shadow(15.dp, RoundedCornerShape(15.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(15.dp))
+        .animateContentSize())
     {
         Column{
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp))
             {
-                Text("Completadas (${completedTasks.size})")
+                Text("Completadas (${completedTasks.size})", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, fontStyle = FontStyle.Italic)
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = { expanded = !expanded })
                 {
