@@ -6,6 +6,5 @@ data class User(
     val id: String = "",
     val email: String = "",
     val username: String = "",
-    val name: String = "",
-    val tareasList: List<Tarea>
+    val name: String = ""
 )

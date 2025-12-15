@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
 
             // Instancia del ViewModel conectada a la BD
             val viewModel: TareasViewModel = viewModel(
-                factory = TareasViewModelFactory(application)
+                factory = TareasViewModelFactory()
             )
 
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
@@ -120,8 +120,11 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
                 navController.navigate("app")
             },
                 onRegistrar = {
-                    navController.navigate("register")}
+                    navController.navigate("register")},
+                onLoginSuccess = {
+                    navController.navigate("app")}
             )
+
         }
 
         composable("register") {
@@ -149,11 +152,14 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 
 // ============ LOGIN SCREEN ============
 @Composable
-fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
+fun Login(onEnviar: (String, String) -> Unit,
+          onLoginSuccess: (String) -> Unit,
+          onRegistrar: () -> Unit)
 {
     val auth = FirebaseAuth.getInstance()
     var email by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -249,8 +255,16 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 
                 Button(
                     onClick = {
-                        if (email.isNotBlank() && pass.isNotBlank()) {
-                            showDialog = true
+                        if (email.isNotBlank() && pass.isNotBlank())
+                        {
+                            auth.signInWithEmailAndPassword(email, pass)
+                                .addOnSuccessListener { result ->
+                                    onLoginSuccess(result.user?.email ?: "Usuario")
+                                    showDialog = true
+                                }
+                                .addOnFailureListener { e ->
+                                    error = e.localizedMessage
+                                }
                         } else {
                             Toast.makeText(context, "Introduce usuario y contraseña para continuar", Toast.LENGTH_SHORT).show()
                         }
@@ -296,7 +310,7 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 
 // ============ REGISTER SCREEN ============
 @Composable
-fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
+fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
 {
     val auth = FirebaseAuth.getInstance()
     var nombres by remember { mutableStateOf("") }
@@ -305,12 +319,14 @@ fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
     var pass by remember { mutableStateOf("") }
     var passConf by remember { mutableStateOf("") }
     val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    var error by remember { mutableStateOf<String?>(null) }
     val listaDatos = listOf(nombres, email, userName, pass, fechaAlta)
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val formularioValido = nombres.isNotBlank() && email.isNotBlank() &&
             userName.isNotBlank() && pass.isNotBlank() &&
             passConf.isNotBlank()
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -477,7 +493,16 @@ fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
                                     )
                                 }
                             else
-                                showDialog = true
+                                auth.createUserWithEmailAndPassword(email, pass)
+                                    .addOnSuccessListener { result ->
+                                        onRegistrar(result.user?.email ?: "Usuario")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        error = e.localizedMessage
+                                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                    }
+
+                            showDialog = true
                         },
                         enabled = formularioValido,
                         colors = ButtonDefaults.buttonColors(
@@ -521,7 +546,7 @@ fun Registrar(onRegistrar: (List<String>) -> Unit, onBack: () -> Unit)
             LaunchedEffect(Unit) {
                 delay(3000) // Espera
                 showDialog = false // Cierra el diálogo cambiando el estado
-                onRegistrar(listaDatos)
+
             }
         }
     }
