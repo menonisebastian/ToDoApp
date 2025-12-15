@@ -112,9 +112,9 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
     NavHost(navController, startDestination = "login")
     {
         composable("login") {
-            Login(onEnviar = { user, pass ->
+            Login(onEnviar = { email, pass ->
                 navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("user", user.trim())
+                    set("user", email.trim())
                     set("pass", pass)
                 }
                 navController.navigate("app")
@@ -135,7 +135,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
         }
         composable("app") {
             val prev = navController.previousBackStackEntry?.savedStateHandle
-            val nombre = prev?.get<String>("user").orEmpty()
+            val nombre = prev?.get<String>("email").orEmpty()
 
             App(
                 nombre = nombre,
@@ -152,7 +152,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 {
     val auth = FirebaseAuth.getInstance()
-    var user by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
@@ -191,11 +191,11 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
-                    value = user,
-                    onValueChange = { user = it },
+                    value = email,
+                    onValueChange = { email = it },
                     singleLine = true,
                     shape = RoundedCornerShape(30.dp),
-                    label = { Text("Usuario") },
+                    label = { Text("Email") },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
@@ -249,7 +249,7 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
 
                 Button(
                     onClick = {
-                        if (user.isNotBlank() && pass.isNotBlank()) {
+                        if (email.isNotBlank() && pass.isNotBlank()) {
                             showDialog = true
                         } else {
                             Toast.makeText(context, "Introduce usuario y contraseña para continuar", Toast.LENGTH_SHORT).show()
@@ -288,7 +288,7 @@ fun Login(onEnviar: (String, String) -> Unit, onRegistrar: () -> Unit)
             LaunchedEffect(Unit) {
                 delay(1000) // Espera
                 showDialog = false // Cierra el diálogo cambiando el estado
-                onEnviar(user, pass)
+                onEnviar(email, pass)
             }
         }
     }
