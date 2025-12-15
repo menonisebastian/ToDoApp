@@ -812,7 +812,7 @@ fun App(
 
 fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas: List<Tarea>) {
     val stringBuilder = StringBuilder()
-    stringBuilder.append("\nTAREAS:\n")
+    stringBuilder.append("TAREAS:\n")
     listaTareas.forEach { tarea ->
         stringBuilder.append(
             if (tarea.fecha.isNotBlank())
