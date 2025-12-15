@@ -832,7 +832,7 @@ fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 @Composable
 fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
 {
-    val priority = determinePriority(tarea.fecha)
+    val priority = determinePriority(tarea)
 
     AlertDialog(
         onDismissRequest = onDismiss,

@@ -548,7 +548,6 @@ fun App(
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
     var ultimaTareaEliminada by remember { mutableStateOf<Tarea?>(null) }
-    var ultimaCompletada by remember { mutableStateOf<Tarea?>(null) }
 
     var showAddTareaDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
@@ -682,6 +681,11 @@ fun App(
                     } else {
                         items(filteredTareas, key = { it.id }) { tareaItem ->
                             Spacer(Modifier.height(10.dp))
+                            val priority = determinePriority(tareaItem)
+                            if (priority == TaskPriority.EXPIRED)
+                            {
+                                viewModel.completarTarea(tareaItem)
+                            }
                             TaskItem(
                                 tarea = tareaItem,
                                 onTaskClick = { tareaDetallada = tareaItem },
@@ -690,7 +694,6 @@ fun App(
                                 onDelete = { tareaAEliminar = tareaItem },
                                 onCheck = {
                                     viewModel.completarTarea(tareaItem)
-                                    ultimaCompletada = tareaItem
                                     scope.launch {
                                         val result = snackbarHostState
                                             .showSnackbar(
@@ -706,7 +709,6 @@ fun App(
                                             }
                                             SnackbarResult.Dismissed -> {
                                                 /* Handle snackbar dismissed */
-                                                ultimaCompletada = null
                                             }
                                         }
                                     }
@@ -885,8 +887,9 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>) {
     Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
 }
 
-fun determinePriority(dateString: String): TaskPriority {
+fun determinePriority(tarea: Tarea): TaskPriority {
     return try {
+        val dateString = tarea.fecha
         // 1. Definir el formato esperado de la fecha (ej: 25/12/2023)
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
