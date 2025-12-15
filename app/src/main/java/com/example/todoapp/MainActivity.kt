@@ -812,15 +812,19 @@ fun App(
 
 fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas: List<Tarea>) {
     val stringBuilder = StringBuilder()
-    stringBuilder.append("TAREAS:\n")
-    listaTareas.forEach { tarea ->
-        stringBuilder.append(
-            if (tarea.fecha.isNotBlank())
-                "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
-            else
-                "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
-        )
+    if (listaTareas.isNotEmpty())
+    {
+        stringBuilder.append("TAREAS PENDIENTES:\n")
+        listaTareas.forEach { tarea ->
+            stringBuilder.append(
+                if (tarea.fecha.isNotBlank())
+                    "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
+                else
+                    "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
+            )
+        }
     }
+
     if (listaCompletadas.isNotEmpty())
     {
         stringBuilder.append("\nTAREAS COMPLETADAS:\n")
@@ -838,7 +842,7 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas:
     val nombreArchivo = "tareas.txt"
     var mensaje = ""
 
-    if (listaTareas.isEmpty()) {
+    if (listaTareas.isEmpty() && listaCompletadas.isEmpty()) {
         mensaje = "No hay tareas para exportar"
     } else {
         try {
