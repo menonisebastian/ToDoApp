@@ -474,8 +474,7 @@ fun AggTareaDialog(
                         {
                             showDatePicker = false
                             datePickerState.selectedDateMillis?.let {
-                                    millis -> val sdf = SimpleDateFormat("dd/MM/yyyy",
-                                Locale.getDefault())
+                                    millis -> val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
                                 onFechaChange(sdf.format(millis))
                             }
                         }
@@ -857,7 +856,7 @@ fun TaskItem(
                 Column{
                     Text(text = tarea.texto, color = textColor)
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                    Text(text = formatearFechaParaMostrar(tarea.fecha), color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
                 }
             }
             else
@@ -894,7 +893,7 @@ fun CompletedTaskItem(
             Column{
                 Text(text = tarea.texto, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(text = tarea.fecha, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
+                Text(text = formatearFechaParaMostrar(tarea.fecha), color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
             }
         }
         else
@@ -998,7 +997,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                         modifier = Modifier.padding(10.dp))
                     if (tarea.fecha.isNotBlank())
                     {
-                        Text(text = tarea.fecha,
+                        Text(text = formatearFechaParaMostrar(tarea.fecha),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.inversePrimary,
                             modifier = Modifier.padding(10.dp))
@@ -1088,7 +1087,7 @@ fun EditTaskDialog(
                 Button(onClick = {
                     showDatePicker = false
                     datePickerState.selectedDateMillis?.let { millis ->
-                        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                        val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
                         fechaEditada = sdf.format(millis)
                     }
                 }) { Text("Aceptar") }
@@ -1305,5 +1304,17 @@ fun SocialMediaButton(
                 .size(size) // Aquí se aplica el tamaño real
                 .padding(15.dp) // Padding interno de la imagen dentro de la tarjeta
         )
+    }
+}
+
+// Función auxiliar
+fun formatearFechaParaMostrar(fechaIso: String): String {
+    if (fechaIso.isBlank()) return ""
+    return try {
+        // Divide "2025/01/01" y reordena
+        val partes = fechaIso.split("/")
+        "${partes[2]}/${partes[1]}/${partes[0]}" // Retorna "01/01/2025"
+    } catch (e: Exception) {
+        fechaIso // Si falla, devuelve la original
     }
 }

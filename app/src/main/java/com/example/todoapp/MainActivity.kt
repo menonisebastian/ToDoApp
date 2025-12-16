@@ -1089,7 +1089,7 @@ fun determinePriority(tarea: Tarea): TaskPriority {
         // Opcional: Si no hay fecha, definimos una prioridad por defecto (ej. LOW)
         if (dateString.isBlank()) return TaskPriority.UNKNOWN
 
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
         val dueDate = LocalDate.parse(dateString, formatter)
         val today = LocalDate.now()
 
@@ -1125,7 +1125,7 @@ fun scheduleTaskNotification(context: Context, taskName: String, taskDate: Strin
         )
 
         // Parseamos la fecha (dd/MM/yyyy)
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
         val date = LocalDate.parse(taskDate, formatter)
 
         // Configuramos la hora a las 9:00 AM
