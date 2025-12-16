@@ -154,6 +154,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -166,7 +167,8 @@ fun Login(onLoginSuccess: (String) -> Unit,
             containerColor = if (error) Color.Red else MaterialTheme.colorScheme.surface,
             contentColor = if (error) Color.White else MaterialTheme.colorScheme.onSurface,
             actionColor = Color.Yellow,
-            shape = RoundedCornerShape(30.dp)
+            shape = RoundedCornerShape(30.dp),
+            modifier = Modifier.padding(10.dp).width(400.dp)
         )} })
     {
         paddingValues ->
@@ -254,22 +256,40 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 Spacer(Modifier.height(20.dp))
 
                 ElevatedButton(
+                    enabled = !isLoading,
                     onClick = {
                         if (email.isNotBlank() && pass.isNotBlank())
                         {
+                            isLoading = true
+
                             auth.signInWithEmailAndPassword(email.trim(), pass.trim())
                                 .addOnSuccessListener { _ ->
+                                    // 4. Importante: Desactivar carga al tener éxito
+                                    isLoading = false
                                     showDialog = true
                                     error = false
                                 }
                                 .addOnFailureListener { e ->
+                                    // 4. Importante: Desactivar carga también si falla
+                                    isLoading = false
                                     error = true
-                                    // Manejo de errores comunes
-                                    val mensajeError = when {
-                                        e.message?.contains("password") == true -> "Contraseña incorrecta"
-                                        e.message?.contains("user-not-found") == true -> "El usuario no existe"
-                                        else -> "Datos incorrectos"
+
+                                    // Casteamos a FirebaseAuthException para leer el código de error exacto
+                                    val mensajeError = if (e is com.google.firebase.auth.FirebaseAuthException) {
+                                        when (e.errorCode) {
+                                            "ERROR_INVALID_EMAIL" -> "El formato del correo no es válido."
+                                            "ERROR_WRONG_PASSWORD" -> "La contraseña es incorrecta."
+                                            "ERROR_USER_NOT_FOUND" -> "No existe ninguna cuenta con este correo."
+                                            "ERROR_USER_DISABLED" -> "Esta cuenta ha sido inhabilitada."
+                                            "ERROR_TOO_MANY_REQUESTS" -> "Demasiados intentos fallidos. Inténtalo más tarde."
+                                            "ERROR_OPERATION_NOT_ALLOWED" -> "El inicio de sesión con correo y contraseña no está habilitado."
+                                            else -> "El email o la contraseña son incorrectos.}"
+                                        }
+                                    } else {
+                                        // Error genérico si no es de Firebase Auth (ej. falta de internet)
+                                        "Error de conexión o desconocido. Inténtalo de nuevo."
                                     }
+
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
                                             message = mensajeError,
@@ -279,6 +299,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                                 }
                         } else {
                             scope.launch {
+                                error = true
                                 snackbarHostState.showSnackbar(
                                     message = "Por favor, introduce tu email y contraseña para continuar",
                                     duration = SnackbarDuration.Short
@@ -286,9 +307,19 @@ fun Login(onLoginSuccess: (String) -> Unit,
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, disabledContainerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(text = "Iniciar sesión", fontWeight = FontWeight.Bold)
+                    // 5. Cambiamos visualmente el contenido del botón según el estado
+                    if (isLoading) {
+                        // Indicador de carga pequeño
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    } else {
+                        Text("Iniciar Sesión")
+                    }
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 10.dp)){
                     TextButton(onClick = {
@@ -353,6 +384,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
     val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
     val formularioValido = nombre.isNotBlank() && email.isNotBlank() &&
             userName.isNotBlank() && pass.isNotBlank() &&
             passConf.isNotBlank()
@@ -369,7 +401,8 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
             containerColor = Color.Red,
             contentColor = Color.White,
             actionColor = Color.Yellow,
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.padding(10.dp).width(400.dp)
         )} })
         {
             paddingValues ->
@@ -538,8 +571,10 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                     )
                                 }
                             else
+                                isLoading = true
                                 auth.createUserWithEmailAndPassword(email, pass)
                                     .addOnSuccessListener { authResult ->
+                                        isLoading = false
                                         val userId = authResult.user?.uid ?: ""
 
                                         // 3. Preparar los datos para guardar en Base de Datos
@@ -566,6 +601,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                             }
                                     }
                                     .addOnFailureListener { e ->
+                                        isLoading = false
                                         // Errores al crear la cuenta (ej: usuario ya existe)
                                         val msg = if (e.message?.contains("email address is already in use") == true)
                                             "El email $email ya está registrado."
@@ -586,7 +622,16 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                             disabledContainerColor = Color.Gray
                         )
                     ){
-                        Text(text = "Crear cuenta", fontWeight = FontWeight.Bold)
+                        if (isLoading) {
+                            // Indicador de carga pequeño
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        } else {
+                            Text(text = "Crear cuenta", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
 
@@ -821,7 +866,12 @@ fun App(
                             item()
                             {
                                 Spacer(Modifier.height(10.dp))
-                                CompletedTasksList(completadas, viewModel, scope, snackbarHostState)
+                                CompletedTasksList(
+                                    completedTasks = completadas,
+                                    viewModel = viewModel,
+                                    scope = scope,
+                                    snackbarHostState = snackbarHostState
+                                )
                             }
                         }
                     }

@@ -273,15 +273,16 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                         disabledIndicatorColor = Color.Transparent,
 
                         // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
 
 
                         // 3. Colores de iconos y texto
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.secondary,
+                        focusedLabelColor = MaterialTheme.colorScheme.secondary
                     )
                 )
 
@@ -302,15 +303,16 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                         disabledIndicatorColor = Color.Transparent,
 
                         // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
 
 
                         // 3. Colores de iconos y texto
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.secondary,
+                        focusedLabelColor = MaterialTheme.colorScheme.secondary
                     )
                 )
 
@@ -332,15 +334,16 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                         disabledIndicatorColor = Color.Transparent,
 
                         // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
 
 
                         // 3. Colores de iconos y texto
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.secondary,
+                        focusedLabelColor = MaterialTheme.colorScheme.secondary
                     )
                 )
 
@@ -361,15 +364,16 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                         disabledIndicatorColor = Color.Transparent,
 
                         // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
 
 
                         // 3. Colores de iconos y texto
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.secondary,
+                        focusedLabelColor = MaterialTheme.colorScheme.secondary
                     )
                 )
             }
@@ -518,17 +522,31 @@ fun AggTareaDialog(
                 modifier = Modifier.padding(bottom = 15.dp),
                 color = MaterialTheme.colorScheme.onSurface)
 
-            OutlinedTextField(
+            TextField(
                 value = tarea,
                 onValueChange = onTareaChange,
-                label = { Text("Describe tu tarea") },
+                label = { Text("Descripción") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(30.dp),
-                singleLine = true)
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+
+                    // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                    focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+                    // 3. Colores de iconos y texto
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary)
+            )
 
             Spacer(Modifier.height(10.dp))
 
-            OutlinedTextField(
+            TextField(
                 value = fecha,
                 onValueChange = onFechaChange,
                 label = { Text("Fecha (Opcional)") },
@@ -541,7 +559,20 @@ fun AggTareaDialog(
                         Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = "Seleccionar fecha")
                     }
                 },
-                shape = RoundedCornerShape(30.dp)
+                shape = RoundedCornerShape(30.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+
+                    // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                    focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+                    // 3. Colores de iconos y texto
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    cursorColor = MaterialTheme.colorScheme.primary)
             )
             Spacer(Modifier.height(20.dp))
 
@@ -699,11 +730,11 @@ fun CompletedTasksList(
                 {
                     if (!expanded) {
                         Icon(Icons.Outlined.ArrowDropDown,
-                            contentDescription = "Preferencias", tint = MaterialTheme.colorScheme.onSurface)
+                            contentDescription = "Expandir", tint = MaterialTheme.colorScheme.onSurface)
                     }
                     else {
                         Icon(Icons.Outlined.ArrowDropUp,
-                            contentDescription = "Preferencias", tint = MaterialTheme.colorScheme.onSurface)
+                            contentDescription = "Ocultar", tint = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }
@@ -837,7 +868,7 @@ fun TaskItem(
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onCheck) { Icon(Icons.Default.Check, contentDescription = "Completar", tint = MaterialTheme.colorScheme.secondary)}
             IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary) }
-            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar") }
+            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary) }
         }
     }
 }
@@ -872,13 +903,13 @@ fun CompletedTaskItem(
             Text(text = tarea.texto, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
         }
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Default.Delete, contentDescription = "Eliminar") }
+        IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary) }
     }
 
     if (showDeleteDialog) {
         ConfirmDeleteDialog(
             onDismiss = { showDeleteDialog = false },
-            onConfirm = { viewModel.eliminarTarea(tarea) })
+            onConfirm = { onDelete() })
     }
 }
 
@@ -1080,25 +1111,32 @@ fun EditTaskDialog(
         },
         text = {
             Column {
-                OutlinedTextField(
+                TextField(
                     value = textoEditado,
                     onValueChange = { textoEditado = it },
                     label = { Text("Descripción") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(30.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                        unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = Color.Gray
-                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+
+                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+                        // 3. Colores de iconos y texto
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary),
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Campo editable para la fecha
-                OutlinedTextField(
+                TextField(
                     value = fechaEditada,
                     onValueChange = { fechaEditada = it },
                     label = { Text("Fecha") },
@@ -1111,12 +1149,19 @@ fun EditTaskDialog(
                         }
                     },
                     shape = RoundedCornerShape(30.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                        unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = Color.Gray
-                    )
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+
+                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+                        // 3. Colores de iconos y texto
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary)
                 )
             }
         },
