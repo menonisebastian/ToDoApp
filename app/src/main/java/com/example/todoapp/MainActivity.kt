@@ -122,13 +122,10 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
         }
 
         composable("register") {
-            Registrar(onRegistrar = { listaDatos ->
-                navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("listaDatos", listaDatos)
-                }
-                navController.navigate("login")
-            },
-                onBack = { navController.popBackStack() })
+            Registrar(
+                onRegistrar = {navController.navigate("login") },
+                onBack = { navController.popBackStack() }
+            )
         }
         composable("app") {
             App(
@@ -148,12 +145,10 @@ fun Login(onLoginSuccess: (String) -> Unit,
     val auth = FirebaseAuth.getInstance()
     var email by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState)
     {
@@ -197,33 +192,37 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(
+                TextField(
                     value = email,
                     onValueChange = { email = it },
                     singleLine = true,
                     shape = RoundedCornerShape(30.dp),
                     label = { Text("Email") },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.secondary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
                     ),
                     modifier = Modifier.padding(top = 20.dp),
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Usuario") }
                 )
                 Spacer(Modifier.height(20.dp))
-                OutlinedTextField(
+                TextField(
                     value = pass,
                     onValueChange = { pass = it },
                     singleLine = true,
                     shape = RoundedCornerShape(30.dp),
                     label = { Text("Contraseña") },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.secondary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
                     ),
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -268,7 +267,6 @@ fun Login(onLoginSuccess: (String) -> Unit,
                                             duration = SnackbarDuration.Short
                                         )
                                     }
-                                    error = e.localizedMessage
                                 }
                         } else {
                             scope.launch {
@@ -332,7 +330,6 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
     var pass by remember { mutableStateOf("") }
     var passConf by remember { mutableStateOf("") }
     val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-    var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val formularioValido = nombre.isNotBlank() && email.isNotBlank() &&
@@ -397,9 +394,12 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         shape = RoundedCornerShape(30.dp),
                         label = { Text("Nombre") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
                         ),
                         leadingIcon = { Icon(Icons.Default.AppRegistration, contentDescription = "Nombre") }
                     )
@@ -411,9 +411,12 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         shape = RoundedCornerShape(30.dp),
                         label = { Text("Usuario") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
                         ),
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Usuario") }
                     )
@@ -425,9 +428,12 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         shape = RoundedCornerShape(30.dp),
                         label = { Text("Email") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
                         ),
                         leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") }
                     )
@@ -439,9 +445,12 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         shape = RoundedCornerShape(30.dp),
                         label = { Text("Contraseña") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
                         ),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -470,9 +479,12 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         shape = RoundedCornerShape(30.dp),
                         label = { Text("Confirmar contraseña") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
                         ),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -535,13 +547,17 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                     .addOnFailureListener { e ->
                                         // Errores al crear la cuenta (ej: usuario ya existe)
                                         val msg = if (e.message?.contains("email address is already in use") == true)
-                                            "El nombre de usuario '$userName' ya está ocupado."
+                                            "El email '$email' ya está registrado."
                                         else "Error: ${e.message}"
 
-                                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = msg,
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
                                     }
 
-                            showDialog = true
                         },
                         enabled = formularioValido,
                         colors = ButtonDefaults.buttonColors(
@@ -783,7 +799,7 @@ fun App(
                             item()
                             {
                                 Spacer(Modifier.height(10.dp))
-                                CompletedTasksList(completadas, viewModel,)
+                                CompletedTasksList(completadas, viewModel)
                             }
                         }
                     }
@@ -1001,7 +1017,6 @@ fun determinePriority(tarea: Tarea): TaskPriority {
         // 4. Determinar prioridad
         when {
             tarea.completada -> TaskPriority.COMPLETED
-            false -> TaskPriority.UNKNOWN
             daysUntil < 0 -> TaskPriority.EXPIRED  // Tarea vencida (Urgente)
             daysUntil <= 7 -> TaskPriority.HIGH // Faltan 7 días o menos
             daysUntil <= 14 -> TaskPriority.MEDIUM // Falta dos semanas o menos

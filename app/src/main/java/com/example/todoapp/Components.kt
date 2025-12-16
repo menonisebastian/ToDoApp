@@ -63,6 +63,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -674,41 +676,50 @@ fun CompletedTasksList(
 
 // ============ BUSCADOR DE TAREAS ============ //
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomizableSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier)
-{
-    DockedSearchBar(
-        query = query,
-        onQueryChange = onQueryChange,
-        onSearch = {},
-        active = false,
-        onActiveChange = {},
-        modifier = modifier.fillMaxWidth(),
-        placeholder = {
-            Text("Buscar tarea",
-                color = Color.Gray)
-        },
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier
+            .fillMaxWidth()
+        // Si quieres sombra, descomenta la siguiente línea:
+        // .shadow(4.dp, shape = RoundedCornerShape(30.dp))
+        ,
+        placeholder = { Text("Buscar Tarea", color = Color.Gray) },
         leadingIcon = {
-            Icon(Icons.Default.Search,
-                contentDescription = "Search")
+            Icon(Icons.Default.Search, contentDescription = "Buscar")
         },
-        trailingIcon = { if (query.isNotEmpty())
-        {
-            IconButton(
-                onClick = { onQueryChange("") })
-            {
-                Icon(Icons.Default.Close, contentDescription = "Clear search")
+        trailingIcon = {
+            // Solo mostramos la X si hay texto escrito
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Default.Close, contentDescription = "Borrar búsqueda")
+                }
             }
-        }
-        }, colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.background,
-            dividerColor = Color.Transparent),
-        shadowElevation = 10.dp)
-    {}
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(30.dp), // Forma de píldora
+        colors = TextFieldDefaults.colors(
+            // 1. Quitamos la línea inferior (underline)
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+
+            // 2. Fondo del color de tu contenedor (PrimaryContainer)
+            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+            // 3. Colores de iconos y texto
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            cursorColor = MaterialTheme.colorScheme.primary
+        )
+    )
 }
 
 // ============ TAREAS ============ //
