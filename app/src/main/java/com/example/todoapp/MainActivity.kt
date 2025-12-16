@@ -147,6 +147,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
     var pass by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -156,10 +157,10 @@ fun Login(onLoginSuccess: (String) -> Unit,
         // Aquí personalizamos el aspecto visual
         Snackbar(
             snackbarData = data,
-            containerColor = Color.Red,
-            contentColor = Color.White,
+            containerColor = if (error) Color.Red else MaterialTheme.colorScheme.surface,
+            contentColor = if (error) Color.White else MaterialTheme.colorScheme.onSurface,
             actionColor = Color.Yellow,
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(30.dp)
         )} })
     {
         paddingValues ->
@@ -253,8 +254,10 @@ fun Login(onLoginSuccess: (String) -> Unit,
                             auth.signInWithEmailAndPassword(email.trim(), pass.trim())
                                 .addOnSuccessListener { _ ->
                                     showDialog = true
+                                    error = false
                                 }
                                 .addOnFailureListener { e ->
+                                    error = true
                                     // Manejo de errores comunes
                                     val mensajeError = when {
                                         e.message?.contains("password") == true -> "Contraseña incorrecta"
