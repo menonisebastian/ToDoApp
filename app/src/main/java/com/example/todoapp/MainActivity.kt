@@ -71,6 +71,12 @@ import android.app.PendingIntent
 import android.content.Intent
 import java.time.ZoneId
 import com.google.firebase.auth.FirebaseAuth
+import android.app.Activity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.OAuthProvider
 
 // ============ ACTIVITY ============
 class MainActivity : ComponentActivity() {
@@ -304,7 +310,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 }
             }
 
-            RowButtons(onClick = {})
+            RowButtons(onGoogleClick = {}, onFacebookClick = {}, onGithubClick = {}, onMicrosoftClick = {})
 
             Spacer(Modifier.weight(1f))
 

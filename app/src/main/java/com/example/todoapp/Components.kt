@@ -1202,7 +1202,10 @@ fun PriorityChip(priority: TaskPriority) {
 }
 
 @Composable
-fun RowButtons(onClick: () -> Unit)
+fun RowButtons(onGoogleClick: () -> Unit,
+               onGithubClick: () -> Unit,
+               onMicrosoftClick: () -> Unit,
+               onFacebookClick: () -> Unit)
 {
     // 1. Define el tamaño aquí para afectar a todos a la vez
     val buttonSize = 60.dp
@@ -1215,22 +1218,22 @@ fun RowButtons(onClick: () -> Unit)
         SocialMediaButton(
             iconRes = R.drawable.google,
             size = buttonSize,
-            onClick = onClick
+            onClick = onGoogleClick
         )
         SocialMediaButton(
             iconRes = R.drawable.github4,
             size = buttonSize,
-            onClick = onClick
+            onClick = onGithubClick
         )
         SocialMediaButton(
             iconRes = R.drawable.microsoft,
             size = buttonSize,
-            onClick = onClick
+            onClick = onMicrosoftClick
         )
         SocialMediaButton(
             iconRes = R.drawable.facebook,
             size = buttonSize,
-            onClick = onClick
+            onClick = onFacebookClick
         )
     }
 }
