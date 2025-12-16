@@ -219,6 +219,7 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
     val usuarioMostrar = usuario?.username ?: "..."
     val emailMostrar = usuario?.email ?: "..." // Si usaste @PropertyName("email_contacto") en User.kt, esto funcionará
     val fechaMostrar = usuario?.fechaalta ?: "..."
+    var enabled by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -257,70 +258,117 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                     .padding(horizontal = 10.dp, vertical = 20.dp))
             {
                 // 1. Nombre
-                OutlinedTextField(
+                TextField(
                     value = nombreMostrar,
                     onValueChange = {},
-                    enabled = false,
+                    enabled = enabled,
                     label = { Text("Nombre") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = Color.Transparent, // Borde visible
-                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary, // Label legible
-                        disabledContainerColor = Color.Transparent // Fondo transparente
+                    shape = RoundedCornerShape(30.dp),
+                    colors = TextFieldDefaults.colors(
+                        // 1. Quitamos la línea inferior (underline)
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+
+                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+
+                        // 3. Colores de iconos y texto
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 2. Usuario
-                OutlinedTextField(
+                TextField(
                     value = usuarioMostrar,
                     onValueChange = {},
-                    enabled = false,
+                    enabled = enabled,
                     label = { Text("Usuario") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = Color.Transparent,
-                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    shape = RoundedCornerShape(30.dp),
+                    colors = TextFieldDefaults.colors(
+                        // 1. Quitamos la línea inferior (underline)
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+
+                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+
+                        // 3. Colores de iconos y texto
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 3. Email
-                OutlinedTextField(
+                TextField(
                     value = emailMostrar,
                     onValueChange = {},
-                    enabled = false,
+                    enabled = enabled,
                     label = { Text("Email") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = Color.Transparent,
-                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    shape = RoundedCornerShape(30.dp),
+                    colors = TextFieldDefaults.colors(
+                        // 1. Quitamos la línea inferior (underline)
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+
+                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+
+                        // 3. Colores de iconos y texto
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 4. Fecha de Registro
-                OutlinedTextField(
+                TextField(
                     value = fechaMostrar,
                     onValueChange = {},
                     enabled = false,
                     label = { Text("Fecha de Registro") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = Color.Transparent,
-                        disabledLabelColor = MaterialTheme.colorScheme.inversePrimary
+                    shape = RoundedCornerShape(30.dp),
+                    colors = TextFieldDefaults.colors(
+                        // 1. Quitamos la línea inferior (underline)
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+
+                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
+                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+
+                        // 3. Colores de iconos y texto
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
@@ -347,7 +395,7 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                             .padding(top = 10.dp)
                             .padding(horizontal = 20.dp))
 
-                    IconButton(onClick = {})
+                    IconButton(onClick = {enabled = true})
                     {
                         Icon(imageVector = Icons.Default.Edit, contentDescription = "Eliminar Cuenta",
                             modifier = Modifier.size(40.dp),

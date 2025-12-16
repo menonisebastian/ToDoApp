@@ -246,7 +246,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
 
                 Spacer(Modifier.height(20.dp))
 
-                Button(
+                ElevatedButton(
                     onClick = {
                         if (email.isNotBlank() && pass.isNotBlank())
                         {
@@ -507,7 +507,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                     )
                     Spacer(Modifier.height(20.dp))
 
-                    Button(
+                    ElevatedButton(
                         onClick = {
                             if (pass != passConf)
                                 scope.launch {
@@ -547,7 +547,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                     .addOnFailureListener { e ->
                                         // Errores al crear la cuenta (ej: usuario ya existe)
                                         val msg = if (e.message?.contains("email address is already in use") == true)
-                                            "El email '$email' ya está registrado."
+                                            "El email $email ya está registrado."
                                         else "Error: ${e.message}"
 
                                         scope.launch {
