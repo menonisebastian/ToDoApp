@@ -213,7 +213,6 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 
 @Composable
 fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
-    val context = LocalContext.current
 
     // 1. LÓGICA DE DATOS: Extraemos los valores o mostramos "Cargando..." si es null
     // Asegúrate de que tu clase User tenga estos nombres de variables (nombre, username, email, fechaRegistro)
