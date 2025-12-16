@@ -614,6 +614,7 @@ fun TopCard(
                     tint = MaterialTheme.colorScheme.onSurface)
                 DropdownMenu(expanded = expanded,
                     onDismissRequest = { expanded = false },
+                    shape = RoundedCornerShape(30.dp),
                     modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 )
                 {
