@@ -182,7 +182,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 modifier = Modifier.width(150.dp).padding(top = 10.dp),
                 contentDescription = "logo texto"
             )
-            Spacer(Modifier.height(150.dp))
+            Spacer(Modifier.height(120.dp))
             Column(
                 modifier = Modifier
                     .shadow(15.dp, RoundedCornerShape(20.dp))
@@ -281,12 +281,24 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 ) {
                     Text(text = "Iniciar sesión", fontWeight = FontWeight.Bold)
                 }
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 10.dp)){
+                    TextButton(onClick = {
+                        onRegistrar()
+                    },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
+                    { Text("Registrarme") }
 
-                TextButton(onClick = {
-                    onRegistrar()
-                },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
-                { Text("Registrarme") }
+                    TextButton(onClick = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Por implementar",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.inversePrimary))
+                    { Text("Recuperar contraseña") }
+                }
             }
 
             RowButtons(onClick = {})
