@@ -7,6 +7,6 @@ enum class TaskPriority(val label: String, val color: Color) {
     MEDIUM("Media", Color(0xFFFF9800)), // Naranja
     LOW("Baja", Color(0xFF43A047)),    // Verde
     EXPIRED("Vencida", Color.Gray),
-    COMPLETED("Completada", Color.Blue),
+    COMPLETED("Completada", Color(0xFF017FFC)),
     UNKNOWN("Sin Fecha", Color.Gray)         // En caso de error de formato
 }

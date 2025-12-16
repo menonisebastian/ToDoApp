@@ -44,7 +44,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,8 +56,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -87,6 +88,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -674,10 +676,13 @@ fun TopCard(
 fun CompletedTasksList(
     completedTasks: List<Tarea>,
     viewModel: TareasViewModel,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
 )
 {
     var expanded by remember { mutableStateOf(false) }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
+    var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
 
 
     Column(modifier = Modifier
@@ -711,7 +716,7 @@ fun CompletedTasksList(
                 {
                     items(completedTasks, key = { it.id }) { tareaItem ->
                         HorizontalDivider()
-                        CompletedTaskItem(tarea = tareaItem, viewModel = viewModel, onTaskClick = {tareaDetallada = tareaItem})
+                        CompletedTaskItem(tarea = tareaItem, viewModel = viewModel, onTaskClick = {tareaDetallada = tareaItem}, onDelete = {tareaAEliminar = tareaItem})
                     }
                 }
             }
@@ -720,8 +725,35 @@ fun CompletedTasksList(
     if (tareaDetallada != null) {
         DetailTaskDialog(tarea = tareaDetallada!!, onDismiss = { tareaDetallada = null })
     }
+    if (tareaAEliminar != null) {
+        ConfirmDeleteDialog(
+            onDismiss = { tareaAEliminar = null },
+            onConfirm = {
+                val taskToDelete = tareaAEliminar!!
+                viewModel.eliminarTarea(taskToDelete)
+                scope.launch {
+                    val result = snackbarHostState
+                        .showSnackbar(
+                            message = "Tarea eliminada. \nClickea o agita para deshacer.",
+                            actionLabel = "Deshacer",
+                            // Defaults to SnackbarDuration.Short
+                            duration = SnackbarDuration.Short
+                        )
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            /* Handle snackbar action performed */
+                            viewModel.restaurarTarea(taskToDelete)
+                        }
+                        SnackbarResult.Dismissed -> {
+                            /* Handle snackbar dismissed */
+                        }
+                    }
+                }
+                tareaAEliminar = null
+            }
+        )
+    }
 }
-
 
 // ============ BUSCADOR DE TAREAS ============ //
 
@@ -804,8 +836,8 @@ fun TaskItem(
                 Text(text = tarea.texto, color = textColor)
             }
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = onCheck) { Icon(Icons.Default.Check, contentDescription = "Completar") }
-            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar") }
+            IconButton(onClick = onCheck) { Icon(Icons.Default.Check, contentDescription = "Completar", tint = MaterialTheme.colorScheme.secondary)}
+            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary) }
             IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar") }
         }
     }
@@ -817,7 +849,8 @@ fun TaskItem(
 fun CompletedTaskItem(
     tarea: Tarea,
     viewModel: TareasViewModel,
-    onTaskClick: () -> Unit
+    onTaskClick: () -> Unit,
+    onDelete: () -> Unit
 )
 {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -825,7 +858,8 @@ fun CompletedTaskItem(
     Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp).clickable { onTaskClick() },
         verticalAlignment = Alignment.CenterVertically)
     {
-        IconButton(onClick = {viewModel.descompletarTarea(tarea)}) { Icon(Icons.Default.Check, contentDescription = "Editar")}
+        IconButton(onClick = {viewModel.descompletarTarea(tarea)})
+        { Icon(Icons.Default.Check, contentDescription = "Editar", tint = MaterialTheme.colorScheme.secondary)}
         if (tarea.fecha.isNotBlank())
         {
             Column{

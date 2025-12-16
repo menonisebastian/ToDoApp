@@ -814,7 +814,7 @@ fun App(
                             item()
                             {
                                 Spacer(Modifier.height(10.dp))
-                                CompletedTasksList(completadas, viewModel)
+                                CompletedTasksList(completadas, viewModel, scope, snackbarHostState)
                             }
                         }
                     }
@@ -824,7 +824,12 @@ fun App(
             {
                 if (completadas.isNotEmpty()) {
                     Spacer(Modifier.height(10.dp))
-                    CompletedTasksList(completedTasks = completadas, viewModel = viewModel)
+                    CompletedTasksList(
+                        completedTasks = completadas,
+                        viewModel = viewModel,
+                        scope = scope,
+                        snackbarHostState = snackbarHostState
+                    )
                 }
                 EmptyTasksMessage()
             }
@@ -881,7 +886,7 @@ fun App(
                 scope.launch {
                     val result = snackbarHostState
                         .showSnackbar(
-                            message = "Tarea eliminada. Clickea o agita para deshacer.",
+                            message = "Tarea eliminada. \nClickea o agita para deshacer.",
                             actionLabel = "Deshacer",
                             // Defaults to SnackbarDuration.Short
                             duration = SnackbarDuration.Short
