@@ -52,8 +52,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SelectableDates
@@ -1073,7 +1071,7 @@ fun EditTaskDialog(
         initialSelectedDateMillis = if (fechaEditada.isNotBlank()) {
             try {
                 SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(fechaEditada)?.time ?: System.currentTimeMillis()
-            } catch (e: Exception) { System.currentTimeMillis() }
+            } catch (e: Exception) { System.currentTimeMillis()}
         } else System.currentTimeMillis(),
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
