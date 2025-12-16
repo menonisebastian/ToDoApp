@@ -26,6 +26,9 @@ class TareasViewModel : ViewModel() {
     // 1. Fuente de verdad: Todas las tareas crudas desde Firebase
     private val _todasLasTareas = MutableStateFlow<List<Tarea>>(emptyList())
 
+    private val _datosUsuario = MutableStateFlow<User?>(null)
+    val datosUsuario: StateFlow<User?> = _datosUsuario.asStateFlow()
+
     // 2. Filtros para la UI (Derivados de _todasLasTareas)
 
     // Lista de tareas PENDIENTES (completada == false)
@@ -45,9 +48,13 @@ class TareasViewModel : ViewModel() {
             if (user != null) {
                 currentUserId = user.uid
                 escucharTareas(user.uid)
+                // 2. NUEVO: Obtener el nombre desde Firestore
+                obtenerNombreUsuario(user.uid)
+                obtenerDatosUsuario(user.uid)
             } else {
                 currentUserId = null
                 _todasLasTareas.value = emptyList()
+                _datosUsuario.value = null
                 snapshotListener?.remove()
             }
         }
@@ -87,6 +94,16 @@ class TareasViewModel : ViewModel() {
             }
             .addOnFailureListener {
                 _nombreUsuario.value = "Usuario"
+            }
+    }
+
+    private fun obtenerDatosUsuario(uid: String) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val usuario = document.toObject(User::class.java)
+                    _datosUsuario.value = usuario
+                }
             }
     }
 

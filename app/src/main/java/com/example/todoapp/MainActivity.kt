@@ -69,6 +69,7 @@ import java.time.temporal.ChronoUnit
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
+import androidx.compose.foundation.clickable
 import java.time.ZoneId
 import com.google.firebase.auth.FirebaseAuth
 
@@ -241,7 +242,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                         if (email.isNotBlank() && pass.isNotBlank())
                         {
                             auth.signInWithEmailAndPassword(email.trim(), pass.trim())
-                                .addOnSuccessListener { result ->
+                                .addOnSuccessListener { _ ->
                                     showDialog = true
                                 }
                                 .addOnFailureListener { e ->
@@ -269,6 +270,71 @@ fun Login(onLoginSuccess: (String) -> Unit,
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
                 { Text("Registrarme") }
             }
+
+            Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center)
+            {
+                Card(modifier = Modifier
+                    .padding(20.dp),
+                    elevation = CardDefaults.cardElevation(5.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+                {
+                    IconButton(onClick = {})
+                    {
+                        Image(
+                            painter = painterResource(R.drawable.google),
+                            modifier = Modifier.size(60.dp).padding(10.dp),
+                            contentDescription = "Logo"
+                        )
+                    }
+                }
+
+                Card(modifier = Modifier
+                    .padding(20.dp),
+                    elevation = CardDefaults.cardElevation(5.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+                {
+                    IconButton(onClick = {})
+                    {
+                        Image(
+                            painter = painterResource(R.drawable.instagram),
+                            modifier = Modifier.size(60.dp).padding(10.dp),
+                            contentDescription = "Logo"
+                        )
+                    }
+                }
+
+                Card(modifier = Modifier
+                    .padding(20.dp),
+                    elevation = CardDefaults.cardElevation(5.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+                {
+                    IconButton(onClick = {})
+                    {
+                        Image(
+                            painter = painterResource(R.drawable.github2),
+                            modifier = Modifier.size(60.dp).padding(10.dp),
+                            contentDescription = "Logo"
+                        )
+                    }
+                }
+
+                Card(modifier = Modifier
+                    .padding(20.dp),
+                    elevation = CardDefaults.cardElevation(5.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+                {
+                    IconButton(onClick = {})
+                    {
+                        Image(
+                            painter = painterResource(R.drawable.facebook),
+                            modifier = Modifier.size(60.dp).padding(10.dp),
+                            contentDescription = "Logo"
+                        )
+                    }
+                }
+            }
+
 
             Spacer(Modifier.weight(1f))
 
@@ -303,7 +369,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
 {
     val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
     val auth = FirebaseAuth.getInstance()
-    var nombres by remember { mutableStateOf("") }
+    var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
@@ -312,7 +378,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
     var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
-    val formularioValido = nombres.isNotBlank() && email.isNotBlank() &&
+    val formularioValido = nombre.isNotBlank() && email.isNotBlank() &&
             userName.isNotBlank() && pass.isNotBlank() &&
             passConf.isNotBlank()
     val context = LocalContext.current
@@ -368,8 +434,8 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         modifier = Modifier.padding(bottom = 10.dp),
                         color = MaterialTheme.colorScheme.onSurface)
                     TextField(
-                        value = nombres,
-                        onValueChange = { nombres = it },
+                        value = nombre,
+                        onValueChange = { nombre = it },
                         singleLine = true,
                         shape = RoundedCornerShape(30.dp),
                         label = { Text("Nombre") },
@@ -490,13 +556,15 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                         val nuevoUsuario = hashMapOf(
                                             "id" to userId,
                                             "username" to userName.trim(), // El usuario corto para mostrar
-                                            "nombre" to nombres,
-                                            "email_contacto" to email, // El email real (gmail/hotmail) para contactar
-                                            "fechaRegistro" to fechaAlta
+                                            "nombre" to nombre,
+                                            "email" to email, // El email real (gmail/hotmail) para contactar
+                                            "fechaalta" to fechaAlta
                                         )
 
                                         // 4. Guardar en Firestore: Colección "users", Documento = UID
-                                        db.collection("users").document(userId).set(nuevoUsuario)
+                                        db.collection("users")
+                                            .document(userId)
+                                            .set(nuevoUsuario)
                                             .addOnSuccessListener {
                                                 // Todo salió bien
                                                 showDialog = true
@@ -579,6 +647,7 @@ fun App(
     // OBSERVAMOS LA BD DESDE EL VIEWMODEL
     val tareas by viewModel.listaTareas.collectAsStateWithLifecycle()
     val completadas by viewModel.listaCompletadas.collectAsStateWithLifecycle()
+    val datosUsuario by viewModel.datosUsuario.collectAsStateWithLifecycle()
 
     var fecha by remember { mutableStateOf("") }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
@@ -841,7 +910,8 @@ fun App(
 
     if (showCuentaDialog)
     {
-        CuentaDialog(onDismiss = { showCuentaDialog = false })
+        CuentaDialog(usuario = datosUsuario,
+            onDismiss = { showCuentaDialog = false })
     }
 
     if (tareaDetallada != null) {

@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -206,8 +207,15 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 // ============ CUENTA DEL USUARIO ============ //
 
 @Composable
-fun CuentaDialog(onDismiss: () -> Unit) {
+fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
     val context = LocalContext.current
+
+    // 1. LÓGICA DE DATOS: Extraemos los valores o mostramos "Cargando..." si es null
+    // Asegúrate de que tu clase User tenga estos nombres de variables (nombre, username, email, fechaRegistro)
+    val nombreMostrar = usuario?.nombre ?: "Cargando..."
+    val usuarioMostrar = usuario?.username ?: "..."
+    val emailMostrar = usuario?.email ?: "..." // Si usaste @PropertyName("email_contacto") en User.kt, esto funcionará
+    val fechaMostrar = usuario?.fechaalta ?: "..."
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -246,7 +254,7 @@ fun CuentaDialog(onDismiss: () -> Unit) {
             {
                 // 1. Nombre
                 OutlinedTextField(
-                    value = "Sebastián Menoni",
+                    value = nombreMostrar,
                     onValueChange = {},
                     enabled = false,
                     label = { Text("Nombre") },
@@ -264,7 +272,7 @@ fun CuentaDialog(onDismiss: () -> Unit) {
 
                 // 2. Usuario
                 OutlinedTextField(
-                    value = "arturomenoni",
+                    value = usuarioMostrar,
                     onValueChange = {},
                     enabled = false,
                     label = { Text("Usuario") },
@@ -281,11 +289,12 @@ fun CuentaDialog(onDismiss: () -> Unit) {
 
                 // 3. Email
                 OutlinedTextField(
-                    value = "arturomenoni@gmail.com",
+                    value = emailMostrar,
                     onValueChange = {},
                     enabled = false,
                     label = { Text("Email") },
                     modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                     shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         disabledTextColor = MaterialTheme.colorScheme.onSurface,
@@ -298,7 +307,7 @@ fun CuentaDialog(onDismiss: () -> Unit) {
 
                 // 4. Fecha de Registro
                 OutlinedTextField(
-                    value = "10/11/2025",
+                    value = fechaMostrar,
                     onValueChange = {},
                     enabled = false,
                     label = { Text("Fecha de Registro") },
@@ -529,7 +538,7 @@ fun TopCard(
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val nombre by viewModel.nombreUsuario.collectAsStateWithLifecycle()
-
+    val auth = FirebaseAuth.getInstance()
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -590,7 +599,7 @@ fun TopCard(
                     DropdownMenuItem(
                         text = { Text("Salir") },
                         leadingIcon = { Icon(Icons.Outlined.Close, contentDescription = null) },
-                        onClick = { onBack() })
+                        onClick = { auth.signOut(); onBack()  })
                 }
             }
         }
@@ -842,7 +851,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
             {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(10.dp))
                 {
-                    Text("ID: ${tarea.id}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text("Estado: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     if (tarea.fecha.isNotBlank())
                     {
                         Spacer(modifier = Modifier.weight(1f))
