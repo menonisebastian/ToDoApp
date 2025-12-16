@@ -1017,29 +1017,33 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas:
 }
 
 fun determinePriority(tarea: Tarea): TaskPriority {
+    // 1. PRIMERO: Si ya está hecha, no importa la fecha. Devolvemos COMPLETED y salimos.
+    if (tarea.completada) {
+        return TaskPriority.COMPLETED
+    }
+
     return try {
         val dateString = tarea.fecha
-        // 1. Definir el formato esperado de la fecha (ej: 25/12/2023)
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
-        // 2. Parsear el string a LocalDate
+        // Opcional: Si no hay fecha, definimos una prioridad por defecto (ej. LOW)
+        if (dateString.isBlank()) return TaskPriority.UNKNOWN
+
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         val dueDate = LocalDate.parse(dateString, formatter)
         val today = LocalDate.now()
 
-        // 3. Calcular diferencia de días
         val daysUntil = ChronoUnit.DAYS.between(today, dueDate)
 
-        // 4. Determinar prioridad
+        // 2. Ahora evaluamos el resto de prioridades basadas en el tiempo
         when {
-            tarea.completada -> TaskPriority.COMPLETED
-            daysUntil < 0 -> TaskPriority.EXPIRED  // Tarea vencida (Urgente)
-            daysUntil <= 7 -> TaskPriority.HIGH // Faltan 7 días o menos
-            daysUntil <= 14 -> TaskPriority.MEDIUM // Falta dos semanas o menos
-            else -> TaskPriority.LOW            // Falta más de dos semanas
+            daysUntil < 0 -> TaskPriority.EXPIRED
+            daysUntil <= 7 -> TaskPriority.HIGH
+            daysUntil <= 14 -> TaskPriority.MEDIUM
+            else -> TaskPriority.LOW
         }
     } catch (e: Exception) {
-        // Si el string no tiene el formato correcto
-        e.printStackTrace()
+        // Solo llegamos aquí si la fecha estaba mal formateada
+        // e.printStackTrace() // Descomentar para depurar si es necesario
         TaskPriority.UNKNOWN
     }
 }

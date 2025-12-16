@@ -746,7 +746,7 @@ fun CustomizableSearchBar(
             // Solo mostramos la X si hay texto escrito
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Default.Close, contentDescription = "Borrar búsqueda")
+                    Icon(Icons.Default.Close, contentDescription = "Borrar búsqueda", tint = MaterialTheme.colorScheme.onSurface)
                 }
             }
         },
@@ -919,12 +919,9 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
             {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp))
                 {
-                    Text("PRIORIDAD: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    if (tarea.fecha.isNotBlank())
-                    {
-                        Spacer(modifier = Modifier.weight(1f))
-                        PriorityChip(priority)
-                    }
+                    Text("Estado: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.weight(1f))
+                    PriorityChip(priority)
                 }
             }
         },
@@ -1150,7 +1147,15 @@ fun PriorityChip(priority: TaskPriority) {
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(horizontal = 12.dp, vertical = 10.dp)
-            .width(if (priority == TaskPriority.EXPIRED) 50.dp else 40.dp),
+            .width(
+                when(priority)
+                {
+                    TaskPriority.EXPIRED -> 50.dp
+                    TaskPriority.COMPLETED -> 80.dp
+                    TaskPriority.UNKNOWN -> 60.dp
+                    else -> 40.dp
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
