@@ -79,6 +79,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -224,7 +225,8 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                     MaterialTheme.colorScheme.background,
                     RoundedCornerShape(20.dp)
                 )
-                .padding(horizontal = 20.dp, vertical = 20.dp),
+                .padding(horizontal = 20.dp, vertical = 20.dp)
+                .width(300.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(painter = painterResource(id = R.drawable.fontlogo),
@@ -250,7 +252,7 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                         MaterialTheme.colorScheme.surface,
                         RoundedCornerShape(20.dp)
                     )
-                    .padding(20.dp))
+                    .padding(horizontal = 10.dp, vertical = 20.dp))
             {
                 // 1. Nombre
                 OutlinedTextField(
@@ -620,10 +622,12 @@ fun TopCard(
 @Composable
 fun CompletedTasksList(
     completedTasks: List<Tarea>,
-    viewModel: TareasViewModel
+    viewModel: TareasViewModel,
 )
 {
     var expanded by remember { mutableStateOf(false) }
+    var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
+
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -656,11 +660,14 @@ fun CompletedTasksList(
                 {
                     items(completedTasks, key = { it.id }) { tareaItem ->
                         HorizontalDivider()
-                        CompletedTaskItem(tarea = tareaItem, viewModel)
+                        CompletedTaskItem(tarea = tareaItem, viewModel = viewModel, onTaskClick = {tareaDetallada = tareaItem})
                     }
                 }
             }
         }
+    }
+    if (tareaDetallada != null) {
+        DetailTaskDialog(tarea = tareaDetallada!!, onDismiss = { tareaDetallada = null })
     }
 }
 
@@ -749,11 +756,13 @@ fun TaskItem(
 @Composable
 fun CompletedTaskItem(
     tarea: Tarea,
-    viewModel: TareasViewModel)
+    viewModel: TareasViewModel,
+    onTaskClick: () -> Unit
+)
 {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
+    Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp).clickable { onTaskClick() },
         verticalAlignment = Alignment.CenterVertically)
     {
         IconButton(onClick = {viewModel.descompletarTarea(tarea)}) { Icon(Icons.Default.Check, contentDescription = "Editar")}
@@ -849,9 +858,9 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
             Card(elevation = CardDefaults.cardElevation(10.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
             {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp))
                 {
-                    Text("Estado: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text("PRIORIDAD: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     if (tarea.fecha.isNotBlank())
                     {
                         Spacer(modifier = Modifier.weight(1f))
@@ -1090,6 +1099,66 @@ fun PriorityChip(priority: TaskPriority) {
             color = priority.color, // Texto del color fuerte
             fontWeight = FontWeight.Bold,
             fontSize = 12.sp
+        )
+    }
+}
+
+@Composable
+fun RowButtons(onClick: () -> Unit)
+{
+    // 1. Define el tamaño aquí para afectar a todos a la vez
+    val buttonSize = 60.dp
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth() // Asegura que la fila ocupe el ancho
+    ) {
+        SocialMediaButton(
+            iconRes = R.drawable.google,
+            size = buttonSize,
+            onClick = onClick
+        )
+        SocialMediaButton(
+            iconRes = R.drawable.github4,
+            size = buttonSize,
+            onClick = onClick
+        )
+        SocialMediaButton(
+            iconRes = R.drawable.microsoft,
+            size = buttonSize,
+            onClick = onClick
+        )
+        SocialMediaButton(
+            iconRes = R.drawable.facebook,
+            size = buttonSize,
+            onClick = onClick
+        )
+    }
+}
+
+// Componente reutilizable para evitar repetir código
+@Composable
+fun SocialMediaButton(
+    iconRes: Int,
+    size: Dp,
+    onClick: () -> Unit
+) {
+    Card(
+        elevation = CardDefaults.cardElevation(5.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier
+            .padding(15.dp) // Espacio entre tarjetas
+            .clickable { onClick() },
+    ) {
+        // 2. Eliminamos IconButton. La imagen controla el tamaño.
+        Image(
+            painter = painterResource(iconRes),
+            contentDescription = "Logo",
+            modifier = Modifier
+                .size(size) // Aquí se aplica el tamaño real
+                .padding(15.dp) // Padding interno de la imagen dentro de la tarjeta
         )
     }
 }

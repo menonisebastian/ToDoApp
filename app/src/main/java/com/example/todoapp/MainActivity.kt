@@ -69,7 +69,6 @@ import java.time.temporal.ChronoUnit
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.compose.foundation.clickable
 import java.time.ZoneId
 import com.google.firebase.auth.FirebaseAuth
 
@@ -132,9 +131,6 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
                 onBack = { navController.popBackStack() })
         }
         composable("app") {
-            val prev = navController.previousBackStackEntry?.savedStateHandle
-            val nombre = prev?.get<String>("email").orEmpty()
-
             App(
                 onBack = { navController.popBackStack() },
                 taskTextColor = taskTextColor,
@@ -155,9 +151,21 @@ fun Login(onLoginSuccess: (String) -> Unit,
     var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    Scaffold()
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState)
+    {
+            data ->
+        // Aquí personalizamos el aspecto visual
+        Snackbar(
+            snackbarData = data,
+            containerColor = Color.Red,
+            contentColor = Color.White,
+            actionColor = Color.Yellow,
+            shape = RoundedCornerShape(10.dp)
+        )} })
     {
         paddingValues ->
         Column(
@@ -198,7 +206,8 @@ fun Login(onLoginSuccess: (String) -> Unit,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
                     ),
                     modifier = Modifier.padding(top = 20.dp),
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Usuario") }
@@ -213,7 +222,8 @@ fun Login(onLoginSuccess: (String) -> Unit,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary
+                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
                     ),
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -250,13 +260,23 @@ fun Login(onLoginSuccess: (String) -> Unit,
                                     val mensajeError = when {
                                         e.message?.contains("password") == true -> "Contraseña incorrecta"
                                         e.message?.contains("user-not-found") == true -> "El usuario no existe"
-                                        else -> "Error de conexión o credenciales"
+                                        else -> "Datos incorrectos"
                                     }
-                                    Toast.makeText(context, mensajeError, Toast.LENGTH_SHORT).show()
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = mensajeError,
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
                                     error = e.localizedMessage
                                 }
                         } else {
-                            Toast.makeText(context, "Introduce usuario y contraseña para continuar", Toast.LENGTH_SHORT).show()
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Por favor, introduce tu email y contraseña para continuar",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -271,70 +291,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 { Text("Registrarme") }
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center)
-            {
-                Card(modifier = Modifier
-                    .padding(20.dp),
-                    elevation = CardDefaults.cardElevation(5.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
-                {
-                    IconButton(onClick = {})
-                    {
-                        Image(
-                            painter = painterResource(R.drawable.google),
-                            modifier = Modifier.size(60.dp).padding(10.dp),
-                            contentDescription = "Logo"
-                        )
-                    }
-                }
-
-                Card(modifier = Modifier
-                    .padding(20.dp),
-                    elevation = CardDefaults.cardElevation(5.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
-                {
-                    IconButton(onClick = {})
-                    {
-                        Image(
-                            painter = painterResource(R.drawable.instagram),
-                            modifier = Modifier.size(60.dp).padding(10.dp),
-                            contentDescription = "Logo"
-                        )
-                    }
-                }
-
-                Card(modifier = Modifier
-                    .padding(20.dp),
-                    elevation = CardDefaults.cardElevation(5.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
-                {
-                    IconButton(onClick = {})
-                    {
-                        Image(
-                            painter = painterResource(R.drawable.github2),
-                            modifier = Modifier.size(60.dp).padding(10.dp),
-                            contentDescription = "Logo"
-                        )
-                    }
-                }
-
-                Card(modifier = Modifier
-                    .padding(20.dp),
-                    elevation = CardDefaults.cardElevation(5.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
-                {
-                    IconButton(onClick = {})
-                    {
-                        Image(
-                            painter = painterResource(R.drawable.facebook),
-                            modifier = Modifier.size(60.dp).padding(10.dp),
-                            contentDescription = "Logo"
-                        )
-                    }
-                }
-            }
-
+            RowButtons(onClick = {})
 
             Spacer(Modifier.weight(1f))
 
@@ -826,7 +783,7 @@ fun App(
                             item()
                             {
                                 Spacer(Modifier.height(10.dp))
-                                CompletedTasksList(completadas, viewModel)
+                                CompletedTasksList(completadas, viewModel,)
                             }
                         }
                     }
@@ -836,7 +793,7 @@ fun App(
             {
                 if (completadas.isNotEmpty()) {
                     Spacer(Modifier.height(10.dp))
-                    CompletedTasksList(completadas, viewModel)
+                    CompletedTasksList(completedTasks = completadas, viewModel = viewModel)
                 }
                 EmptyTasksMessage()
             }
@@ -890,7 +847,24 @@ fun App(
                 val taskToDelete = tareaAEliminar!!
                 ultimaTareaEliminada = taskToDelete
                 viewModel.eliminarTarea(taskToDelete)
-                Toast.makeText(context, "Tarea eliminada. Agita para deshacer.", Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    val result = snackbarHostState
+                        .showSnackbar(
+                            message = "Tarea eliminada. Clickea o agita para deshacer.",
+                            actionLabel = "Deshacer",
+                            // Defaults to SnackbarDuration.Short
+                            duration = SnackbarDuration.Short
+                        )
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            /* Handle snackbar action performed */
+                            viewModel.restaurarTarea(taskToDelete)
+                        }
+                        SnackbarResult.Dismissed -> {
+                            /* Handle snackbar dismissed */
+                        }
+                    }
+                }
                 tareaAEliminar = null
             }
         )
@@ -928,9 +902,9 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas:
         listaTareas.forEach { tarea ->
             stringBuilder.append(
                 if (tarea.fecha.isNotBlank())
-                    "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
+                    "Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
                 else
-                    "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
+                    "Tarea: ${tarea.texto}\n"
             )
         }
     }
@@ -941,9 +915,9 @@ fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas:
         listaCompletadas.forEach { tarea ->
             stringBuilder.append(
                 if (tarea.fecha.isNotBlank())
-                    "ID: ${tarea.id} - Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
+                    "Tarea: ${tarea.texto} - Fecha: ${tarea.fecha}\n"
                 else
-                    "ID: ${tarea.id} - Tarea: ${tarea.texto}\n"
+                    "Tarea: ${tarea.texto}\n"
             )
         }
     }
@@ -1026,6 +1000,8 @@ fun determinePriority(tarea: Tarea): TaskPriority {
 
         // 4. Determinar prioridad
         when {
+            tarea.completada -> TaskPriority.COMPLETED
+            false -> TaskPriority.UNKNOWN
             daysUntil < 0 -> TaskPriority.EXPIRED  // Tarea vencida (Urgente)
             daysUntil <= 7 -> TaskPriority.HIGH // Faltan 7 días o menos
             daysUntil <= 14 -> TaskPriority.MEDIUM // Falta dos semanas o menos

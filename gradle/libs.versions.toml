@@ -16,6 +16,7 @@ datastore = "1.1.1"
 room = "2.6.1"
 firebaseBom = "33.5.1"
 googleServices = "4.4.4"
+uiUnit = "1.10.0"
 
 
 [libraries]
@@ -44,6 +45,7 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+androidx-compose-ui-unit = { group = "androidx.compose.ui", name = "ui-unit", version.ref = "uiUnit" }
 
 
 

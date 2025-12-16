@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.protolite.well.known.types)
     implementation(libs.androidx.compose.foundation.layout.android)
+    implementation(libs.androidx.compose.ui.unit)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
