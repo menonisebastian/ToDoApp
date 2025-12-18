@@ -80,7 +80,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -268,123 +267,22 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                     .padding(horizontal = 10.dp, vertical = 20.dp))
             {
                 // 1. Nombre
-                TextField(
-                    value = nombreMostrar,
-                    onValueChange = {},
-                    enabled = enabled,
-                    label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(30.dp),
-                    colors = TextFieldDefaults.colors(
-                        // 1. Quitamos la línea inferior (underline)
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-
-                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        disabledContainerColor = MaterialTheme.colorScheme.surface,
-
-
-                        // 3. Colores de iconos y texto
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.secondary,
-                        focusedLabelColor = MaterialTheme.colorScheme.secondary
-                    )
-                )
+                CustomTextField(value = nombreMostrar, onValueChange = {}, label = "Nombre", enabled = enabled)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 2. Usuario
-                TextField(
-                    value = usuarioMostrar,
-                    onValueChange = {},
-                    enabled = enabled,
-                    label = { Text("Usuario") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(30.dp),
-                    colors = TextFieldDefaults.colors(
-                        // 1. Quitamos la línea inferior (underline)
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-
-                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        disabledContainerColor = MaterialTheme.colorScheme.surface,
-
-
-                        // 3. Colores de iconos y texto
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.secondary,
-                        focusedLabelColor = MaterialTheme.colorScheme.secondary
-                    )
-                )
+                CustomTextField(value = usuarioMostrar, onValueChange = {}, label = "Usuario", enabled = enabled)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 3. Email
-                TextField(
-                    value = emailMostrar,
-                    onValueChange = {},
-                    enabled = enabled,
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(30.dp),
-                    colors = TextFieldDefaults.colors(
-                        // 1. Quitamos la línea inferior (underline)
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-
-                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        disabledContainerColor = MaterialTheme.colorScheme.surface,
-
-
-                        // 3. Colores de iconos y texto
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.secondary,
-                        focusedLabelColor = MaterialTheme.colorScheme.secondary
-                    )
-                )
+                CustomTextField(value = emailMostrar, onValueChange = {}, label = "Email", enabled = enabled)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 4. Fecha de Registro
-                TextField(
-                    value = fechaMostrar,
-                    onValueChange = {},
-                    enabled = false,
-                    label = { Text("Fecha de Registro") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(30.dp),
-                    colors = TextFieldDefaults.colors(
-                        // 1. Quitamos la línea inferior (underline)
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-
-                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        disabledContainerColor = MaterialTheme.colorScheme.surface,
-
-
-                        // 3. Colores de iconos y texto
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.secondary,
-                        focusedLabelColor = MaterialTheme.colorScheme.secondary
-                    )
-                )
+                CustomTextField(value = fechaMostrar, onValueChange = {}, label = "Fecha de Registro", enabled = false)
             }
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -530,28 +428,7 @@ fun AggTareaDialog(
                 modifier = Modifier.padding(bottom = 15.dp),
                 color = MaterialTheme.colorScheme.onSurface)
 
-//            TextField(
-//                value = tarea,
-//                onValueChange = onTareaChange,
-//                label = { Text("Descripción") },
-//                modifier = Modifier.fillMaxWidth(),
-//                shape = RoundedCornerShape(30.dp),
-//                singleLine = true,
-//                colors = TextFieldDefaults.colors(
-//                    focusedIndicatorColor = Color.Transparent,
-//                    unfocusedIndicatorColor = Color.Transparent,
-//                    disabledIndicatorColor = Color.Transparent,
-//
-//                    // 2. Fondo del color de tu contenedor (PrimaryContainer)
-//                    focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//
-//                    // 3. Colores de iconos y texto
-//                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-//                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-//                    cursorColor = MaterialTheme.colorScheme.primary)
-//            )
-            CustomTextField(tarea, onTareaChange, "Descripción")
+            CustomTextField(tarea, onTareaChange, "Descripción", enabled = true)
 
             Spacer(Modifier.height(10.dp))
 
@@ -1123,27 +1000,28 @@ fun EditTaskDialog(
         },
         text = {
             Column {
-                TextField(
-                    value = textoEditado,
-                    onValueChange = { textoEditado = it },
-                    label = { Text("Descripción") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(30.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-
-                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-
-                        // 3. Colores de iconos y texto
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary),
-                    singleLine = true
-                )
+//                TextField(
+//                    value = textoEditado,
+//                    onValueChange = { textoEditado = it },
+//                    label = { Text("Descripción") },
+//                    modifier = Modifier.fillMaxWidth(),
+//                    shape = RoundedCornerShape(30.dp),
+//                    colors = TextFieldDefaults.colors(
+//                        focusedIndicatorColor = Color.Transparent,
+//                        unfocusedIndicatorColor = Color.Transparent,
+//                        disabledIndicatorColor = Color.Transparent,
+//
+//                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
+//                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+//                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+//
+//                        // 3. Colores de iconos y texto
+//                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+//                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+//                        cursorColor = MaterialTheme.colorScheme.primary),
+//                    singleLine = true
+//                )
+                CustomTextField(textoEditado, { textoEditado = it }, "Descripción", enabled = true)
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -1325,7 +1203,9 @@ fun SocialMediaButton(
 fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String)
+    label: String,
+    enabled: Boolean
+)
 {
     var showPassword by remember { mutableStateOf(false) }
     TextField(
@@ -1334,7 +1214,7 @@ fun CustomTextField(
         label = { Text(label) },
         //modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(30.dp),
-        singleLine = true,
+        singleLine = enabled,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,

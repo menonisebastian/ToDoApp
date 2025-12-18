@@ -56,10 +56,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -152,7 +148,6 @@ fun Login(onLoginSuccess: (String) -> Unit,
     val auth = FirebaseAuth.getInstance()
     var email by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
@@ -259,10 +254,10 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
-                CustomTextField(value = email, onValueChange = { email = it }, label = "Email")
+                CustomTextField(value = email, onValueChange = { email = it }, label = "Email", enabled = true)
 
                 Spacer(Modifier.height(20.dp))
-                CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña")
+                CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", enabled = true)
 
                 Spacer(Modifier.height(20.dp))
 
@@ -396,7 +391,6 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
     var pass by remember { mutableStateOf("") }
     var passConf by remember { mutableStateOf("") }
     val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-    var showPassword by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     val formularioValido = nombre.isNotBlank() && email.isNotBlank() &&
@@ -455,129 +449,20 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         fontSize = 20.sp,
                         modifier = Modifier.padding(bottom = 10.dp),
                         color = MaterialTheme.colorScheme.onSurface)
-//                    TextField(
-//                        value = nombre,
-//                        onValueChange = { nombre = it },
-//                        singleLine = true,
-//                        shape = RoundedCornerShape(30.dp),
-//                        label = { Text("Nombre") },
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
-//                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-//                            unfocusedBorderColor = Color.Transparent,
-//                            focusedBorderColor = Color.Transparent,
-//                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-//                        ),
-//                        leadingIcon = { Icon(Icons.Default.AppRegistration, contentDescription = "Nombre") }
-//                    )
-                    CustomTextField(value = nombre, onValueChange = { nombre = it }, label = "Nombre")
+
+                    CustomTextField(value = nombre, onValueChange = { nombre = it }, label = "Nombre", enabled = true)
                     Spacer(Modifier.height(20.dp))
-//                    TextField(
-//                        value = userName,
-//                        onValueChange = { userName = it },
-//                        singleLine = true,
-//                        shape = RoundedCornerShape(30.dp),
-//                        label = { Text("Usuario") },
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
-//                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-//                            unfocusedBorderColor = Color.Transparent,
-//                            focusedBorderColor = Color.Transparent,
-//                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-//                        ),
-//                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Usuario") }
-//                    )
-                    CustomTextField(value = userName, onValueChange = { userName = it }, label = "Usuario")
+
+                    CustomTextField(value = userName, onValueChange = { userName = it }, label = "Usuario", enabled = true)
                     Spacer(Modifier.height(20.dp))
-//                    TextField(
-//                        value = email,
-//                        onValueChange = { email = it },
-//                        singleLine = true,
-//                        shape = RoundedCornerShape(30.dp),
-//                        label = { Text("Email") },
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
-//                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-//                            unfocusedBorderColor = Color.Transparent,
-//                            focusedBorderColor = Color.Transparent,
-//                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-//                        ),
-//                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") }
-//                    )
-                    CustomTextField(value = email, onValueChange = { email = it }, label = "Email")
+
+                    CustomTextField(value = email, onValueChange = { email = it }, label = "Email", enabled = true)
                     Spacer(Modifier.height(20.dp))
-//                    TextField(
-//                        value = pass,
-//                        onValueChange = { pass = it },
-//                        singleLine = true,
-//                        shape = RoundedCornerShape(30.dp),
-//                        label = { Text("Contraseña") },
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
-//                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-//                            unfocusedBorderColor = Color.Transparent,
-//                            focusedBorderColor = Color.Transparent,
-//                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-//                        ),
-//                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-//                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
-//                        trailingIcon =
-//                            {
-//                                if (pass.isNotBlank())
-//                                {
-//                                    IconButton(onClick = {
-//                                        showPassword = !showPassword
-//                                    }
-//                                    ) {
-//                                        if (!showPassword)
-//                                            Icon(Icons.Default.Visibility, contentDescription = "Mostrar", tint = MaterialTheme.colorScheme.inversePrimary)
-//                                        else
-//                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Ocultar", tint = MaterialTheme.colorScheme.inversePrimary)
-//                                    }
-//                                }
-//                            }
-//                    )
-                    CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña")
+
+                    CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", enabled = true)
                     Spacer(Modifier.height(20.dp))
-//                    TextField(
-//                        value = passConf,
-//                        onValueChange = { passConf = it },
-//                        singleLine = true,
-//                        shape = RoundedCornerShape(30.dp),
-//                        label = { Text("Confirmar contraseña") },
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedLabelColor = MaterialTheme.colorScheme.secondary,
-//                            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-//                            unfocusedBorderColor = Color.Transparent,
-//                            focusedBorderColor = Color.Transparent,
-//                            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-//                        ),
-//                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-//                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
-//                        trailingIcon =
-//                            {
-//                                if (passConf.isNotBlank())
-//                                {
-//                                    IconButton(onClick = {
-//                                        showPassword = !showPassword
-//                                    }
-//                                    ) {
-//                                        if (!showPassword)
-//                                            Icon(Icons.Default.Visibility, contentDescription = "Mostrar", tint = MaterialTheme.colorScheme.inversePrimary)
-//                                        else
-//                                            Icon(Icons.Default.VisibilityOff, contentDescription = "Ocultar", tint = MaterialTheme.colorScheme.inversePrimary)
-//                                    }
-//                                }
-//                            }
-//                    )
-                    CustomTextField(value = passConf, onValueChange = { passConf = it }, label = "Confirmar contraseña")
+
+                    CustomTextField(value = passConf, onValueChange = { passConf = it }, label = "Confirmar contraseña", enabled = true)
                     Spacer(Modifier.height(20.dp))
 
                     ElevatedButton(
