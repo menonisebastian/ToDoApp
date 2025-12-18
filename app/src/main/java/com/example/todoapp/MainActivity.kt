@@ -240,9 +240,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                         {
                             if (pass.isNotBlank())
                             {
-                                IconButton(onClick = {
-                                    showPassword = !showPassword
-                                }
+                                IconButton(onClick = { showPassword = !showPassword }
                                 ) {
                                     if (!showPassword)
                                         Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
@@ -283,7 +281,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                                             "ERROR_USER_DISABLED" -> "Esta cuenta ha sido inhabilitada."
                                             "ERROR_TOO_MANY_REQUESTS" -> "Demasiados intentos fallidos. Inténtalo más tarde."
                                             "ERROR_OPERATION_NOT_ALLOWED" -> "El inicio de sesión con correo y contraseña no está habilitado."
-                                            else -> "El email o la contraseña son incorrectos.}"
+                                            else -> "El email o la contraseña son incorrectos."
                                         }
                                     } else {
                                         // Error genérico si no es de Firebase Auth (ej. falta de internet)
@@ -811,7 +809,7 @@ fun App(
                 onPreferences = { showPreferencesDialog.value = true },
                 onHelp = { showHelpDialog = true },
                 query = searchQuery,
-                onQueryChange = { searchQuery = it },
+                onQueryChange = { searchQuery = it ;},
                 onCuenta = { showCuentaDialog = true},
                 listaCompletadas = completadas
             )

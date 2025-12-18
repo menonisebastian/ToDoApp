@@ -978,9 +978,11 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
         onDismissRequest = onDismiss,
         title = {
             Card(elevation = CardDefaults.cardElevation(10.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(20.dp))
             {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp))
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(10.dp).padding(start = 10.dp))
                 {
                     Text("Estado: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     Spacer(modifier = Modifier.weight(1f))
@@ -1014,7 +1016,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                 }
             },
         containerColor = MaterialTheme.colorScheme.background,
-        shape = RoundedCornerShape(10.dp))
+        shape = RoundedCornerShape(20.dp))
 }
 
 @Composable

@@ -23,7 +23,7 @@ class TareasViewModel : ViewModel() {
     private var snapshotListener: ListenerRegistration? = null
     private var currentUserId: String? = null
 
-    // 1. Fuente de verdad: Todas las tareas crudas desde Firebase
+    // 1. Todas las tareas crudas desde Firebase
     private val _todasLasTareas = MutableStateFlow<List<Tarea>>(emptyList())
 
     private val _datosUsuario = MutableStateFlow<User?>(null)
@@ -60,7 +60,7 @@ class TareasViewModel : ViewModel() {
         }
     }
 
-    // 1. NUEVO: Estado para el nombre del usuario
+    // 1. Estado para el nombre del usuario
     private val _nombreUsuario = MutableStateFlow<String>("Cargando...")
     val nombreUsuario: StateFlow<String> = _nombreUsuario.asStateFlow()
 
