@@ -259,56 +259,9 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
-//                TextField(
-//                    value = email,
-//                    onValueChange = { email = it },
-//                    singleLine = true,
-//                    shape = RoundedCornerShape(30.dp),
-//                    label = { Text("Email") },
-//                    colors = OutlinedTextFieldDefaults.colors(
-//                        focusedLabelColor = MaterialTheme.colorScheme.secondary,
-//                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-//                        unfocusedBorderColor = Color.Transparent,
-//                        focusedBorderColor = Color.Transparent,
-//                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-//                    ),
-//                    modifier = Modifier.padding(top = 20.dp),
-//                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Usuario") }
-//                )
                 CustomTextField(value = email, onValueChange = { email = it }, label = "Email")
+
                 Spacer(Modifier.height(20.dp))
-//                TextField(
-//                    value = pass,
-//                    onValueChange = { pass = it },
-//                    singleLine = true,
-//                    shape = RoundedCornerShape(30.dp),
-//                    label = { Text("Contraseña") },
-//                    colors = OutlinedTextFieldDefaults.colors(
-//                        focusedLabelColor = MaterialTheme.colorScheme.secondary,
-//                        unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
-//                        unfocusedBorderColor = Color.Transparent,
-//                        focusedBorderColor = Color.Transparent,
-//                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-//                    ),
-//                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-//                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
-//                    trailingIcon =
-//                        {
-//                            if (pass.isNotBlank())
-//                            {
-//                                IconButton(onClick = { showPassword = !showPassword }
-//                                ) {
-//                                    if (!showPassword)
-//                                        Icon(Icons.Default.Visibility, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
-//                                    else
-//                                        Icon(Icons.Default.VisibilityOff, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.inversePrimary)
-//                                }
-//                            }
-//                        }
-//                )
                 CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña")
 
                 Spacer(Modifier.height(20.dp))

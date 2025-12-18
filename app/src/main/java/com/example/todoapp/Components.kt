@@ -530,27 +530,28 @@ fun AggTareaDialog(
                 modifier = Modifier.padding(bottom = 15.dp),
                 color = MaterialTheme.colorScheme.onSurface)
 
-            TextField(
-                value = tarea,
-                onValueChange = onTareaChange,
-                label = { Text("Descripción") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(30.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-
-                    // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                    focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-
-                    // 3. Colores de iconos y texto
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    cursorColor = MaterialTheme.colorScheme.primary)
-            )
+//            TextField(
+//                value = tarea,
+//                onValueChange = onTareaChange,
+//                label = { Text("Descripción") },
+//                modifier = Modifier.fillMaxWidth(),
+//                shape = RoundedCornerShape(30.dp),
+//                singleLine = true,
+//                colors = TextFieldDefaults.colors(
+//                    focusedIndicatorColor = Color.Transparent,
+//                    unfocusedIndicatorColor = Color.Transparent,
+//                    disabledIndicatorColor = Color.Transparent,
+//
+//                    // 2. Fondo del color de tu contenedor (PrimaryContainer)
+//                    focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+//                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+//
+//                    // 3. Colores de iconos y texto
+//                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+//                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+//                    cursorColor = MaterialTheme.colorScheme.primary)
+//            )
+            CustomTextField(tarea, onTareaChange, "Descripción")
 
             Spacer(Modifier.height(10.dp))
 
@@ -1352,7 +1353,7 @@ fun CustomTextField(
             "Descripción" ->
             { { Icon(Icons.Default.Description, contentDescription = "Descripción") } }
 
-            "Fecha" ->
+            "Fecha (Opcional)" ->
             { { Icon(Icons.Default.DateRange, contentDescription = "Fecha") } }
 
             "Email" ->
