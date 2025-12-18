@@ -72,6 +72,7 @@ import android.content.Intent
 import java.time.ZoneId
 import com.google.firebase.auth.FirebaseAuth
 import android.app.Activity
+import androidx.compose.ui.res.stringResource
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -124,7 +125,6 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
                 onLoginSuccess = {
                     navController.navigate("app")}
             )
-
         }
 
         composable("register") {
@@ -148,6 +148,7 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
 fun Login(onLoginSuccess: (String) -> Unit,
           onRegistrar: () -> Unit)
 {
+    val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
     var email by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
@@ -157,6 +158,62 @@ fun Login(onLoginSuccess: (String) -> Unit,
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val token = stringResource(R.string.token)
+
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(token)
+        .requestEmail()
+        .build()
+
+    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
+
+    // Lanzador para el resultado de Google
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                auth.signInWithCredential(credential)
+                    .addOnSuccessListener {
+                        showDialog = true
+                        error = false
+                    }
+                    .addOnFailureListener { e ->
+                        error = true
+                        scope.launch { snackbarHostState.showSnackbar("Error Google: ${e.message}") }
+                    }
+            } catch (e: ApiException) {
+                error = true
+                scope.launch { snackbarHostState.showSnackbar("Error API Google: ${e.statusCode}") }
+            }
+        }
+    }
+
+    // --- 2. FUNCIÓN GENÉRICA PARA OAUTH (GitHub, Microsoft, Facebook) ---
+    fun loginWithProvider(providerId: String) {
+        val provider = OAuthProvider.newBuilder(providerId)
+
+        // Configuraciones opcionales (scopes)
+        if (providerId == "facebook.com") provider.addCustomParameter("display", "popup")
+
+        val activity = context as? Activity ?: return
+
+        auth.startActivityForSignInWithProvider(activity, provider.build())
+            .addOnSuccessListener {
+                showDialog = true
+                error = false
+            }
+            .addOnFailureListener { e ->
+                scope.launch {
+                    snackbarHostState.showSnackbar("Error $providerId: ${e.message}")
+                }
+            }
+    }
+
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState)
     {
@@ -339,7 +396,10 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 }
             }
 
-            RowButtons(onGoogleClick = {}, onFacebookClick = {}, onGithubClick = {}, onMicrosoftClick = {})
+            RowButtons(onGoogleClick = {googleLauncher.launch(googleSignInClient.signInIntent)},
+                onFacebookClick = {},
+                onGithubClick = {},
+                onMicrosoftClick = {})
 
             Spacer(Modifier.weight(1f))
 
@@ -589,7 +649,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                             .document(userId)
                                             .set(nuevoUsuario)
                                             .addOnSuccessListener {
-                                                // Todo salió bien
+                                                // Inicia la sesion
                                                 showDialog = true
                                                 // Pasamos el usuario limpio al login para que no tenga que escribirlo de nuevo
                                                 onRegistrar(email)
