@@ -73,7 +73,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.OAuthProvider
 
 // ============ ACTIVITY ============
 class MainActivity : ComponentActivity() {
@@ -90,6 +89,15 @@ class MainActivity : ComponentActivity() {
 
             val isDarkMode by settingsPreferences.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
 
+            // 1. OBTENER USUARIO ACTUAL
+            // Firebase recuerda la sesión automáticamente. Chequeamos si existe al iniciar la app.
+            val auth = FirebaseAuth.getInstance()
+            val usuarioActual = auth.currentUser
+
+            // 2. DEFINIR DESTINO INICIAL
+            // Si el usuario existe, vamos directo a "app", si no, a "login"
+            val startDestination = if (usuarioActual != null) "app" else "login"
+
             ToDoAppTheme(darkTheme = isDarkMode)
             {
                 val textColorName by settingsPreferences.taskTextColor.collectAsStateWithLifecycle(initialValue = "Default")
@@ -102,17 +110,17 @@ class MainActivity : ComponentActivity() {
                     else -> MaterialTheme.colorScheme.onSurface
                 }
                 // Pasamos el viewModel a la navegación
-                AppNav(taskTextColor = taskTextColor, viewModel = viewModel)
+                AppNav(taskTextColor = taskTextColor, viewModel = viewModel, startDestination = startDestination)
             }
         }
     }
 }
 
 @Composable
-fun AppNav(taskTextColor: Color, viewModel: TareasViewModel) {
+fun AppNav(taskTextColor: Color, viewModel: TareasViewModel, startDestination: String) {
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = "login")
+    NavHost(navController, startDestination = startDestination)
     {
         composable("login") {
             Login(

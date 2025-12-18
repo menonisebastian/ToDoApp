@@ -24,8 +24,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
@@ -34,16 +32,13 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.ArrowDropUp
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SaveAlt
@@ -225,7 +220,7 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
 
     // 1. LÓGICA DE DATOS: Extraemos los valores o mostramos "Cargando..." si es null
     // Asegúrate de que tu clase User tenga estos nombres de variables (nombre, username, email, fechaRegistro)
-    val nombreMostrar = usuario?.nombre ?: "Cargando..."
+    val nombreMostrar = usuario?.nombre ?: "..."
     val usuarioMostrar = usuario?.username ?: "..."
     val emailMostrar = usuario?.email ?: "..." // Si usaste @PropertyName("email_contacto") en User.kt, esto funcionará
     val fechaMostrar = usuario?.fechaalta ?: "..."
@@ -1120,7 +1115,6 @@ fun CustomDateField(
     label: String
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     // Lógica protegida para el estado del calendario
     val datePickerState = rememberDatePickerState(
@@ -1161,7 +1155,7 @@ fun CustomDateField(
                     onClick = {
                         showDatePicker = false
                         datePickerState.selectedDateMillis?.let { millis ->
-                            val sdf = java.text.SimpleDateFormat("yyyy/MM/dd", java.util.Locale.getDefault())
+                            val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
                             onValueChange(sdf.format(millis))
                         }
                     },
@@ -1247,7 +1241,8 @@ fun formatearFechaParaMostrar(fechaIso: String): String {
         // Divide "2025/01/01" y reordena
         val partes = fechaIso.split("/")
         "${partes[2]}/${partes[1]}/${partes[0]}" // Retorna "01/01/2025"
-    } catch (e: Exception) {
+    } catch (e: Exception)
+    {
         fechaIso // Si falla, devuelve la original
     }
 }
