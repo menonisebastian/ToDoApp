@@ -188,28 +188,6 @@ fun Login(onLoginSuccess: (String) -> Unit,
         }
     }
 
-    // --- 2. FUNCIÓN GENÉRICA PARA OAUTH (GitHub, Microsoft, Facebook) ---
-    fun loginWithProvider(providerId: String) {
-        val provider = OAuthProvider.newBuilder(providerId)
-
-        // Configuraciones opcionales (scopes)
-        if (providerId == "facebook.com") provider.addCustomParameter("display", "popup")
-
-        val activity = context as? Activity ?: return
-
-        auth.startActivityForSignInWithProvider(activity, provider.build())
-            .addOnSuccessListener {
-                showDialog = true
-                error = false
-            }
-            .addOnFailureListener { e ->
-                scope.launch {
-                    snackbarHostState.showSnackbar("Error $providerId: ${e.message}")
-                }
-            }
-    }
-
-
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState)
     {
             data ->
