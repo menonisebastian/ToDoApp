@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -27,8 +28,14 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.ArrowDropUp
 import androidx.compose.material.icons.outlined.Close
@@ -80,6 +87,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -887,7 +897,8 @@ fun CompletedTaskItem(
         verticalAlignment = Alignment.CenterVertically)
     {
         IconButton(onClick = {viewModel.descompletarTarea(tarea)})
-        { Icon(Icons.Default.Check, contentDescription = "Editar", tint = MaterialTheme.colorScheme.secondary)}
+        {
+        Icon(Icons.Default.Check, contentDescription = "Editar", tint = MaterialTheme.colorScheme.secondary)}
         if (tarea.fecha.isNotBlank())
         {
             Column{
@@ -1307,6 +1318,89 @@ fun SocialMediaButton(
                 .padding(15.dp) // Padding interno de la imagen dentro de la tarjeta
         )
     }
+}
+
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String)
+{
+    var showPassword by remember { mutableStateOf(false) }
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        //modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(30.dp),
+        singleLine = true,
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+
+            // 2. Fondo del color de tu contenedor (PrimaryContainer)
+            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
+            // 3. Colores de iconos y texto
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            cursorColor = MaterialTheme.colorScheme.primary),
+        leadingIcon = when (label)
+        {
+            "Descripción" ->
+            { { Icon(Icons.Default.Description, contentDescription = "Descripción") } }
+
+            "Fecha" ->
+            { { Icon(Icons.Default.DateRange, contentDescription = "Fecha") } }
+
+            "Email" ->
+            { { Icon(Icons.Default.Email, contentDescription = "Email") } }
+
+            "Contraseña", "Confirmar contraseña" ->
+            { { Icon(Icons.Default.Lock, contentDescription = "Contraseña") } }
+
+            "Usuario" ->
+            { { Icon(Icons.Default.Person, contentDescription = "Usuario") } }
+
+            "Nombre" ->
+            { { Icon(Icons.Default.Person, contentDescription = "Nombre") } }
+
+            else -> { { } }
+        },
+        trailingIcon = when (label)
+        {
+            "Contraseña" , "Confirmar contraseña" ->
+            { { if (value.isNotBlank())
+            {
+                IconButton(onClick = { showPassword = !showPassword }
+                ) {
+                    if (!showPassword)
+                        Icon(Icons.Default.Visibility,
+                            contentDescription = "Limpiar",
+                            tint = MaterialTheme.colorScheme.inversePrimary)
+                    else
+                        Icon(Icons.Default.VisibilityOff,
+                            contentDescription = "Limpiar",
+                            tint = MaterialTheme.colorScheme.inversePrimary)
+                }
+            } } }
+            else -> { { } }
+        },
+        visualTransformation = when (label)
+        {
+            "Contraseña" ->
+            { if (!showPassword) PasswordVisualTransformation() else VisualTransformation.None }
+            else -> { VisualTransformation.None }
+        },
+        keyboardOptions = when (label)
+        {
+            "Contraseña" ->
+            { KeyboardOptions(keyboardType = KeyboardType.Password) }
+            else -> { KeyboardOptions.Default }
+        }
+    )
 }
 
 // Función auxiliar
