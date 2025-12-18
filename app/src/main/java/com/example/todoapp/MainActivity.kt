@@ -232,10 +232,10 @@ fun Login(onLoginSuccess: (String) -> Unit,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
-                CustomTextField(value = email, onValueChange = { email = it }, label = "Email", enabled = true)
+                CustomTextField(value = email, onValueChange = { email = it }, label = "Email", true)
 
                 Spacer(Modifier.height(20.dp))
-                CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", enabled = true)
+                CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", true)
 
                 Spacer(Modifier.height(20.dp))
 
@@ -426,19 +426,19 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                         modifier = Modifier.padding(bottom = 10.dp),
                         color = MaterialTheme.colorScheme.onSurface)
 
-                    CustomTextField(value = nombre, onValueChange = { nombre = it }, label = "Nombre", enabled = true)
+                    CustomTextField(value = nombre, onValueChange = { nombre = it }, label = "Nombre", true)
                     Spacer(Modifier.height(20.dp))
 
-                    CustomTextField(value = userName, onValueChange = { userName = it }, label = "Usuario", enabled = true)
+                    CustomTextField(value = userName, onValueChange = { userName = it }, label = "Usuario", true)
                     Spacer(Modifier.height(20.dp))
 
-                    CustomTextField(value = email, onValueChange = { email = it }, label = "Email", enabled = true)
+                    CustomTextField(value = email, onValueChange = { email = it }, label = "Email", true)
                     Spacer(Modifier.height(20.dp))
 
-                    CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", enabled = true)
+                    CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", true)
                     Spacer(Modifier.height(20.dp))
 
-                    CustomTextField(value = passConf, onValueChange = { passConf = it }, label = "Confirmar contraseña", enabled = true)
+                    CustomTextField(value = passConf, onValueChange = { passConf = it }, label = "Confirmar contraseña", true)
                     Spacer(Modifier.height(20.dp))
 
                     ElevatedButton(
@@ -674,11 +674,8 @@ fun App(
                 .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.fontlogo),
-                modifier = Modifier.width(100.dp).padding(10.dp),
-                contentDescription = "logo texto"
-            )
+            LogoSmall(100.dp)
+            Spacer(Modifier.height(10.dp))
 
             TopCard(
                 viewModel = viewModel,
@@ -707,9 +704,11 @@ fun App(
                         items(filteredTareas, key = { it.id }) { tareaItem ->
                             Spacer(Modifier.height(10.dp))
                             val priority = determinePriority(tareaItem)
-                            if (priority == TaskPriority.EXPIRED)
+                            if (priority == TaskPriority.EXPIRED && !tareaItem.completada)
                             {
-                                viewModel.completarTarea(tareaItem)
+                                LaunchedEffect(Unit) {
+                                    viewModel.completarTarea(tareaItem)
+                                }
                             }
                             TaskItem(
                                 tarea = tareaItem,
@@ -807,27 +806,26 @@ fun App(
         ConfirmDeleteDialog(
             onDismiss = { tareaAEliminar = null },
             onConfirm = {
-                val taskToDelete = tareaAEliminar!!
-                ultimaTareaEliminada = taskToDelete
-                viewModel.eliminarTarea(taskToDelete)
-                scope.launch {
-                    val result = snackbarHostState
-                        .showSnackbar(
-                            message = "Tarea eliminada. \nClickea o agita para deshacer.",
-                            actionLabel = "Deshacer",
-                            // Defaults to SnackbarDuration.Short
-                            duration = SnackbarDuration.Short
-                        )
-                    when (result) {
-                        SnackbarResult.ActionPerformed -> {
-                            /* Handle snackbar action performed */
-                            viewModel.restaurarTarea(taskToDelete)
-                        }
-                        SnackbarResult.Dismissed -> {
-                            /* Handle snackbar dismissed */
+                // CORRECCIÓN: Usar ?.let en lugar de !! para evitar el crash
+                tareaAEliminar?.let { taskToDelete ->
+                    ultimaTareaEliminada = taskToDelete
+                    viewModel.eliminarTarea(taskToDelete)
+                    scope.launch {
+                        val result = snackbarHostState
+                            .showSnackbar(
+                                message = "Tarea eliminada. \nClickea o agita para deshacer.",
+                                actionLabel = "Deshacer",
+                                duration = SnackbarDuration.Short
+                            )
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                viewModel.restaurarTarea(taskToDelete)
+                            }
+                            SnackbarResult.Dismissed -> { }
                         }
                     }
                 }
+                // Limpiamos el estado al final
                 tareaAEliminar = null
             }
         )

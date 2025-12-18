@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Visibility
@@ -40,6 +43,7 @@ import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.ArrowDropUp
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SaveAlt
@@ -50,6 +54,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -124,11 +129,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                 .padding(horizontal = 60.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(painter = painterResource(id = R.drawable.fontlogo),
-                modifier = Modifier
-                    .width(80.dp)
-                    .padding(top = 10.dp),
-                contentDescription = "logo texto")
+            LogoSmall(80.dp)
 
             Text("Preferencias",
                 fontWeight = FontWeight.Bold,
@@ -229,6 +230,7 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
     val emailMostrar = usuario?.email ?: "..." // Si usaste @PropertyName("email_contacto") en User.kt, esto funcionará
     val fechaMostrar = usuario?.fechaalta ?: "..."
     var enabled by remember { mutableStateOf(false) }
+    enabled = false
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -241,11 +243,7 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                 .width(300.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(painter = painterResource(id = R.drawable.fontlogo),
-                modifier = Modifier
-                    .width(80.dp)
-                    .padding(top = 10.dp),
-                contentDescription = "logo texto")
+            LogoSmall(80.dp)
 
             Text("Datos Personales",
                 fontWeight = FontWeight.Bold,
@@ -267,22 +265,22 @@ fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
                     .padding(horizontal = 10.dp, vertical = 20.dp))
             {
                 // 1. Nombre
-                CustomTextField(value = nombreMostrar, onValueChange = {}, label = "Nombre", enabled = enabled)
+                CustomTextField(nombreMostrar, {}, "Nombre", enabled)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 2. Usuario
-                CustomTextField(value = usuarioMostrar, onValueChange = {}, label = "Usuario", enabled = enabled)
+                CustomTextField(usuarioMostrar, {}, "Usuario", enabled)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 3. Email
-                CustomTextField(value = emailMostrar, onValueChange = {}, label = "Email", enabled = enabled)
+                CustomTextField(emailMostrar, {}, "Email", enabled)
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 // 4. Fecha de Registro
-                CustomTextField(value = fechaMostrar, onValueChange = {}, label = "Fecha de Registro", enabled = false)
+                CustomTextField(fechaMostrar, {},"Fecha de Registro", false)
             }
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -357,109 +355,36 @@ fun AggTareaDialog(
     onDismiss: () -> Unit,
     tarea: String,
     onTareaChange: (String) -> Unit,
-    fecha: String,
-    onFechaChange: (String) -> Unit,
+    fecha: String, // Esta variable viene del padre (App)
+    onFechaChange: (String) -> Unit, // Esta función actualiza la variable del padre
     onAddTarea: (String, String) -> Unit
 ) {
     val context = LocalContext.current
-    var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis =
-        System.currentTimeMillis(),
-        selectableDates = object : SelectableDates
-        {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean
-            { return utcTimeMillis >= System.currentTimeMillis() - 86400000 }
-        }
-    )
-
-    if (showDatePicker)
-    {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                Button(
-                    onClick =
-                        {
-                            showDatePicker = false
-                            datePickerState.selectedDateMillis?.let {
-                                    millis -> val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-                                onFechaChange(sdf.format(millis))
-                            }
-                        }
-                )
-                { Icon(Icons.Filled.Check, contentDescription = "Aceptar", tint = MaterialTheme.colorScheme.onPrimary) }
-            },
-            dismissButton = { Button(onClick = { showDatePicker = false }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inversePrimary))
-            { Icon(Icons.Filled.Close, contentDescription = "Cancelar", tint = MaterialTheme.colorScheme.onPrimary) } }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                title = {
-                    Text("Seleccionar fecha",
-                        modifier = Modifier
-                            .padding(start = 24.dp, end = 12.dp, top = 16.dp, bottom = 12.dp)
-                    )
-                }
-            )
-        }
-    }
 
     Dialog(onDismissRequest = onDismiss)
     {
         Column(
             modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.surface,
-                    RoundedCornerShape(20.dp)
-                )
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(30.dp))
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally)
         {
-            Image(
-                painter = painterResource(id = R.drawable.fontlogo),
-                modifier = Modifier
-                    .width(80.dp)
-                    .padding(top = 10.dp, bottom = 20.dp),
-                contentDescription = "logo texto")
+            LogoSmall(80.dp)
+            Spacer(modifier = Modifier.height(10.dp))
 
-            Text("Añadir Tarea",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 15.dp),
-                color = MaterialTheme.colorScheme.onSurface)
+            Text("Añadir Tarea", fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(bottom = 15.dp), color = MaterialTheme.colorScheme.onSurface)
 
-            CustomTextField(tarea, onTareaChange, "Descripción", enabled = true)
+            CustomTextField(tarea, onTareaChange, "Descripción", true)
 
             Spacer(Modifier.height(10.dp))
 
-            TextField(
+            // AQUÍ USAMOS TU NUEVO COMPONENTE
+            CustomDateField(
                 value = fecha,
                 onValueChange = onFechaChange,
-                label = { Text("Fecha (Opcional)") },
-                placeholder = { Text("dd/MM/yyyy") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                trailingIcon = {
-                    IconButton(onClick = { showDatePicker = true })
-                    {
-                        Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = "Seleccionar fecha")
-                    }
-                },
-                shape = RoundedCornerShape(30.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-
-                    // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                    focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-
-                    // 3. Colores de iconos y texto
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    cursorColor = MaterialTheme.colorScheme.primary)
+                label = "Fecha (Opcional)"
             )
+
             Spacer(Modifier.height(20.dp))
 
             Row()
@@ -473,12 +398,9 @@ fun AggTareaDialog(
                 Spacer(modifier = Modifier.width(20.dp))
 
                 IconButton(onClick = {
-                    if (tarea.isNotBlank())
-                    {
+                    if (tarea.isNotBlank()) {
                         onAddTarea(tarea.trim(), fecha)
-                    }
-                    else
-                    {
+                    } else {
                         Toast.makeText(context, "La descripción de la tarea no puede estar vacía", Toast.LENGTH_SHORT).show()
                     }
                 },
@@ -538,38 +460,38 @@ fun TopCard(
                 {
                     DropdownMenuItem(
                         text = { Text("Cuenta") },
-                        leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
                         onClick = { expanded = false; onCuenta() })
                     HorizontalDivider()
 
                     DropdownMenuItem(
                         text = { Text("Preferencias") },
-                        leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
                         onClick = { expanded = false; onPreferences() })
                     HorizontalDivider()
 
                     DropdownMenuItem(
                         text = { Text("Ayuda") },
-                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
                         onClick = { onHelp() }
                     )
                     HorizontalDivider()
 
                     DropdownMenuItem(
                         text = { Text("Exportar tareas") },
-                        leadingIcon = { Icon(Icons.Outlined.SaveAlt, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Outlined.SaveAlt, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
                         onClick = { exportarTareas(context, listaTareas, listaCompletadas); expanded = false })
                     HorizontalDivider()
 
                     DropdownMenuItem(
                         text = { Text("Vaciar lista") },
-                        leadingIcon = { Icon(Icons.Outlined.Delete, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Outlined.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
                         onClick = { onVaciarLista(); expanded = false })
                     HorizontalDivider()
 
                     DropdownMenuItem(
-                        text = { Text("Salir") },
-                        leadingIcon = { Icon(Icons.Outlined.Close, contentDescription = null) },
+                        text = { Text("Cerrar sesión") },
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface) },
                         onClick = { auth.signOut(); onBack()  })
                 }
             }
@@ -645,23 +567,20 @@ fun CompletedTasksList(
         ConfirmDeleteDialog(
             onDismiss = { tareaAEliminar = null },
             onConfirm = {
-                val taskToDelete = tareaAEliminar!!
-                viewModel.eliminarTarea(taskToDelete)
-                scope.launch {
-                    val result = snackbarHostState
-                        .showSnackbar(
-                            message = "Tarea eliminada. \nClickea o agita para deshacer.",
-                            actionLabel = "Deshacer",
-                            // Defaults to SnackbarDuration.Short
-                            duration = SnackbarDuration.Short
-                        )
-                    when (result) {
-                        SnackbarResult.ActionPerformed -> {
-                            /* Handle snackbar action performed */
-                            viewModel.restaurarTarea(taskToDelete)
-                        }
-                        SnackbarResult.Dismissed -> {
-                            /* Handle snackbar dismissed */
+                tareaAEliminar?.let { taskToDelete ->
+                    viewModel.eliminarTarea(taskToDelete)
+                    scope.launch {
+                        val result = snackbarHostState
+                            .showSnackbar(
+                                message = "Tarea eliminada. \nClickea o agita para deshacer.",
+                                actionLabel = "Deshacer",
+                                duration = SnackbarDuration.Short
+                            )
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                viewModel.restaurarTarea(taskToDelete)
+                            }
+                            SnackbarResult.Dismissed -> { }
                         }
                     }
                 }
@@ -769,14 +688,17 @@ fun CompletedTaskItem(
     onDelete: () -> Unit
 )
 {
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp).clickable { onTaskClick() },
+    Row(modifier = Modifier
+        .padding(vertical = 10.dp, horizontal = 20.dp)
+        .clickable { onTaskClick() },
         verticalAlignment = Alignment.CenterVertically)
     {
         IconButton(onClick = {viewModel.descompletarTarea(tarea)})
         {
-        Icon(Icons.Default.Check, contentDescription = "Editar", tint = MaterialTheme.colorScheme.secondary)}
+            Icon(Icons.Default.Check, contentDescription = "Editar", tint = MaterialTheme.colorScheme.secondary)
+        }
+
         if (tarea.fecha.isNotBlank())
         {
             Column{
@@ -789,14 +711,13 @@ fun CompletedTaskItem(
         {
             Text(text = tarea.texto, fontStyle = FontStyle.Italic, textDecoration = TextDecoration.LineThrough)
         }
-        Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary) }
-    }
 
-    if (showDeleteDialog) {
-        ConfirmDeleteDialog(
-            onDismiss = { showDeleteDialog = false },
-            onConfirm = { onDelete() })
+        Spacer(modifier = Modifier.weight(1f))
+
+        // CORREGIDO: Llamamos directamente a onDelete() para que el padre maneje el diálogo
+        IconButton(onClick = onDelete) {
+            Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary)
+        }
     }
 }
 
@@ -806,9 +727,7 @@ fun EmptyTasksMessage() {
         .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center)
-    {
-        Text("Tu lista de tareas está vacía", fontSize = 20.sp, fontStyle = FontStyle.Italic, color = Color.Gray)
-    }
+    { Text("Tu lista de tareas está vacía", fontSize = 20.sp, fontStyle = FontStyle.Italic, color = Color.Gray) }
 }
 
 @Composable
@@ -854,7 +773,7 @@ fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
                 }
             },
         containerColor = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(30.dp)
     )
 }
 
@@ -950,47 +869,10 @@ fun ConfirmDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit)
 fun EditTaskDialog(
     tarea: Tarea,
     onDismiss: () -> Unit,
-    onSave: (String, String) -> Unit // texto y fecha
+    onSave: (String, String) -> Unit
 ) {
     var textoEditado by remember(tarea) { mutableStateOf(tarea.texto) }
     var fechaEditada by remember(tarea) { mutableStateOf(tarea.fecha) }
-
-    var showDatePicker by remember { mutableStateOf(false) }
-
-    // Configuramos el DatePicker con la fecha actual de la tarea o el sistema si no hay
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = if (fechaEditada.isNotBlank()) {
-            try {
-                SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(fechaEditada)?.time ?: System.currentTimeMillis()
-            } catch (e: Exception) { System.currentTimeMillis()}
-        } else System.currentTimeMillis(),
-        selectableDates = object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                return utcTimeMillis >= System.currentTimeMillis() - 86400000
-            }
-        }
-    )
-
-    if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                Button(onClick = {
-                    showDatePicker = false
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-                        fechaEditada = sdf.format(millis)
-                    }
-                }) { Text("Aceptar") }
-            },
-            dismissButton = { Button(onClick = { showDatePicker = false }) { Text("Cancelar") } }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                title = { Text("Seleccionar fecha", modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp, bottom = 12.dp)) }
-            )
-        }
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1000,75 +882,23 @@ fun EditTaskDialog(
         },
         text = {
             Column {
-//                TextField(
-//                    value = textoEditado,
-//                    onValueChange = { textoEditado = it },
-//                    label = { Text("Descripción") },
-//                    modifier = Modifier.fillMaxWidth(),
-//                    shape = RoundedCornerShape(30.dp),
-//                    colors = TextFieldDefaults.colors(
-//                        focusedIndicatorColor = Color.Transparent,
-//                        unfocusedIndicatorColor = Color.Transparent,
-//                        disabledIndicatorColor = Color.Transparent,
-//
-//                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
-//                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//
-//                        // 3. Colores de iconos y texto
-//                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-//                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-//                        cursorColor = MaterialTheme.colorScheme.primary),
-//                    singleLine = true
-//                )
-                CustomTextField(textoEditado, { textoEditado = it }, "Descripción", enabled = true)
+                CustomTextField(textoEditado, { textoEditado = it }, "Descripción", true)
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Campo editable para la fecha
-                TextField(
-                    value = fechaEditada,
-                    onValueChange = { fechaEditada = it },
-                    label = { Text("Fecha") },
-                    placeholder = { Text("dd/MM/yyyy") },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    trailingIcon = {
-                        IconButton(onClick = { showDatePicker = true }) {
-                            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
-                        }
-                    },
-                    shape = RoundedCornerShape(30.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-
-                        // 2. Fondo del color de tu contenedor (PrimaryContainer)
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-
-                        // 3. Colores de iconos y texto
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary)
-                )
+                CustomDateField(value = fechaEditada, onValueChange = { fechaEditada = it }, label = "Fecha")
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (textoEditado.isNotBlank()) {
-                        onSave(textoEditado, fechaEditada) // Enviamos ambos valores
-                    }
+                    if (textoEditado.isNotBlank()) { onSave(textoEditado, fechaEditada) }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) { Text("Guardar") }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar", color = MaterialTheme.colorScheme.secondary) }
-        },
-        shape = RoundedCornerShape(10.dp)
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar", color = MaterialTheme.colorScheme.secondary) } },
+        shape = RoundedCornerShape(30.dp)
     )
 }
 
@@ -1086,6 +916,7 @@ fun HelpDialog(onDismiss: () -> Unit)
                 )
                 .padding(10.dp))
         {
+            LogoSmall(80.dp)
             Text("Ayuda",
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
@@ -1204,7 +1035,7 @@ fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    enabled: Boolean
+    isEnabled: Boolean
 )
 {
     var showPassword by remember { mutableStateOf(false) }
@@ -1212,9 +1043,10 @@ fun CustomTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        //modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(30.dp),
-        singleLine = enabled,
+        singleLine = true,
+        enabled = isEnabled,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
@@ -1227,26 +1059,22 @@ fun CustomTextField(
             // 3. Colores de iconos y texto
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+            focusedLabelColor = MaterialTheme.colorScheme.secondary,
             cursorColor = MaterialTheme.colorScheme.primary),
         leadingIcon = when (label)
         {
-            "Descripción" ->
-            { { Icon(Icons.Default.Description, contentDescription = "Descripción") } }
-
-            "Fecha (Opcional)" ->
-            { { Icon(Icons.Default.DateRange, contentDescription = "Fecha") } }
+            "Descripción", "Nombre" ->
+            { { Icon(Icons.Default.Description, contentDescription = "Descripción", tint = MaterialTheme.colorScheme.inversePrimary) } }
 
             "Email" ->
-            { { Icon(Icons.Default.Email, contentDescription = "Email") } }
+            { { Icon(Icons.Default.Email, contentDescription = "Email", tint = MaterialTheme.colorScheme.inversePrimary) } }
 
             "Contraseña", "Confirmar contraseña" ->
-            { { Icon(Icons.Default.Lock, contentDescription = "Contraseña") } }
+            { { Icon(Icons.Default.Lock, contentDescription = "Contraseña", tint = MaterialTheme.colorScheme.inversePrimary) } }
 
             "Usuario" ->
-            { { Icon(Icons.Default.Person, contentDescription = "Usuario") } }
-
-            "Nombre" ->
-            { { Icon(Icons.Default.Person, contentDescription = "Nombre") } }
+            { { Icon(Icons.Default.Person, contentDescription = "Usuario", tint = MaterialTheme.colorScheme.inversePrimary) } }
 
             else -> { { } }
         },
@@ -1271,17 +1099,145 @@ fun CustomTextField(
         },
         visualTransformation = when (label)
         {
-            "Contraseña" ->
+            "Contraseña" , "Confirmar contraseña" ->
             { if (!showPassword) PasswordVisualTransformation() else VisualTransformation.None }
             else -> { VisualTransformation.None }
         },
         keyboardOptions = when (label)
         {
-            "Contraseña" ->
+            "Contraseña" , "Confirmar contraseña" ->
             { KeyboardOptions(keyboardType = KeyboardType.Password) }
             else -> { KeyboardOptions.Default }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomDateField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String
+) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // Lógica protegida para el estado del calendario
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = if (value.isNotBlank()) {
+            try {
+                // Usamos yyyy/MM/dd que es como guardas las tareas
+                val millis = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).parse(value)?.time
+                    ?: System.currentTimeMillis()
+
+                // PROTECCIÓN ANTI-CRASH:
+                // Si la fecha guardada es anterior a hoy, el calendario se abriría en el pasado
+                // violando la regla de selectableDates. Si pasa eso, forzamos que abra en "Hoy".
+                if (millis < System.currentTimeMillis() - 86400000) {
+                    System.currentTimeMillis()
+                } else {
+                    millis
+                }
+            } catch (e: Exception) {
+                System.currentTimeMillis()
+            }
+        } else {
+            System.currentTimeMillis()
+        },
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                // Solo permite seleccionar fechas desde hoy en adelante
+                return utcTimeMillis >= System.currentTimeMillis() - 86400000
+            }
+        }
+    )
+
+    // El Diálogo del Calendario
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                IconButton(
+                    onClick = {
+                        showDatePicker = false
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val sdf = java.text.SimpleDateFormat("yyyy/MM/dd", java.util.Locale.getDefault())
+                            onValueChange(sdf.format(millis))
+                        }
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = "Seleccionar", tint = MaterialTheme.colorScheme.onPrimary)
+                }
+            },
+            dismissButton = {
+                IconButton(onClick = { showDatePicker = false },colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary)) {
+                    Icon(Icons.Default.Close, contentDescription = "Cancelar", tint = MaterialTheme.colorScheme.onPrimary)
+                }
+            },
+            colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            DatePicker(
+                state = datePickerState,
+                title = {
+                    Text(
+                        "Seleccionar fecha",
+                        modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp, bottom = 12.dp)
+                    )
+                },
+                colors = DatePickerDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.secondary,
+                    headlineContentColor = MaterialTheme.colorScheme.onSurface,
+                    subheadContentColor = MaterialTheme.colorScheme.onSurface,
+                    selectedDayContainerColor = MaterialTheme.colorScheme.secondary,
+                    navigationContentColor = MaterialTheme.colorScheme.onSurface,
+                    weekdayContentColor = MaterialTheme.colorScheme.primary,
+                )
+            )
+        }
+    }
+
+    // El Campo de Texto (Visualmente idéntico a tus otros campos)
+    TextField(
+        value = value,
+        onValueChange = {}, // No dejamos escribir manualmente para forzar el uso del calendario
+        label = { Text(label) },
+        placeholder = { Text("yyyy/MM/dd") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { showDatePicker = true }, // Al hacer click en el campo, abre el calendario
+        readOnly = true, // Teclado desactivado
+        enabled = true,
+        trailingIcon = {
+            IconButton(onClick = { showDatePicker = true }) {
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Seleccionar fecha", tint = MaterialTheme.colorScheme.inversePrimary)
+            }
+        },
+        shape = RoundedCornerShape(30.dp),
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedLabelColor = MaterialTheme.colorScheme.inversePrimary,
+            focusedLabelColor = MaterialTheme.colorScheme.secondary,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.inversePrimary,
+            focusedPlaceholderColor = MaterialTheme.colorScheme.inversePrimary,
+            cursorColor = MaterialTheme.colorScheme.primary
+        )
+    )
+}
+
+@Composable
+fun LogoSmall(width:Dp)
+{
+    Image(painter = painterResource(id = R.drawable.fontlogo),
+        modifier = Modifier
+            .width(width)
+            .padding(top = 10.dp),
+        contentDescription = "logo texto")
 }
 
 // Función auxiliar
