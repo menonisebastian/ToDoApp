@@ -306,9 +306,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
                     }
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 10.dp)){
-                    TextButton(onClick = {
-                        onRegistrar()
-                    },
+                    TextButton(onClick = { onRegistrar() },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary))
                     { Text("Registrarme") }
 
@@ -747,11 +745,7 @@ fun App(
                             item()
                             {
                                 Spacer(Modifier.height(10.dp))
-                                CompletedTasksList(
-                                    completedTasks = completadas,
-                                    viewModel = viewModel,
-                                    scope = scope,
-                                    snackbarHostState = snackbarHostState
+                                CompletedTasksList(completedTasks = completadas, viewModel = viewModel, scope = scope, snackbarHostState = snackbarHostState
                                 )
                             }
                         }
@@ -762,12 +756,7 @@ fun App(
             {
                 if (completadas.isNotEmpty()) {
                     Spacer(Modifier.height(10.dp))
-                    CompletedTasksList(
-                        completedTasks = completadas,
-                        viewModel = viewModel,
-                        scope = scope,
-                        snackbarHostState = snackbarHostState
-                    )
+                    CompletedTasksList(completedTasks = completadas, viewModel = viewModel, scope = scope, snackbarHostState = snackbarHostState)
                 }
                 EmptyTasksMessage()
             }
