@@ -137,11 +137,11 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
                 modifier = Modifier
                     .shadow(
                         10.dp,
-                        RoundedCornerShape(10.dp)
+                        RoundedCornerShape(30.dp)
                     )
                     .background(
                         MaterialTheme.colorScheme.surface,
-                        RoundedCornerShape(10.dp)
+                        RoundedCornerShape(30.dp)
                     )
                     .padding(10.dp)
                     .width(180.dp))
@@ -179,10 +179,10 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
             Column (horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .shadow(10.dp, RoundedCornerShape(10.dp))
+                    .shadow(10.dp, RoundedCornerShape(30.dp))
                     .background(
                         MaterialTheme.colorScheme.surface,
-                        RoundedCornerShape(10.dp)
+                        RoundedCornerShape(30.dp)
                     )
                     .padding(10.dp)
                     .width(180.dp))
@@ -424,8 +424,9 @@ fun TopCard(
 {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val nombre by viewModel.nombreUsuario.collectAsStateWithLifecycle()
+    val nombreCompleto by viewModel.nombreUsuario.collectAsStateWithLifecycle()
     val auth = FirebaseAuth.getInstance()
+    val nombre = nombreCompleto.split(" ")
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -435,7 +436,7 @@ fun TopCard(
     {
         Row(verticalAlignment = Alignment.CenterVertically)
         {
-            Text(text = "Hola $nombre!",
+            Text(text = "Bienvenido, "+nombre[0],
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface)
@@ -603,7 +604,7 @@ fun CustomizableSearchBar(
         ,
         placeholder = { Text("Buscar Tarea", color = Color.Gray) },
         leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = "Buscar")
+            Icon(Icons.Default.Search, contentDescription = "Buscar", tint = MaterialTheme.colorScheme.onSurface)
         },
         trailingIcon = {
             // Solo mostramos la X si hay texto escrito
@@ -1071,6 +1072,9 @@ fun CustomTextField(
             "Usuario" ->
             { { Icon(Icons.Default.Person, contentDescription = "Usuario", tint = MaterialTheme.colorScheme.inversePrimary) } }
 
+            "Fecha de Registro" ->
+            { { Icon(Icons.Default.DateRange, contentDescription = "Fecha de Registro", tint = MaterialTheme.colorScheme.inversePrimary) } }
+
             else -> { { } }
         },
         trailingIcon = when (label)
@@ -1194,7 +1198,7 @@ fun CustomDateField(
 
     // El Campo de Texto (Visualmente idéntico a tus otros campos)
     TextField(
-        value = value,
+        value = formatearFechaParaMostrar(value),
         onValueChange = {}, // No dejamos escribir manualmente para forzar el uso del calendario
         label = { Text(label) },
         placeholder = { Text("yyyy/MM/dd") },
