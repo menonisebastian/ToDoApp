@@ -434,7 +434,11 @@ fun TopCard(
     {
         Row(verticalAlignment = Alignment.CenterVertically)
         {
-            Text(text = "Bienvenido, "+nombre[0],
+            Text(text =
+                if (nombreCompleto.isNotEmpty())
+                    "Bienvenido, "+nombre[0]
+                else
+                    "Bienvenido",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface)
