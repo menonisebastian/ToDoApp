@@ -214,15 +214,13 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
 }
 
 // ============ CUENTA DEL USUARIO ============ //
-
 @Composable
 fun CuentaDialog(onDismiss: () -> Unit, usuario: User?) {
 
-    // 1. LÓGICA DE DATOS: Extraemos los valores o mostramos "Cargando..." si es null
-    // Asegúrate de que tu clase User tenga estos nombres de variables (nombre, username, email, fechaRegistro)
+    // De no encontrar el valor del dato, muestra 3 puntos
     val nombreMostrar = usuario?.nombre ?: "..."
     val usuarioMostrar = usuario?.username ?: "..."
-    val emailMostrar = usuario?.email ?: "..." // Si usaste @PropertyName("email_contacto") en User.kt, esto funcionará
+    val emailMostrar = usuario?.email ?: "..."
     val fechaMostrar = usuario?.fechaalta ?: "..."
     var enabled by remember { mutableStateOf(false) }
     enabled = false
@@ -350,8 +348,8 @@ fun AggTareaDialog(
     onDismiss: () -> Unit,
     tarea: String,
     onTareaChange: (String) -> Unit,
-    fecha: String, // Esta variable viene del padre (App)
-    onFechaChange: (String) -> Unit, // Esta función actualiza la variable del padre
+    fecha: String,
+    onFechaChange: (String) -> Unit,
     onAddTarea: (String, String) -> Unit
 ) {
     val context = LocalContext.current
@@ -373,7 +371,6 @@ fun AggTareaDialog(
 
             Spacer(Modifier.height(10.dp))
 
-            // AQUÍ USAMOS TU NUEVO COMPONENTE
             CustomDateField(
                 value = fecha,
                 onValueChange = onFechaChange,
@@ -424,7 +421,8 @@ fun TopCard(
 {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val nombreCompleto by viewModel.nombreUsuario.collectAsStateWithLifecycle()
+    val datosUsuario by viewModel.datosUsuario.collectAsStateWithLifecycle()
+    val nombreCompleto by remember { mutableStateOf(datosUsuario?.nombre ?: "...") }
     val auth = FirebaseAuth.getInstance()
     val nombre = nombreCompleto.split(" ")
 
@@ -492,20 +490,19 @@ fun TopCard(
                 }
             }
         }
-        // --- Barra de búsqueda insertada aquí ---
+
         if (listaTareas.isNotEmpty()) {
             Spacer(modifier = Modifier.height(10.dp))
             CustomizableSearchBar(
                 query = query,
                 onQueryChange = onQueryChange
             )
-            Spacer(modifier = Modifier.height(5.dp)) // Un pequeño margen inferior opcional
+            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }
 
 // ============ LISTA TAREAS COMPLETADAS ============ //
-
 @Composable
 fun CompletedTasksList(
     completedTasks: List<Tarea>,
@@ -586,8 +583,7 @@ fun CompletedTasksList(
     }
 }
 
-// ============ BUSCADOR DE TAREAS ============ //
-
+// ============ BARRA DE BUSQUEDA ============ //
 @Composable
 fun CustomizableSearchBar(
     query: String,
@@ -599,15 +595,13 @@ fun CustomizableSearchBar(
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-        // Si quieres sombra, descomenta la siguiente línea:
-        // .shadow(4.dp, shape = RoundedCornerShape(30.dp))
+        //.shadow(4.dp, shape = RoundedCornerShape(30.dp))
         ,
         placeholder = { Text("Buscar Tarea", color = Color.Gray) },
         leadingIcon = {
             Icon(Icons.Default.Search, contentDescription = "Buscar", tint = MaterialTheme.colorScheme.onSurface)
         },
         trailingIcon = {
-            // Solo mostramos la X si hay texto escrito
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(Icons.Default.Close, contentDescription = "Borrar búsqueda", tint = MaterialTheme.colorScheme.onSurface)
@@ -615,14 +609,13 @@ fun CustomizableSearchBar(
             }
         },
         singleLine = true,
-        shape = RoundedCornerShape(30.dp), // Forma de píldora
+        shape = RoundedCornerShape(30.dp),
         colors = TextFieldDefaults.colors(
-            // 1. Quitamos la línea inferior (underline)
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
 
-            // 2. Fondo del color de tu contenedor (PrimaryContainer)
+            // 2. Fondo del color del contenedor
             focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
             unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
 
@@ -634,8 +627,7 @@ fun CustomizableSearchBar(
     )
 }
 
-// ============ TAREAS ============ //
-
+// ============ TAREA ITEM ============ //
 @Composable
 fun TaskItem(
     tarea: Tarea,
@@ -674,8 +666,7 @@ fun TaskItem(
     }
 }
 
-// ============ TAREAS COMPLETADAS ============ //
-
+// ============ TAREA COMPLETADA ITEM ============ //
 @Composable
 fun CompletedTaskItem(
     tarea: Tarea,
@@ -710,7 +701,6 @@ fun CompletedTaskItem(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // CORREGIDO: Llamamos directamente a onDelete() para que el padre maneje el diálogo
         IconButton(onClick = onDelete) {
             Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary)
         }
@@ -969,13 +959,12 @@ fun RowButtons(onGoogleClick: () -> Unit,
                onMicrosoftClick: () -> Unit,
                onFacebookClick: () -> Unit)
 {
-    // 1. Define el tamaño aquí para afectar a todos a la vez
     val buttonSize = 60.dp
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth() // Asegura que la fila ocupe el ancho
+        modifier = Modifier.fillMaxWidth()
     ) {
         SocialMediaButton(
             iconRes = R.drawable.google,
@@ -1000,7 +989,7 @@ fun RowButtons(onGoogleClick: () -> Unit,
     }
 }
 
-// Componente reutilizable para evitar repetir código
+// ============ BOTONES LOGOS ============ //
 @Composable
 fun SocialMediaButton(
     iconRes: Int,
@@ -1015,13 +1004,12 @@ fun SocialMediaButton(
             .padding(15.dp) // Espacio entre tarjetas
             .clickable { onClick() },
     ) {
-        // 2. Eliminamos IconButton. La imagen controla el tamaño.
         Image(
             painter = painterResource(iconRes),
             contentDescription = "Logo",
             modifier = Modifier
-                .size(size) // Aquí se aplica el tamaño real
-                .padding(15.dp) // Padding interno de la imagen dentro de la tarjeta
+                .size(size)
+                .padding(15.dp)
         )
     }
 }
@@ -1048,7 +1036,7 @@ fun CustomTextField(
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
 
-            // 2. Fondo del color de tu contenedor (PrimaryContainer)
+            // 2. Fondo del color del contenedor
             focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
             unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
 
@@ -1120,17 +1108,12 @@ fun CustomDateField(
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
 
-    // Lógica protegida para el estado del calendario
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = if (value.isNotBlank()) {
             try {
-                // Usamos yyyy/MM/dd que es como guardas las tareas
                 val millis = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).parse(value)?.time
                     ?: System.currentTimeMillis()
 
-                // PROTECCIÓN ANTI-CRASH:
-                // Si la fecha guardada es anterior a hoy, el calendario se abriría en el pasado
-                // violando la regla de selectableDates. Si pasa eso, forzamos que abra en "Hoy".
                 if (millis < System.currentTimeMillis() - 86400000) {
                     System.currentTimeMillis()
                 } else {
@@ -1150,7 +1133,6 @@ fun CustomDateField(
         }
     )
 
-    // El Diálogo del Calendario
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -1196,16 +1178,15 @@ fun CustomDateField(
         }
     }
 
-    // El Campo de Texto (Visualmente idéntico a tus otros campos)
     TextField(
         value = formatearFechaParaMostrar(value),
-        onValueChange = {}, // No dejamos escribir manualmente para forzar el uso del calendario
+        onValueChange = {},
         label = { Text(label) },
         placeholder = { Text("yyyy/MM/dd") },
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { showDatePicker = true }, // Al hacer click en el campo, abre el calendario
-        readOnly = true, // Teclado desactivado
+            .clickable { showDatePicker = true },
+        readOnly = true,
         enabled = true,
         trailingIcon = {
             IconButton(onClick = { showDatePicker = true }) {

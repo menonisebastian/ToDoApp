@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
                     "Dinamico" -> MaterialTheme.colorScheme.onSurface
                     else -> MaterialTheme.colorScheme.onSurface
                 }
-                // Pasamos el viewModel a la navegación
+
                 AppNav(taskTextColor = taskTextColor, viewModel = viewModel, startDestination = startDestination)
             }
         }
@@ -124,22 +124,22 @@ fun AppNav(taskTextColor: Color, viewModel: TareasViewModel, startDestination: S
     {
         composable("login") {
             Login(
-                onRegistrar = {
-                    navController.navigate("register")},
-                onLoginSuccess = {
-                    navController.navigate("app")}
+                onRegistrar = { navController.navigate("register")},
+                onLoginSuccess = { navController.navigate("app") { popUpTo("login") { inclusive = true } } }
             )
         }
 
         composable("register") {
             Registrar(
-                onRegistrar = {navController.navigate("login") },
+                onRegistrar = {navController.navigate("login")},
                 onBack = { navController.popBackStack() }
             )
         }
+
         composable("app") {
             App(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.navigate("login") { popUpTo("app") { inclusive = true } } },
+                // -------------------
                 taskTextColor = taskTextColor,
                 viewModel = viewModel
             )
@@ -320,6 +320,7 @@ fun Login(onLoginSuccess: (String) -> Unit,
 
                     TextButton(onClick = {
                         scope.launch {
+                            error = false
                             snackbarHostState.showSnackbar(
                                 message = "Por implementar",
                                 duration = SnackbarDuration.Short
@@ -332,9 +333,34 @@ fun Login(onLoginSuccess: (String) -> Unit,
             }
 
             RowButtons(onGoogleClick = {googleLauncher.launch(googleSignInClient.signInIntent)},
-                onFacebookClick = {},
-                onGithubClick = {},
-                onMicrosoftClick = {})
+                onFacebookClick = {
+                    error = false
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message =
+                                "Facebook Login. Por implementar",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                },
+                onGithubClick = {
+                    error = false
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Github Login. Por implementar",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                },
+                onMicrosoftClick = {
+                    error = false
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Microsoft Login. Por implementar",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                })
 
             Spacer(Modifier.weight(1f))
 
@@ -387,7 +413,7 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState)
     {
         data ->
-        // Aquí personalizamos el aspecto visual
+        // Aspecto visual del snackbar
         Snackbar(
             snackbarData = data,
             containerColor = Color.Red,
@@ -463,14 +489,14 @@ fun Registrar(onRegistrar: (String) -> Unit, onBack: () -> Unit)
                                 auth.createUserWithEmailAndPassword(email, pass)
                                     .addOnSuccessListener { authResult ->
                                         isLoading = false
-                                        val userId = authResult.user?.uid ?: ""
+                                        val userId = authResult.user?.uid ?: "" // Asigna el id
 
                                         // 3. Preparar los datos para guardar en Base de Datos
                                         val nuevoUsuario = hashMapOf(
                                             "id" to userId,
-                                            "username" to userName.trim(), // El usuario corto para mostrar
+                                            "username" to userName.trim(),
                                             "nombre" to nombre,
-                                            "email" to email, // El email real (gmail/hotmail) para contactar
+                                            "email" to email,
                                             "fechaalta" to fechaAlta
                                         )
 
@@ -814,7 +840,6 @@ fun App(
         ConfirmDeleteDialog(
             onDismiss = { tareaAEliminar = null },
             onConfirm = {
-                // CORRECCIÓN: Usar ?.let en lugar de !! para evitar el crash
                 tareaAEliminar?.let { taskToDelete ->
                     ultimaTareaEliminada = taskToDelete
                     viewModel.eliminarTarea(taskToDelete)
@@ -853,8 +878,7 @@ fun App(
 
     if (showCuentaDialog)
     {
-        CuentaDialog(usuario = datosUsuario,
-            onDismiss = { showCuentaDialog = false })
+        CuentaDialog(usuario = datosUsuario, onDismiss = { showCuentaDialog = false })
     }
 
     if (tareaDetallada != null) {

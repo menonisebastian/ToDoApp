@@ -18,82 +18,89 @@ import kotlinx.coroutines.launch
 
 class TareasViewModel : ViewModel() {
 
+    // ===============================================================
+    // 1. DEPENDENCIAS Y VARIABLES INTERNAS
+    // ===============================================================
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var snapshotListener: ListenerRegistration? = null
     private var currentUserId: String? = null
 
-    // 1. Todas las tareas crudas desde Firebase
+    // ===============================================================
+    // 2. ESTADO (STATEFLOWS)
+    // ===============================================================
+
+    // --- Todas las tareas crudas desde Firebase ---
     private val _todasLasTareas = MutableStateFlow<List<Tarea>>(emptyList())
 
+    // --- Datos del Usuario ---
     private val _datosUsuario = MutableStateFlow<User?>(null)
     val datosUsuario: StateFlow<User?> = _datosUsuario.asStateFlow()
 
-    // 2. Filtros para la UI (Derivados de _todasLasTareas)
 
-    // Lista de tareas PENDIENTES (completada == false)
+    // --- Listas Filtradas para la UI (Derivadas) ---
+
+    // Tareas PENDIENTES
     val listaTareas: StateFlow<List<Tarea>> = _todasLasTareas
         .map { list -> list.filter { !it.completada } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Lista de tareas COMPLETADAS (completada == true)
+    // Tareas COMPLETADAS
     val listaCompletadas: StateFlow<List<Tarea>> = _todasLasTareas
         .map { list -> list.filter { it.completada } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // ===============================================================
+    // 3. INICIALIZACIÓN
+    // ===============================================================
     init {
-        // Detectar automáticamente el usuario
+        // Detectar cambios en la sesión de usuario (Login/Logout)
         auth.addAuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
+                // Usuario logueado: Cargamos todo
                 currentUserId = user.uid
                 escucharTareas(user.uid)
-                // 2. NUEVO: Obtener el nombre desde Firestore
-                obtenerNombreUsuario(user.uid)
                 obtenerDatosUsuario(user.uid)
             } else {
-                currentUserId = null
-                _todasLasTareas.value = emptyList()
-                _datosUsuario.value = null
-                snapshotListener?.remove()
+                // Usuario deslogueado: Limpiamos todo
+                limpiarEstado()
             }
         }
     }
 
-    // 1. Estado para el nombre del usuario
-    private val _nombreUsuario = MutableStateFlow<String>("Cargando...")
-    val nombreUsuario: StateFlow<String> = _nombreUsuario.asStateFlow()
-
-    init {
-        auth.addAuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user != null) {
-                currentUserId = user.uid
-                escucharTareas(user.uid)
-
-                // 2. NUEVO: Obtener el nombre desde Firestore
-                obtenerNombreUsuario(user.uid)
-            } else {
-                currentUserId = null
-                _todasLasTareas.value = emptyList()
-                _nombreUsuario.value = "" // Limpiamos el nombre al salir
-                snapshotListener?.remove()
-            }
-        }
+    private fun limpiarEstado() {
+        currentUserId = null
+        _todasLasTareas.value = emptyList()
+        _datosUsuario.value = null
+        snapshotListener?.remove()
     }
 
-    // 3. NUEVO: Función para leer el documento del usuario
-    fun obtenerNombreUsuario(uid: String) {
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    // Busca el campo "nombre" o "username" que guardamos en el Registro
-                    val nombre = document.getString("nombre") ?: document.getString("username") ?: "Usuario"
-                    _nombreUsuario.value = nombre
+    // ===============================================================
+    // 4. LÓGICA DE CARGA DE DATOS (PRIVADA)
+    // ===============================================================
+
+    private fun escucharTareas(userId: String) {
+        snapshotListener?.remove()
+
+        val tareasRef = db.collection("users").document(userId).collection("tareas")
+
+        snapshotListener = tareasRef
+            .orderBy("fecha", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshots, error ->
+                if (error != null) {
+                    Log.e("Firebase", "Error al escuchar tareas", error)
+                    return@addSnapshotListener
                 }
-            }
-            .addOnFailureListener {
-                _nombreUsuario.value = "Usuario"
+
+                if (snapshots != null) {
+                    val lista = snapshots.documents.mapNotNull { doc ->
+                        val t = doc.toObject(Tarea::class.java)
+                        t?.id = doc.id
+                        t
+                    }
+                    _todasLasTareas.value = lista
+                }
             }
     }
 
@@ -107,38 +114,15 @@ class TareasViewModel : ViewModel() {
             }
     }
 
-    private fun escucharTareas(userId: String) {
-        snapshotListener?.remove()
-
-        // Referencia: users -> UID -> tareas
-        val tareasRef = db.collection("users").document(userId).collection("tareas")
-
-        snapshotListener = tareasRef
-            .orderBy("fecha", Query.Direction.ASCENDING) // Puedes cambiar el orden
-            .addSnapshotListener { snapshots, error ->
-                if (error != null) {
-                    Log.e("Firebase", "Error al escuchar tareas", error)
-                    return@addSnapshotListener
-                }
-
-                if (snapshots != null) {
-                    val lista = snapshots.documents.mapNotNull { doc ->
-                        val t = doc.toObject(Tarea::class.java)
-                        t?.id = doc.id // Asignamos el ID del documento al objeto
-                        t
-                    }
-                    _todasLasTareas.value = lista
-                }
-            }
-    }
-
-    // ============ OPERACIONES CRUD ============
+    // ===============================================================
+    // 5. OPERACIONES CRUD (ACCIONES PÚBLICAS)
+    // ===============================================================
 
     fun agregarTarea(texto: String, fecha: String) {
         val uid = currentUserId ?: return
         viewModelScope.launch {
             val nuevaTarea = Tarea(
-                id = "", // Firebase pondrá el ID
+                id = "", // Firebase generará el ID
                 texto = texto,
                 fecha = fecha,
                 completada = false
@@ -147,28 +131,13 @@ class TareasViewModel : ViewModel() {
         }
     }
 
-    fun completarTarea(tarea: Tarea) {
-        actualizarEstadoTarea(tarea, true)
-    }
+    fun completarTarea(tarea: Tarea) = actualizarEstadoTarea(tarea, true)
 
-    fun descompletarTarea(tarea: Tarea) {
-        actualizarEstadoTarea(tarea, false)
-    }
-
-    // Función auxiliar privada para actualizar
-    private fun actualizarEstadoTarea(tarea: Tarea, estaCompletada: Boolean) {
-        val uid = currentUserId ?: return
-        if (tarea.id.isNotEmpty()) {
-            db.collection("users").document(uid).collection("tareas")
-                .document(tarea.id)
-                .update("completada", estaCompletada)
-        }
-    }
+    fun descompletarTarea(tarea: Tarea) = actualizarEstadoTarea(tarea, false)
 
     fun actualizarTarea(tarea: Tarea) {
         val uid = currentUserId ?: return
         if (tarea.id.isNotEmpty()) {
-            // .set sobrescribe, .update actualiza campos específicos
             db.collection("users").document(uid).collection("tareas")
                 .document(tarea.id)
                 .set(tarea)
@@ -185,17 +154,13 @@ class TareasViewModel : ViewModel() {
     }
 
     fun restaurarTarea(tarea: Tarea) {
-        // Simplemente la volvemos a crear
         agregarTarea(tarea.texto, tarea.fecha)
     }
 
     fun vaciarLista() {
-        // Borramos SOLO las tareas visibles (pendientes o todas, según tu lógica).
-        // Aquí borramos TODAS las del usuario
         val uid = currentUserId ?: return
         val batch = db.batch()
 
-        // Nota: Firestore tiene limites en batch, pero para una app personal está bien
         _todasLasTareas.value.forEach { tarea ->
             val docRef = db.collection("users").document(uid).collection("tareas").document(tarea.id)
             batch.delete(docRef)
@@ -203,13 +168,28 @@ class TareasViewModel : ViewModel() {
         batch.commit()
     }
 
+    private fun actualizarEstadoTarea(tarea: Tarea, estaCompletada: Boolean) {
+        val uid = currentUserId ?: return
+        if (tarea.id.isNotEmpty()) {
+            db.collection("users").document(uid).collection("tareas")
+                .document(tarea.id)
+                .update("completada", estaCompletada)
+        }
+    }
+
+    // ===============================================================
+    // 6. CICLO DE VIDA
+    // ===============================================================
+
     override fun onCleared() {
         super.onCleared()
         snapshotListener?.remove()
     }
 }
 
-// Factory actualizada (Ya no necesita 'application' ni DAO)
+// ===============================================================
+// FACTORY
+// ===============================================================
 class TareasViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TareasViewModel::class.java)) {
