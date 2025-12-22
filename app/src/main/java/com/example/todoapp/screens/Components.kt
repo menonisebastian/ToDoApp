@@ -80,6 +80,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -438,8 +439,8 @@ fun TopCard(
 
     Column(modifier = Modifier
         .fillMaxWidth()
-        .shadow(15.dp, RoundedCornerShape(15.dp))
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(15.dp))
+        .shadow(20.dp, RoundedCornerShape(20.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
         .padding(horizontal = 20.dp, vertical = 10.dp))
     {
         Row(verticalAlignment = Alignment.CenterVertically)
@@ -532,8 +533,8 @@ fun CompletedTasksList(
 
     Column(modifier = Modifier
         .fillMaxWidth()
-        .shadow(15.dp, RoundedCornerShape(15.dp))
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(15.dp))
+        .shadow(5.dp, RoundedCornerShape(20.dp))
+        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
         .animateContentSize())
     {
         Column{
@@ -651,11 +652,14 @@ fun TaskItem(
     onCheck: () -> Unit,
     onDelete: () -> Unit)
 {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onTaskClick() },
-        elevation = CardDefaults.cardElevation(5.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface))
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        onClick = onTaskClick,
+        modifier = Modifier
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    )
     {
         Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically)
@@ -997,12 +1001,12 @@ fun SocialMediaButton(
     onClick: () -> Unit
 ) {
     Card(
+        onClick = onClick,
         elevation = CardDefaults.cardElevation(5.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .padding(15.dp) // Espacio entre tarjetas
-            .clickable { onClick() },
     ) {
         Image(
             painter = painterResource(iconRes),
