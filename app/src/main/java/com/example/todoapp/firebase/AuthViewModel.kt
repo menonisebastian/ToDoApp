@@ -1,5 +1,6 @@
 package com.example.todoapp.firebase
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 
 // Estados posibles de la autenticación para que la UI reaccione
 sealed class AuthState {
@@ -76,20 +79,61 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun loginWithGoogle(credential: AuthCredential, email: String, nombre: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                val authResult = auth.signInWithCredential(credential).await()
+                val userId = authResult.user?.uid ?: throw Exception("Error al obtener UID")
+
+                val docSnapshot = db.collection("users").document(userId).get().await()
+
+                if (!docSnapshot.exists()) {
+                    val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    val nuevoUsuario = hashMapOf(
+                        "id" to userId,
+                        "username" to email.split("@")[0],
+                        "nombre" to nombre,
+                        "email" to email,
+                        "fechaalta" to fechaAlta
+                    )
+                    db.collection("users").document(userId).set(nuevoUsuario).await()
+                }
+                _authState.value = AuthState.Success
+
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(mapFirebaseError(e))
+            }
+        }
+    }
+
     // Función auxiliar para mapear errores (movida desde tu UI)
     private fun mapFirebaseError(e: Exception): String {
-        return if (e is FirebaseAuthException) {
-            when (e.errorCode) {
-                "ERROR_INVALID_EMAIL" -> "El formato del correo no es válido."
-                "ERROR_WRONG_PASSWORD" -> "La contraseña es incorrecta."
-                "ERROR_USER_NOT_FOUND" -> "No existe ninguna cuenta con este correo."
-                "ERROR_USER_DISABLED" -> "Esta cuenta ha sido inhabilitada."
-                "ERROR_TOO_MANY_REQUESTS" -> "Demasiados intentos. Inténtalo más tarde."
-                "ERROR_EMAIL_ALREADY_IN_USE" -> "El email ya está registrado."
-                else -> "El email o la contraseña son incorrectos."
+        android.util.Log.e("AuthViewModel", "Error Firebase", e)
+
+        return when (e) {
+            // 1. PRIMERO: La excepción específica (la hija)
+            is com.google.firebase.auth.FirebaseAuthUserCollisionException -> {
+                "Ya existe una cuenta con este email. Usa tu contraseña o recupérala."
             }
-        } else {
-            e.message ?: "Error desconocido"
+
+            // 2. DESPUÉS: La excepción general (la madre)
+            is com.google.firebase.auth.FirebaseAuthException -> {
+                when (e.errorCode) {
+                    "ERROR_INVALID_EMAIL" -> "El formato del correo no es válido."
+                    "ERROR_WRONG_PASSWORD" -> "La contraseña es incorrecta."
+                    "ERROR_USER_NOT_FOUND" -> "No existe ninguna cuenta con este correo."
+                    "ERROR_USER_DISABLED" -> "Esta cuenta ha sido inhabilitada."
+                    "ERROR_TOO_MANY_REQUESTS" -> "Demasiados intentos. Inténtalo más tarde."
+                    "ERROR_EMAIL_ALREADY_IN_USE" -> "El email ya está registrado."
+                    // Este código también captura la colisión, pero el bloque de arriba es más limpio para tu caso
+                    "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" -> "Ya existe una cuenta con este email usando otro método."
+                    else -> "Error de autenticación: ${e.errorCode}"
+                }
+            }
+
+            // 3. FINALMENTE: Cualquier otra excepción
+            else -> e.message ?: "Error desconocido"
         }
     }
 }

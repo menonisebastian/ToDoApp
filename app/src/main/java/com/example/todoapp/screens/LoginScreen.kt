@@ -1,6 +1,7 @@
 package com.example.todoapp.screens
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -76,7 +77,6 @@ fun Login(
 
     // CONFIGURACIÓN GOOGLE (Se mantiene en UI porque requiere Activity)
     val token = stringResource(R.string.token) // En strings.xml
-    val auth = FirebaseAuth.getInstance()
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(token)
         .requestEmail()
@@ -93,15 +93,13 @@ fun Login(
                 val account = task.getResult(ApiException::class.java)
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
 
-                auth.signInWithCredential(credential)
-                    .addOnSuccessListener {
-                        onLoginSuccess(account.email ?: "")
-                    }
-                    .addOnFailureListener { e ->
-                        scope.launch { snackbarHostState.showSnackbar("Error Google: ${e.message}") }
-                    }
+                val googleEmail = account.email ?: ""
+                val googleName = account.displayName ?: "Usuario Google"
+
+                authViewModel.loginWithGoogle(credential, googleEmail, googleName)
+
             } catch (e: ApiException) {
-                scope.launch { snackbarHostState.showSnackbar("Error API Google: ${e.statusCode}") }
+                scope.launch { snackbarHostState.showSnackbar("Error Google: ${e.statusCode}") }
             }
         }
     }
@@ -202,7 +200,12 @@ fun Login(
 
             // LOGIN CON REDES SOCIALES
             RowButtons(
-                onGoogleClick = { googleLauncher.launch(googleSignInClient.signInIntent) },
+                onGoogleClick = {
+                    // Forzamos el cierre de sesión del cliente de Google para poder elegir cuenta
+                    googleSignInClient.signOut().addOnCompleteListener {
+                        googleLauncher.launch(googleSignInClient.signInIntent)
+                    }
+                },
                 onFacebookClick = { scope.launch { snackbarHostState.showSnackbar("Facebook: Por implementar") } },
                 onGithubClick = { scope.launch { snackbarHostState.showSnackbar("Github: Por implementar") } },
                 onMicrosoftClick = { scope.launch { snackbarHostState.showSnackbar("Microsoft: Por implementar") } }
