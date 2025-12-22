@@ -401,6 +401,7 @@ fun AggTareaDialog(
                 IconButton(onClick = {
                     if (tarea.isNotBlank()) {
                         onAddTarea(tarea.trim(), fecha)
+                        onDismiss()
                     } else {
                         Toast.makeText(context, "La descripción de la tarea no puede estar vacía", Toast.LENGTH_SHORT).show()
                     }
@@ -756,20 +757,15 @@ fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
         confirmButton =
             {
                 Button(
-                    onClick = onConfirm,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary)
+                    onClick = {onConfirm() ; onDismiss()} ,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 )
-                {
-                    Text("Aceptar")
-                }
+                { Text("Aceptar") }
             },
         dismissButton =
             {
                 TextButton(onClick = onDismiss)
-                { Text("Cancelar",
-                    color = MaterialTheme.colorScheme.secondary)
-                }
+                { Text("Cancelar", color = MaterialTheme.colorScheme.secondary) }
             },
         containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(30.dp)
@@ -832,10 +828,7 @@ fun ConfirmDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit)
     AlertDialog(
         onDismissRequest = onDismiss,
         title =
-            {
-                Text("Eliminar tarea",
-                    color = MaterialTheme.colorScheme.onSurface)
-            },
+            { Text("Eliminar tarea", color = MaterialTheme.colorScheme.onSurface) },
         text =
             {
                 Text("¿Estás seguro de que quieres eliminar la tarea? " +
@@ -844,21 +837,15 @@ fun ConfirmDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit)
             },
         confirmButton =
             {
-                Button(onClick = onConfirm,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary)
+                Button(onClick = {onConfirm() ; onDismiss()},
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 )
-                {
-                    Text("Aceptar")
-                }
+                { Text("Aceptar") }
             },
         dismissButton =
             {
                 TextButton(onClick = onDismiss)
-                {
-                    Text("Cancelar",
-                        color = MaterialTheme.colorScheme.secondary)
-                }
+                { Text("Cancelar", color = MaterialTheme.colorScheme.secondary) }
             },
         containerColor = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(10.dp))
 }
@@ -891,7 +878,7 @@ fun EditTaskDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    if (textoEditado.isNotBlank()) { onSave(textoEditado, fechaEditada) }
+                    if (textoEditado.isNotBlank()) { onSave(textoEditado, fechaEditada); onDismiss() }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) { Text("Guardar") }

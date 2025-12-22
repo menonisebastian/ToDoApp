@@ -281,7 +281,6 @@ fun App(
                     }
                     tarea = ""
                     fecha = ""
-                    showAddTareaDialog = false
                     Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -340,7 +339,6 @@ fun App(
                 viewModel.vaciarLista()
                 ultimaTareaEliminada = null
                 Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
-                showClearDialog = false
             }
         )
     }
