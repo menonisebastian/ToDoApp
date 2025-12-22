@@ -1,4 +1,4 @@
-package com.example.todoapp
+package com.example.todoapp.screens
 
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -95,13 +95,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.todoapp.R
+import com.example.todoapp.determinePriority
+import com.example.todoapp.exportarTareas
+import com.example.todoapp.firebase.Tarea
+import com.example.todoapp.firebase.TareasViewModel
+import com.example.todoapp.firebase.User
+import com.example.todoapp.resources.SettingsPreferences
+import com.example.todoapp.resources.TaskPriority
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-// ============ UI COMPONENTES ============ //
+// ============ COMPONENTES UI ============ //
 
 // ============ PREFERENCIAS DEL USUARIO ============ //
 
@@ -1210,6 +1218,21 @@ fun CustomDateField(
             focusedPlaceholderColor = MaterialTheme.colorScheme.inversePrimary,
             cursorColor = MaterialTheme.colorScheme.primary
         )
+    )
+}
+
+@Composable
+fun MainLogo()
+{
+    Image(
+        painter = painterResource(R.drawable.cutlogoapp),
+        modifier = Modifier.size(60.dp).padding(10.dp),
+        contentDescription = "Logo"
+    )
+    Image(
+        painter = painterResource(R.drawable.fontlogo),
+        modifier = Modifier.width(150.dp).padding(top = 10.dp),
+        contentDescription = "logo texto"
     )
 }
 

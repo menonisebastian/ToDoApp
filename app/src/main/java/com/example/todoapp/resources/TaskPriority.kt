@@ -1,4 +1,4 @@
-package com.example.todoapp
+package com.example.todoapp.resources
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.example.todoapp
+package com.example.todoapp.resources
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import com.example.todoapp.MainActivity
+import com.example.todoapp.R
 
 class TaskNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -26,10 +28,9 @@ class TaskNotificationReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // 1. Crear el Intent que abre tu MainActivity
         val intent = Intent(context, MainActivity::class.java).apply {
             // Estos flags aseguran que si la app ya está abierta, la traiga al frente
-            // o reinicie la tarea según prefieras.
+            // o reinicie la tarea
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
@@ -38,11 +39,11 @@ class TaskNotificationReceiver : BroadcastReceiver() {
             context,
             0,
             intent,
-            PendingIntent.FLAG_IMMUTABLE // Importante para seguridad en versiones nuevas
+            PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.applogo) // Puedes cambiarlo por R.drawable.cutlogoapp
+            .setSmallIcon(R.drawable.applogo)
             .setContentTitle("Recordatorio de Tarea")
             .setContentText("Hoy tienes: $taskName")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

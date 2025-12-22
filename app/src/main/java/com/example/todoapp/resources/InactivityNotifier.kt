@@ -1,4 +1,4 @@
-package com.example.todoapp
+package com.example.todoapp.resources
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -10,6 +10,8 @@ import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.todoapp.MainActivity
+import com.example.todoapp.R
 
 class InactivityNotifier(private val context: Context) {
 
