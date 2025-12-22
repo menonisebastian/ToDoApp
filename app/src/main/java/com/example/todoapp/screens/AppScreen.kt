@@ -50,8 +50,8 @@ import com.example.todoapp.resources.ShakeDetector
 import com.example.todoapp.firebase.Tarea
 import com.example.todoapp.firebase.TareasViewModel
 import com.example.todoapp.resources.TaskPriority
-import com.example.todoapp.determinePriority
-import com.example.todoapp.scheduleTaskNotification
+import com.example.todoapp.resources.determinePriority
+import com.example.todoapp.resources.scheduleTaskNotification
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

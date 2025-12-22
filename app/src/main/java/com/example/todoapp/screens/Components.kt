@@ -96,13 +96,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.R
-import com.example.todoapp.determinePriority
-import com.example.todoapp.exportarTareas
+import com.example.todoapp.resources.determinePriority
+import com.example.todoapp.resources.exportarTareas
 import com.example.todoapp.firebase.Tarea
 import com.example.todoapp.firebase.TareasViewModel
 import com.example.todoapp.firebase.User
 import com.example.todoapp.resources.SettingsPreferences
 import com.example.todoapp.resources.TaskPriority
+import com.example.todoapp.resources.formatearFechaParaMostrar
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -1244,17 +1245,4 @@ fun LogoSmall(width:Dp)
             .width(width)
             .padding(top = 10.dp),
         contentDescription = "logo texto")
-}
-
-// Función auxiliar
-fun formatearFechaParaMostrar(fechaIso: String): String {
-    if (fechaIso.isBlank()) return ""
-    return try {
-        // Divide "2025/01/01" y reordena
-        val partes = fechaIso.split("/")
-        "${partes[2]}/${partes[1]}/${partes[0]}" // Retorna "01/01/2025"
-    } catch (e: Exception)
-    {
-        fechaIso // Si falla, devuelve la original
-    }
 }
