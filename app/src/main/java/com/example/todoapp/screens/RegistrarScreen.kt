@@ -86,7 +86,7 @@ fun Registrar(
                     snackbarData = data,
                     containerColor = Color.Red,
                     contentColor = Color.White,
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(30.dp),
                     modifier = Modifier.padding(10.dp)
                 )
             }

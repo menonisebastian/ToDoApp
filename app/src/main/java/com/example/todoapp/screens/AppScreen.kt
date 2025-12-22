@@ -161,7 +161,8 @@ fun App(
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 actionColor = MaterialTheme.colorScheme.secondary,
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(30.dp),
+                modifier = Modifier.padding(10.dp)
             )
         }
         }

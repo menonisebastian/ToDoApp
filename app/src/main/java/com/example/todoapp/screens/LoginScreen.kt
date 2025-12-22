@@ -120,8 +120,8 @@ fun Login(
             SnackbarHost(hostState = snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = Color.Red,
-                    contentColor = Color.White,
+                    containerColor = if (authState is AuthState.Error) Color.Red else MaterialTheme.colorScheme.secondary,
+                    contentColor = if (authState is AuthState.Error) Color.White else MaterialTheme.colorScheme.onPrimary,
                     shape = RoundedCornerShape(30.dp),
                     modifier = Modifier.padding(10.dp)
                 )
