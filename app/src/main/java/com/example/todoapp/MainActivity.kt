@@ -70,6 +70,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// ============ NAVIGATOR ============ //
 @Composable
 fun AppNav(
     taskTextColor: Color,
