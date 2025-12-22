@@ -435,8 +435,8 @@ fun TopCard(
         Row(verticalAlignment = Alignment.CenterVertically)
         {
             Text(text =
-                if (nombreCompleto.isNotEmpty())
-                    "Bienvenido, "+nombre[0]
+                if (nombreCompleto != "..." && nombre.isNotEmpty())
+                    "Bienvenido, " + nombre[0]
                 else
                     "Bienvenido",
                 fontSize = 20.sp,
