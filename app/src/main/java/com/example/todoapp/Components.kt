@@ -422,9 +422,9 @@ fun TopCard(
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val datosUsuario by viewModel.datosUsuario.collectAsStateWithLifecycle()
-    val nombreCompleto by remember { mutableStateOf(datosUsuario?.nombre ?: "...") }
+    val nombreCompleto = datosUsuario?.nombre ?: "..."
+    val nombre = if (nombreCompleto.isNotBlank()) nombreCompleto.split(" ") else listOf("...")
     val auth = FirebaseAuth.getInstance()
-    val nombre = nombreCompleto.split(" ")
 
     Column(modifier = Modifier
         .fillMaxWidth()
