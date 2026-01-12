@@ -666,7 +666,7 @@ fun TaskItem(
         {
             if (tarea.fecha.isNotBlank())
             {
-                ImgPokemon(30.dp)
+                ImgPokemon("test.jpg" /*tarea.pokeImg*/, 30.dp)
                 Column{
                     Text(text = tarea.texto, color = textColor)
                     Spacer(modifier = Modifier.height(5.dp))
@@ -1267,7 +1267,7 @@ fun LogoSmall(width:Dp)
 }
 
 @Composable
-fun ImgPokemon(width: Dp)
+fun ImgPokemon(url: String , width: Dp)
 {
     Image(painter = painterResource(id = R.drawable.pikachu),
         modifier = Modifier

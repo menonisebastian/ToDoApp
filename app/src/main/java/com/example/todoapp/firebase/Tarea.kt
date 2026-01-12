@@ -7,5 +7,6 @@ data class Tarea(
     val pokeName: String = "",
     val pokeType: String = "",
     val pokeStats: String = "",
+    val pokeImg: String = "",
     val completada: Boolean = false
 )
