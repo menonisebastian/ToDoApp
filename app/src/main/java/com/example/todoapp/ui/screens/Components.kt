@@ -1280,6 +1280,6 @@ fun ImgPokemon(tarea: Tarea , width: Dp)
 //    AsyncImage(
 //        model = tarea.pokeImg,
 //        contentDescription = tarea.pokeName,
-//        modifier = Modifier.size(80.dp)
+//        modifier = Modifier.size(width)
 //    )
 }
