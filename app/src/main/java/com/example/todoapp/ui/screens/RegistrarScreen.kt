@@ -1,11 +1,9 @@
-package com.example.todoapp.screens
+package com.example.todoapp.ui.screens
 
-import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -14,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,77 +36,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.todoapp.R
 import com.example.todoapp.firebase.AuthState
 import com.example.todoapp.firebase.AuthViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// ============ LOGIN SCREEN ============
+// ============ REGISTER SCREEN ============
 @Composable
-fun Login(
-    authViewModel: AuthViewModel,
-    onLoginSuccess: (String) -> Unit,
-    onRegistrar: () -> Unit
+fun Registrar(
+    authViewModel: AuthViewModel, // Inyectamos el ViewModel
+    onRegistrar: (String) -> Unit, // Callback para ir al login tras registro
+    onBack: () -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // VARIABLES DE TEXTO LOCALES
+    var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
+    var passConf by remember { mutableStateOf("") }
 
-    // Estado actual del ViewModel (Idle, Loading, Success, Error)
+    // ESTADO DEL VIEWMODEL
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
-    // CONFIGURACIÓN GOOGLE (Se mantiene en UI porque requiere Activity)
-    val token = stringResource(R.string.token) // En strings.xml
-    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(token)
-        .requestEmail()
-        .build()
-    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
+    val formularioValido = nombre.isNotBlank() && email.isNotBlank() &&
+            userName.isNotBlank() && pass.isNotBlank() && passConf.isNotBlank()
 
-    // Launcher de Google
-    val googleLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-
-                val googleEmail = account.email ?: ""
-                val googleName = account.displayName ?: "Usuario Google"
-
-                authViewModel.loginWithGoogle(credential, googleEmail, googleName)
-
-            } catch (e: ApiException) {
-                scope.launch { snackbarHostState.showSnackbar("Error Google: ${e.statusCode}") }
-            }
-        }
-    }
-
-    // MANEJO DE ERRORES DEL VIEWMODEL
+    // MANEJO DE ERRORES
     LaunchedEffect(authState) {
         if (authState is AuthState.Error) {
             val msg = (authState as AuthState.Error).message
             snackbarHostState.showSnackbar(msg)
-            authViewModel.resetState() // Volvemos a Idle para permitir reintentar
+            authViewModel.resetState()
         }
     }
 
@@ -116,8 +84,8 @@ fun Login(
             SnackbarHost(hostState = snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = if (authState is AuthState.Error) Color.Red else MaterialTheme.colorScheme.secondary,
-                    contentColor = if (authState is AuthState.Error) Color.White else MaterialTheme.colorScheme.onPrimary,
+                    containerColor = Color.Red,
+                    contentColor = Color.White,
                     shape = RoundedCornerShape(30.dp),
                     modifier = Modifier.padding(10.dp)
                 )
@@ -133,22 +101,34 @@ fun Login(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // LOGO E IMAGEN
+            // LOGOS
             MainLogo()
 
-            Spacer(Modifier.height(80.dp))
+            Spacer(Modifier.height(20.dp))
 
-            // TARJETA DE FORMULARIO
+            // TARJETA DE REGISTRO
             Column(
                 modifier = Modifier
-                    .shadow(15.dp, RoundedCornerShape(20.dp))
+                    .shadow(20.dp, RoundedCornerShape(20.dp))
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                    .padding(20.dp)
+                    .padding(30.dp)
                     .width(300.dp),
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    "Registro",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(bottom = 10.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                CustomTextField(value = nombre, onValueChange = { nombre = it }, label = "Nombre", isEnabled = authState !is AuthState.Loading)
+                Spacer(Modifier.height(20.dp))
+
+                CustomTextField(value = userName, onValueChange = { userName = it }, label = "Usuario", isEnabled = authState !is AuthState.Loading)
+                Spacer(Modifier.height(20.dp))
 
                 CustomTextField(value = email, onValueChange = { email = it }, label = "Email", isEnabled = authState !is AuthState.Loading)
                 Spacer(Modifier.height(20.dp))
@@ -156,19 +136,23 @@ fun Login(
                 CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", isEnabled = authState !is AuthState.Loading)
                 Spacer(Modifier.height(20.dp))
 
-                // BOTÓN DE LOGIN
+                CustomTextField(value = passConf, onValueChange = { passConf = it }, label = "Confirmar contraseña", isEnabled = authState !is AuthState.Loading)
+                Spacer(Modifier.height(20.dp))
+
+                // BOTÓN DE REGISTRAR
                 ElevatedButton(
-                    enabled = authState !is AuthState.Loading,
                     onClick = {
-                        if (email.isNotBlank() && pass.isNotBlank()) {
-                            authViewModel.login(email, pass)
+                        if (pass != passConf) {
+                            scope.launch { snackbarHostState.showSnackbar("Las contraseñas no coinciden") }
                         } else {
-                            scope.launch { snackbarHostState.showSnackbar("Introduce email y contraseña") }
+                            // LLAMADA AL VIEWMODEL (Sin lógica de Firestore aquí)
+                            authViewModel.registrar(email, pass, nombre, userName)
                         }
                     },
+                    enabled = formularioValido && authState !is AuthState.Loading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
-                        disabledContainerColor = MaterialTheme.colorScheme.primary
+                        disabledContainerColor = Color.Gray
                     )
                 ) {
                     if (authState is AuthState.Loading) {
@@ -178,43 +162,27 @@ fun Login(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
-                        Text("Iniciar Sesión")
+                        Text(text = "Crear cuenta", fontWeight = FontWeight.Bold)
                     }
-                }
-
-                // LINKS TEXTO
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 10.dp)) {
-                    TextButton(
-                        onClick = { onRegistrar() },
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
-                    ) { Text("Registrarme") }
-
-                    TextButton(
-                        onClick = { scope.launch { snackbarHostState.showSnackbar("Por implementar") } },
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.inversePrimary)
-                    ) { Text("Recuperar contraseña") }
                 }
             }
 
-            // LOGIN CON REDES SOCIALES
-            RowButtons(
-                onGoogleClick = {
-                    // Forzamos el cierre de sesión del cliente de Google para poder elegir cuenta
-                    googleSignInClient.signOut().addOnCompleteListener {
-                        googleLauncher.launch(googleSignInClient.signInIntent)
-                    }
-                },
-                onFacebookClick = { scope.launch { snackbarHostState.showSnackbar("Facebook: Por implementar") } },
-                onGithubClick = { scope.launch { snackbarHostState.showSnackbar("Github: Por implementar") } },
-                onMicrosoftClick = { scope.launch { snackbarHostState.showSnackbar("Microsoft: Por implementar") } }
-            )
+            Spacer(Modifier.height(20.dp))
 
+            // BOTÓN VOLVER
+            TextButton(onClick = { onBack() }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Volver", tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(15.dp))
+                    Text("Ya tengo una cuenta", color = MaterialTheme.colorScheme.secondary, modifier = Modifier.padding(start = 5.dp))
+                }
+            }
             Spacer(Modifier.weight(1f))
+
             Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
         }
     }
 
-    // DIÁLOGO DE ÉXITO Y NAVEGACIÓN
+    // DIÁLOGO DE ÉXITO
     if (authState is AuthState.Success) {
         Dialog(onDismissRequest = {}) {
             Column(
@@ -224,15 +192,15 @@ fun Login(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("INICIO DE SESIÓN EXITOSO", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp, fontStyle = FontStyle.Italic)
+                Text("REGISTRO EXITOSO", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp, fontStyle = FontStyle.Italic)
                 Spacer(Modifier.height(20.dp))
                 Icon(Icons.Default.CheckCircle, contentDescription = "ok", tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(60.dp))
             }
         }
 
         LaunchedEffect(Unit) {
-            delay(1500)
-            onLoginSuccess(email)
+            delay(2000)
+            onRegistrar(email) // Pasamos el email al login para autocompletar si quieres
             authViewModel.resetState()
         }
     }

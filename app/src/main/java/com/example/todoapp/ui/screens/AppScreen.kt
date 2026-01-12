@@ -1,4 +1,4 @@
-package com.example.todoapp.screens
+package com.example.todoapp.ui.screens
 
 import android.Manifest
 import android.content.Context

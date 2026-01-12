@@ -1,8 +1,8 @@
 package com.example.todoapp
 
-import com.example.todoapp.screens.Login
-import com.example.todoapp.screens.Registrar
-import com.example.todoapp.screens.App
+import com.example.todoapp.ui.screens.Login
+import com.example.todoapp.ui.screens.Registrar
+import com.example.todoapp.ui.screens.App
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -114,6 +114,6 @@ fun AppNav(
 fun GreetingPreview()
 {
     ToDoAppTheme {
-        Registrar(onRegistrar = {}, onBack = {}, authViewModel = AuthViewModel())
+        //Registrar(onRegistrar = {}, onBack = {}, authViewModel = AuthViewModel())
     }
 }

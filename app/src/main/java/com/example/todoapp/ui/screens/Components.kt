@@ -1,4 +1,4 @@
-package com.example.todoapp.screens
+package com.example.todoapp.ui.screens
 
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -80,7 +80,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -557,7 +556,8 @@ fun CompletedTasksList(
 
             if (expanded)
             {
-                LazyColumn(modifier = Modifier.fillMaxWidth()
+                LazyColumn(modifier = Modifier
+                    .fillMaxWidth()
                     .heightIn(max = 350.dp))
                 {
                     items(completedTasks, key = { it.id }) { tareaItem ->
@@ -666,10 +666,18 @@ fun TaskItem(
         {
             if (tarea.fecha.isNotBlank())
             {
+                ImgPokemon(30.dp)
                 Column{
                     Text(text = tarea.texto, color = textColor)
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(text = formatearFechaParaMostrar(tarea.fecha), color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+
+//                    Text(text = "Pokemon"/*tarea.pokeName*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+//                    Spacer(modifier = Modifier.height(5.dp))
+//                    Text(text = "Tipos"/*tarea.pokeType*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+//                    Spacer(modifier = Modifier.height(5.dp))
+//                    Text(text = "Stats"/*tarea.pokeStats*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+
                 }
             }
             else
@@ -677,12 +685,22 @@ fun TaskItem(
                 Text(text = tarea.texto, color = textColor)
             }
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = onCheck) { Icon(Icons.Default.Check, contentDescription = "Completar", tint = MaterialTheme.colorScheme.secondary)}
-            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary) }
-            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary) }
+            RowItemButtons(onCheck, onEdit, onDelete)
         }
     }
 }
+
+@Composable
+fun RowItemButtons(onCheck: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit)
+{
+    Row(horizontalArrangement = Arrangement.End)
+    {
+        IconButton(onClick = { onCheck()}) { Icon(Icons.Default.Check, contentDescription = "Completar", tint = MaterialTheme.colorScheme.secondary)}
+        IconButton(onClick = { onEdit() }) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary) }
+        IconButton(onClick = { onDelete() }) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary) }
+    }
+}
+
 
 // ============ TAREA COMPLETADA ITEM ============ //
 @Composable
@@ -789,7 +807,9 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                 shape = RoundedCornerShape(20.dp))
             {
                 Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(10.dp).padding(start = 10.dp))
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .padding(start = 10.dp))
                 {
                     Text("Estado: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     Spacer(modifier = Modifier.weight(1f))
@@ -938,8 +958,7 @@ fun PriorityChip(priority: TaskPriority) {
             )
             .padding(horizontal = 12.dp, vertical = 10.dp)
             .width(
-                when(priority)
-                {
+                when (priority) {
                     TaskPriority.EXPIRED -> 50.dp
                     TaskPriority.COMPLETED -> 80.dp
                     TaskPriority.UNKNOWN -> 60.dp
@@ -1218,12 +1237,16 @@ fun MainLogo()
 {
     Image(
         painter = painterResource(R.drawable.cutlogoapp),
-        modifier = Modifier.size(60.dp).padding(10.dp),
+        modifier = Modifier
+            .size(60.dp)
+            .padding(10.dp),
         contentDescription = "Logo"
     )
     Image(
         painter = painterResource(R.drawable.fontlogo),
-        modifier = Modifier.width(150.dp).padding(top = 10.dp),
+        modifier = Modifier
+            .width(150.dp)
+            .padding(top = 10.dp),
         contentDescription = "logo texto"
     )
 }
@@ -1236,4 +1259,20 @@ fun LogoSmall(width:Dp)
             .width(width)
             .padding(top = 10.dp),
         contentDescription = "logo texto")
+    Image(painter = painterResource(id = R.drawable.pokemonlogo),
+        modifier = Modifier
+            .width(width - 10.dp)
+            .padding(top = 10.dp),
+        contentDescription = "logo texto")
+}
+
+@Composable
+fun ImgPokemon(width: Dp)
+{
+    Image(painter = painterResource(id = R.drawable.pikachu),
+        modifier = Modifier
+            .width(width)
+            .padding(end = 10.dp),
+        contentDescription = "logo texto")
+
 }
