@@ -667,7 +667,7 @@ fun TaskItem(
         {
             if (tarea.fecha.isNotBlank())
             {
-                ImgPokemon(tarea, 30.dp)
+                ImgPokemon(tarea, 50.dp)
                 Column{
                     Text(text = tarea.texto, color = textColor)
                     Spacer(modifier = Modifier.height(5.dp))
@@ -802,6 +802,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
 
     AlertDialog(
         onDismissRequest = onDismiss,
+//        icon = {ImgPokemon(tarea, 100.dp)},
         title = {
             Card(elevation = CardDefaults.cardElevation(10.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -812,7 +813,17 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                         .padding(10.dp)
                         .padding(start = 10.dp))
                 {
-                    Text("Estado: ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Column {
+                        Text(text = tarea.texto,
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colorScheme.onSurface)
+                        if (tarea.fecha.isNotBlank())
+                        {
+                            Text(text = formatearFechaParaMostrar(tarea.fecha),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.inversePrimary)
+                        }
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                     PriorityChip(priority)
                 }
@@ -820,18 +831,8 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
         },
         text =
             {
-                Column{
-                    Text(text = tarea.texto,
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(10.dp))
-                    if (tarea.fecha.isNotBlank())
-                    {
-                        Text(text = formatearFechaParaMostrar(tarea.fecha),
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.inversePrimary,
-                            modifier = Modifier.padding(10.dp))
-                    }
+                Column(horizontalAlignment = Alignment.CenterHorizontally){
+                    ImgPokemon(tarea, 100.dp)
                 }
             },
         confirmButton =
