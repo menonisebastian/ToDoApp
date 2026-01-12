@@ -831,8 +831,16 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
         },
         text =
             {
-                Column(horizontalAlignment = Alignment.CenterHorizontally){
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center)
+                {
                     ImgPokemon(tarea, 100.dp)
+                    Column{
+                        Text(text = "Nombre: "/*tarea.pokeName*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(text = "Tipos: "/*tarea.pokeType*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(text = "Stats: "/*tarea.pokeStats*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                    }
                 }
             },
         confirmButton =
