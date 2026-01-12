@@ -95,6 +95,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.example.todoapp.R
 import com.example.todoapp.resources.determinePriority
 import com.example.todoapp.resources.exportarTareas
@@ -666,7 +667,7 @@ fun TaskItem(
         {
             if (tarea.fecha.isNotBlank())
             {
-                ImgPokemon("test.jpg" /*tarea.pokeImg*/, 30.dp)
+                ImgPokemon(tarea, 30.dp)
                 Column{
                     Text(text = tarea.texto, color = textColor)
                     Spacer(modifier = Modifier.height(5.dp))
@@ -1267,7 +1268,7 @@ fun LogoSmall(width:Dp)
 }
 
 @Composable
-fun ImgPokemon(url: String , width: Dp)
+fun ImgPokemon(tarea: Tarea , width: Dp)
 {
     Image(painter = painterResource(id = R.drawable.pikachu),
         modifier = Modifier
@@ -1275,4 +1276,10 @@ fun ImgPokemon(url: String , width: Dp)
             .padding(end = 10.dp),
         contentDescription = "logo texto")
 
+    //TODO: AGREGAR IMAGEN DEL POKEMON
+//    AsyncImage(
+//        model = tarea.pokeImg,
+//        contentDescription = tarea.pokeName,
+//        modifier = Modifier.size(80.dp)
+//    )
 }
