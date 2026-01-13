@@ -672,11 +672,11 @@ fun TaskItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     )
     {
-        Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
+        Row(modifier = Modifier.padding(10.dp),
             verticalAlignment = Alignment.CenterVertically)
         {
             if(tarea.pokeImg.isNotBlank()) {
-                ImgPokemon(tarea, 60.dp) // Aumenté un poco el tamaño
+                ImgPokemon(tarea, 80.dp) // Aumenté un poco el tamaño
             }
             if (tarea.fecha.isNotBlank())
             {
@@ -1346,13 +1346,13 @@ fun LogoSmall(width:Dp)
 }
 
 @Composable
-fun ImgPokemon(tarea: Tarea, width: Dp) {
+fun ImgPokemon(tarea: Tarea, size: Dp) {
     if (tarea.pokeImg.isNotBlank()) {
         AsyncImage(
             model = tarea.pokeImg,
             contentDescription = tarea.pokeName,
             modifier = Modifier
-                .width(width)
+                .size(size)
                 .padding(end = 10.dp)
         )
     } else {
