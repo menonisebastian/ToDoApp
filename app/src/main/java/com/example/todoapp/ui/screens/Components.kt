@@ -572,6 +572,8 @@ fun CompletedTasksList(
             }
         }
     }
+    Spacer(modifier = Modifier.height(10.dp))
+
     if (tareaDetallada != null) {
         DetailTaskDialog(tarea = tareaDetallada!!,
             onDismiss = { tareaDetallada = null },

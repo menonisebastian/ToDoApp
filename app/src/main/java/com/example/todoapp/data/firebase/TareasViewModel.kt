@@ -118,68 +118,77 @@ class TareasViewModel : ViewModel() {
     }
 
     // ===============================================================
+    // 4.5 LLAMADA A LA API
+    // ===============================================================
+
+    private suspend fun buscarDatosPokemon(texto: String): InfoPokemon {
+        // 1. Limpieza del texto
+        val posiblePokemon = texto.trim()
+            .substringAfterLast(" ")
+            .lowercase()
+            .filter { it.isLetter() } // Solo letras
+
+        // Si no hay palabra válida, devolvemos vacío inmediatamente
+        if (posiblePokemon.isEmpty()) return InfoPokemon()
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = RetrofitClient.instance.getPokemon(posiblePokemon)
+
+                // Formateo de datos
+                val pName = response.name.replaceFirstChar { it.uppercase() }
+                val pImg = response.sprites.front_default ?: ""
+
+                val pType = response.types.joinToString(", ") {
+                    it.type.name.replaceFirstChar { c -> c.uppercase() }
+                }
+
+                val pStats = response.stats.joinToString(" | ") { slot ->
+                    val statName = when (slot.stat.name) {
+                        "hp" -> "HP"
+                        "attack" -> "Atk"
+                        "defense" -> "Def"
+                        "special-attack" -> "SpA"
+                        "special-defense" -> "SpD"
+                        "speed" -> "Spd"
+                        else -> slot.stat.name
+                    }
+                    "$statName: ${slot.base_stat}"
+                }
+
+                // Retornamos el objeto lleno
+                InfoPokemon(pName, pType, pStats, pImg)
+
+            } catch (e: Exception) {
+                Log.d("PokeAPI", "Error buscando '$posiblePokemon': ${e.message}")
+                // Retornamos vacío si falla
+                InfoPokemon()
+            }
+        }
+    }
+
+    // ===============================================================
     // 5. OPERACIONES CRUD (ACCIONES PÚBLICAS)
     // ===============================================================
     fun agregarTarea(texto: String, fecha: String) {
         val uid = currentUserId ?: return
 
-        // 1. Extraer la última palabra para buscar el Pokémon
-        val posiblePokemon = texto.trim().substringAfterLast(" ").lowercase()
-
         viewModelScope.launch {
-            var pokeName = ""
-            var pokeType = ""
-            var pokeStats = ""
-            var pokeImg = ""
+            // LLAMADA UNIFICADA
+            val infoPoke = buscarDatosPokemon(texto)
 
-            // 2. Intentar buscar en la API en un hilo IO (segundo plano)
-            if (posiblePokemon.isNotEmpty()) {
-                try {
-                    val response = withContext(Dispatchers.IO) {
-                        RetrofitClient.instance.getPokemon(posiblePokemon)
-                    }
-
-                    // 3. Si hay éxito, formateamos los datos
-                    pokeName = response.name.replaceFirstChar { it.uppercase() }
-                    pokeImg = response.sprites.front_default ?: ""
-
-                    // Formatear tipos (ej: "fire, flying")
-                    pokeType = response.types.joinToString(", ") { it.type.name.replaceFirstChar { char -> char.uppercase() } }
-
-                    // Formatear stats (ej: "HP: 45 | Atk: 49")
-                    pokeStats = response.stats.joinToString(" | ") {
-                        val statName = when(it.stat.name) {
-                            "hp" -> "HP"
-                            "attack" -> "Atk"
-                            "defense" -> "Def"
-                            "special-attack" -> "SpA"
-                            "special-defense" -> "SpD"
-                            "speed" -> "Spd"
-                            else -> it.stat.name
-                        }
-                        "$statName: ${it.base_stat}"
-                    }
-
-                } catch (e: Exception) {
-                    // Si falla (404 no encontrado o error de red), simplemente ignoramos
-                    // y guardamos la tarea sin datos de Pokémon.
-                    Log.d("PokeAPI", "No se encontró el Pokémon o hubo error: ${e.message}")
-                }
-            }
-
-            // 4. Crear el objeto Tarea con los datos (vacíos o rellenos)
             val nuevaTarea = Tarea(
                 id = "",
                 texto = texto,
                 fecha = fecha,
                 completada = false,
-                pokeName = pokeName,
-                pokeType = pokeType,
-                pokeStats = pokeStats,
-                pokeImg = pokeImg
+                // Usamos los datos obtenidos
+                pokeName = infoPoke.name,
+                pokeType = infoPoke.type,
+                pokeStats = infoPoke.stats,
+                pokeImg = infoPoke.img
             )
 
-            // 5. Guardar en Firebase
             db.collection("users").document(uid).collection("tareas").add(nuevaTarea)
         }
     }
@@ -188,12 +197,28 @@ class TareasViewModel : ViewModel() {
 
     fun descompletarTarea(tarea: Tarea) = actualizarEstadoTarea(tarea, false)
 
-    fun actualizarTarea(tarea: Tarea) {
+    fun editarTarea(tarea: Tarea, nuevoTexto: String, nuevaFecha: String) {
         val uid = currentUserId ?: return
-        if (tarea.id.isNotEmpty()) {
-            db.collection("users").document(uid).collection("tareas")
-                .document(tarea.id)
-                .set(tarea)
+
+        viewModelScope.launch {
+            // LLAMADA UNIFICADA
+            val infoPoke = buscarDatosPokemon(nuevoTexto)
+
+            val actualizaciones = mapOf(
+                "texto" to nuevoTexto,
+                "fecha" to nuevaFecha,
+                // Usamos los datos obtenidos (si infoPoke está vacío, esto borrará los datos viejos en Firebase)
+                "pokeName" to infoPoke.name,
+                "pokeType" to infoPoke.type,
+                "pokeStats" to infoPoke.stats,
+                "pokeImg" to infoPoke.img
+            )
+
+            if (tarea.id.isNotEmpty()) {
+                db.collection("users").document(uid).collection("tareas")
+                    .document(tarea.id)
+                    .update(actualizaciones)
+            }
         }
     }
 

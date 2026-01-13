@@ -293,7 +293,7 @@ fun App(
             tarea = tareaToEdit,
             onDismiss = { tareaEditando = null },
             onSave = { nuevoTexto, nuevaFecha ->
-                viewModel.actualizarTarea(tareaToEdit.copy(texto = nuevoTexto, fecha = nuevaFecha))
+                viewModel.editarTarea(tareaToEdit, nuevoTexto, nuevaFecha)
                 if (nuevaFecha.isNotBlank())
                 {
                     scheduleTaskNotification(context, nuevoTexto, nuevaFecha)
