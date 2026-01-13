@@ -105,6 +105,7 @@ import com.example.todoapp.firebase.User
 import com.example.todoapp.resources.SettingsPreferences
 import com.example.todoapp.resources.TaskPriority
 import com.example.todoapp.resources.formatearFechaParaMostrar
+import com.example.todoapp.resources.getPokeName
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -802,7 +803,6 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-//        icon = {ImgPokemon(tarea, 100.dp)},
         title = {
             Card(elevation = CardDefaults.cardElevation(10.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -835,7 +835,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
                 {
                     ImgPokemon(tarea, 100.dp)
                     Column{
-                        Text(text = "Nombre: "/*tarea.pokeName*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                        Text(text = "Nombre: ${getPokeName(tarea)}", color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
                         Spacer(modifier = Modifier.height(5.dp))
                         Text(text = "Tipos: "/*tarea.pokeType*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
                         Spacer(modifier = Modifier.height(5.dp))

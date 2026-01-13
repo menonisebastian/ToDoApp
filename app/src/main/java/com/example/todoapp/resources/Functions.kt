@@ -128,6 +128,22 @@ fun formatearFechaParaMostrar(fechaIso: String): String {
     }
 }
 
+// ============ NOMBRE DEL POKEMON ============ //
+fun getPokeName(tarea: Tarea): String {
+    val name = tarea.texto
+
+    if (name.isBlank()) return ""
+    return try {
+        // Divide y reordena
+        val partes = name.split(" ")
+        partes[partes.size - 1] //
+    } catch (e: Exception)
+    {
+        e.printStackTrace()
+        name // Si falla, devuelve la original
+    }
+}
+
 // ============ PRIORIDAD DE LA TAREA ============ //
 fun determinePriority(tarea: Tarea): TaskPriority {
     // 1. Si ya está completada, no importa la fecha. Devolvemos COMPLETED y salimos.
