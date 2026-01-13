@@ -42,8 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.todoapp.firebase.AuthState
-import com.example.todoapp.firebase.AuthViewModel
+import com.example.todoapp.data.firebase.AuthState
+import com.example.todoapp.data.firebase.AuthViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

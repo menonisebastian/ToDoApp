@@ -1,4 +1,4 @@
-package com.example.todoapp.firebase
+package com.example.todoapp.data.firebase
 
 data class User(
 

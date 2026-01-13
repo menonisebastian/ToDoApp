@@ -1,4 +1,4 @@
-package com.example.todoapp.firebase
+package com.example.todoapp.data.firebase
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -109,16 +109,16 @@ class AuthViewModel : ViewModel() {
 
     // Función auxiliar para mapear errores (movida desde tu UI)
     private fun mapFirebaseError(e: Exception): String {
-        android.util.Log.e("AuthViewModel", "Error Firebase", e)
+        Log.e("AuthViewModel", "Error Firebase", e)
 
         return when (e) {
             // 1. PRIMERO: La excepción específica (la hija)
-            is com.google.firebase.auth.FirebaseAuthUserCollisionException -> {
+            is FirebaseAuthUserCollisionException -> {
                 "Ya existe una cuenta con este email. Usa tu contraseña o recupérala."
             }
 
             // 2. DESPUÉS: La excepción general (la madre)
-            is com.google.firebase.auth.FirebaseAuthException -> {
+            is FirebaseAuthException -> {
                 when (e.errorCode) {
                     "ERROR_INVALID_EMAIL" -> "El formato del correo no es válido."
                     "ERROR_WRONG_PASSWORD" -> "La contraseña es incorrecta."

@@ -18,10 +18,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.theme.ToDoAppTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.todoapp.firebase.AuthViewModel
-import com.example.todoapp.firebase.AuthViewModelFactory
-import com.example.todoapp.firebase.TareasViewModel
-import com.example.todoapp.firebase.TareasViewModelFactory
+import com.example.todoapp.data.firebase.AuthViewModel
+import com.example.todoapp.data.firebase.AuthViewModelFactory
+import com.example.todoapp.data.firebase.TareasViewModel
+import com.example.todoapp.data.firebase.TareasViewModelFactory
 import com.example.todoapp.resources.SettingsPreferences
 import com.google.firebase.auth.FirebaseAuth
 

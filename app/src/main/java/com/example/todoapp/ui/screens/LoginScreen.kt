@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.R
-import com.example.todoapp.firebase.AuthState
-import com.example.todoapp.firebase.AuthViewModel
+import com.example.todoapp.data.firebase.AuthState
+import com.example.todoapp.data.firebase.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException

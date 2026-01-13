@@ -47,8 +47,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.resources.InactivityNotifier
 import com.example.todoapp.resources.ShakeDetector
-import com.example.todoapp.firebase.Tarea
-import com.example.todoapp.firebase.TareasViewModel
+import com.example.todoapp.data.firebase.Tarea
+import com.example.todoapp.data.firebase.TareasViewModel
 import com.example.todoapp.resources.TaskPriority
 import com.example.todoapp.resources.determinePriority
 import com.example.todoapp.resources.scheduleTaskNotification
@@ -349,7 +349,12 @@ fun App(
     }
 
     if (tareaDetallada != null) {
-        DetailTaskDialog(tarea = tareaDetallada!!, onDismiss = { tareaDetallada = null })
+        DetailTaskDialog(tarea = tareaDetallada!!,
+            onDismiss = { tareaDetallada = null },
+            onCompletar = {
+            viewModel.completarTarea(tareaDetallada!!)
+            tareaDetallada = null
+        })
     }
     if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
 }

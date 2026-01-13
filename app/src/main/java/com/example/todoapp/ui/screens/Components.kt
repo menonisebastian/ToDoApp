@@ -99,18 +99,19 @@ import coil.compose.AsyncImage
 import com.example.todoapp.R
 import com.example.todoapp.resources.determinePriority
 import com.example.todoapp.resources.exportarTareas
-import com.example.todoapp.firebase.Tarea
-import com.example.todoapp.firebase.TareasViewModel
-import com.example.todoapp.firebase.User
+import com.example.todoapp.data.firebase.Tarea
+import com.example.todoapp.data.firebase.TareasViewModel
+import com.example.todoapp.data.firebase.User
 import com.example.todoapp.resources.SettingsPreferences
 import com.example.todoapp.resources.TaskPriority
 import com.example.todoapp.resources.formatearFechaParaMostrar
-import com.example.todoapp.resources.getPokeName
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.text.isNotBlank
+import kotlin.text.trim
 
 // ============ COMPONENTES UI ============ //
 
@@ -536,6 +537,7 @@ fun CompletedTasksList(
         .fillMaxWidth()
         .shadow(5.dp, RoundedCornerShape(20.dp))
         .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+        .clickable { expanded = !expanded }
         .animateContentSize())
     {
         Column{
@@ -571,7 +573,12 @@ fun CompletedTasksList(
         }
     }
     if (tareaDetallada != null) {
-        DetailTaskDialog(tarea = tareaDetallada!!, onDismiss = { tareaDetallada = null })
+        DetailTaskDialog(tarea = tareaDetallada!!,
+            onDismiss = { tareaDetallada = null },
+            onCompletar = {
+                viewModel.descompletarTarea(tareaDetallada!!)
+                tareaDetallada = null
+            })
     }
     if (tareaAEliminar != null) {
         ConfirmDeleteDialog(
@@ -666,25 +673,31 @@ fun TaskItem(
         Row(modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically)
         {
+            if(tarea.pokeImg.isNotBlank()) {
+                ImgPokemon(tarea, 60.dp) // Aumenté un poco el tamaño
+            }
             if (tarea.fecha.isNotBlank())
             {
-                ImgPokemon(tarea, 50.dp)
                 Column{
                     Text(text = tarea.texto, color = textColor)
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(text = formatearFechaParaMostrar(tarea.fecha), color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
-
-//                    Text(text = "Pokemon"/*tarea.pokeName*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
-//                    Spacer(modifier = Modifier.height(5.dp))
-//                    Text(text = "Tipos"/*tarea.pokeType*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
-//                    Spacer(modifier = Modifier.height(5.dp))
-//                    Text(text = "Stats"/*tarea.pokeStats*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
-
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(text = "Pokemon: ${tarea.pokeName}", color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
             else
             {
-                Text(text = tarea.texto, color = textColor)
+                Column{
+                    Text(text = tarea.texto, color = textColor)
+                    if (tarea.pokeImg.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(text = "Pokemon: ${tarea.pokeName}",
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold)
+                    }
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             RowItemButtons(onCheck, onEdit, onDelete)
@@ -797,63 +810,110 @@ fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 }
 
 @Composable
-fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit)
+fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Unit)
 {
     val priority = determinePriority(tarea)
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Card(elevation = CardDefaults.cardElevation(10.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                shape = RoundedCornerShape(20.dp))
-            {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .padding(start = 10.dp))
-                {
-                    Column {
-                        Text(text = tarea.texto,
-                            fontSize = 20.sp,
-                            color = MaterialTheme.colorScheme.onSurface)
-                        if (tarea.fecha.isNotBlank())
-                        {
-                            Text(text = formatearFechaParaMostrar(tarea.fecha),
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.inversePrimary)
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        // 1. Contenedor Principal (Fondo del Dialog)
+        Card(
+            shape = RoundedCornerShape(30.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp) // Padding interno estándar de un diálogo
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                // --- SECCIÓN TÍTULO (Tu Card original) ---
+                Card(
+                    elevation = CardDefaults.cardElevation(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .padding(start = 10.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = tarea.texto,
+                                fontSize = 20.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                lineHeight = 24.sp
+                            )
+                            if (tarea.fecha.isNotBlank()) {
+                                Text(
+                                    text = formatearFechaParaMostrar(tarea.fecha),
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.inversePrimary
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        PriorityChip(priority)
+                    }
+                }
+
+                if (tarea.pokeName.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(16.dp)) // Espacio entre título y contenido
+
+                    // --- SECCIÓN CONTENIDO (Info Pokemon) ---
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        ImgPokemon(tarea, 100.dp)
+
+                        Spacer(modifier = Modifier.width(8.dp)) // Un poco de aire entre imagen y texto
+
+                        Column {
+                            Text(text = "Pokemon: " + tarea.pokeName, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(text = "Tipos: " + tarea.pokeType, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(text = "Stats: " + tarea.pokeStats, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
                         }
                     }
-                    Spacer(modifier = Modifier.weight(1f))
-                    PriorityChip(priority)
                 }
-            }
-        },
-        text =
-            {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center)
+
+                Spacer(modifier = Modifier.height(24.dp)) // Espacio antes del botón
+
+                // --- SECCIÓN BOTÓN --- //
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End )
                 {
-                    ImgPokemon(tarea, 100.dp)
-                    Column{
-                        Text(text = "Nombre: ${getPokeName(tarea)}", color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text = "Tipos: "/*tarea.pokeType*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text = "Stats: "/*tarea.pokeStats*/, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                    IconButton(onClick = { onDismiss() },
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary), modifier = Modifier.size(40.dp))
+                    {
+                        Icon(Icons.Filled.Close, contentDescription = "Cancelar", tint = MaterialTheme.colorScheme.onPrimary)
+                    }
+
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    IconButton(onClick = {
+                        onCompletar()
+                        onDismiss()
+                    },
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.secondary), modifier = Modifier.size(40.dp))
+                    {
+                        Icon(Icons.Filled.Check, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
-            },
-        confirmButton =
-            {
-                TextButton(onClick = onDismiss)
-                {
-                    Text("Listo",
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontSize = 20.sp)
-                }
-            },
-        containerColor = MaterialTheme.colorScheme.background,
-        shape = RoundedCornerShape(20.dp))
+            }
+        }
+    }
 }
 
 @Composable
@@ -1248,16 +1308,23 @@ fun MainLogo()
     Image(
         painter = painterResource(R.drawable.cutlogoapp),
         modifier = Modifier
-            .size(60.dp)
-            .padding(10.dp),
+            .size(50.dp)
+            .padding(5.dp),
         contentDescription = "Logo"
     )
     Image(
         painter = painterResource(R.drawable.fontlogo),
         modifier = Modifier
-            .width(150.dp)
-            .padding(top = 10.dp),
+            .width(125.dp)
+            .padding(top = 5.dp),
         contentDescription = "logo texto"
+    )
+    Image(
+        painter = painterResource(R.drawable.pokemonlogo),
+        modifier = Modifier
+            .width(80.dp)
+            .padding(top = 5.dp),
+        contentDescription = "logo pokemon"
     )
 }
 
@@ -1277,18 +1344,17 @@ fun LogoSmall(width:Dp)
 }
 
 @Composable
-fun ImgPokemon(tarea: Tarea , width: Dp)
-{
-    Image(painter = painterResource(id = R.drawable.pikachu),
-        modifier = Modifier
-            .width(width)
-            .padding(end = 10.dp),
-        contentDescription = "logo texto")
-
-    //TODO: AGREGAR IMAGEN DEL POKEMON
-//    AsyncImage(
-//        model = tarea.pokeImg,
-//        contentDescription = tarea.pokeName,
-//        modifier = Modifier.size(width)
-//    )
+fun ImgPokemon(tarea: Tarea, width: Dp) {
+    if (tarea.pokeImg.isNotBlank()) {
+        AsyncImage(
+            model = tarea.pokeImg,
+            contentDescription = tarea.pokeName,
+            modifier = Modifier
+                .width(width)
+                .padding(end = 10.dp)
+        )
+    } else {
+        // Si no hay imagen de URL, puedes no mostrar nada o mostrar un placeholder
+        // Image(painter = painterResource(id = R.drawable.pikachu), ... )
+    }
 }

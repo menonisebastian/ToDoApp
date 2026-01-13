@@ -11,7 +11,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
-import com.example.todoapp.firebase.Tarea
+import com.example.todoapp.data.firebase.Tarea
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
@@ -24,30 +24,42 @@ import kotlin.collections.forEach
 
 // ============ EXPORTAR TAREAS ============ //
 fun exportarTareas(context: Context, listaTareas: List<Tarea>, listaCompletadas: List<Tarea>) {
+
     val stringBuilder = StringBuilder()
-    if (listaTareas.isNotEmpty())
-    {
-        stringBuilder.append("TAREAS PENDIENTES:\n")
-        listaTareas.forEach { tarea ->
-            stringBuilder.append(
-                if (tarea.fecha.isNotBlank())
-                    "Tarea: ${tarea.texto} - Fecha: ${formatearFechaParaMostrar(tarea.fecha)}\n"
-                else
-                    "Tarea: ${tarea.texto}\n"
-            )
+
+    // --- HELPER LOCAL PARA FORMATEAR CADA TAREA ---
+    fun appendTareaInfo(tarea: Tarea) {
+        // 1. Título y Fecha
+        stringBuilder.append("• Tarea: ${tarea.texto}")
+        if (tarea.fecha.isNotBlank()) {
+            stringBuilder.append(" | Fecha: ${formatearFechaParaMostrar(tarea.fecha)}")
         }
+        stringBuilder.append("\n")
+
+        // 2. Datos del Pokémon (Solo si existen)
+        if (tarea.pokeName.isNotBlank()) {
+            stringBuilder.append("    [Datos del Pokémon]\n")
+            stringBuilder.append("    Nombre: ${tarea.pokeName}\n")
+            stringBuilder.append("    Tipo: ${tarea.pokeType}\n")
+            stringBuilder.append("    Stats: ${tarea.pokeStats}\n")
+        }
+
+        stringBuilder.append("--------------------------------------------------\n")
+    }
+    // ---------------------------------------------
+
+    if (listaTareas.isNotEmpty()) {
+        stringBuilder.append("=== TAREAS PENDIENTES ===\n\n")
+        listaTareas.forEach { tarea ->
+            appendTareaInfo(tarea)
+        }
+        stringBuilder.append("\n")
     }
 
-    if (listaCompletadas.isNotEmpty())
-    {
-        stringBuilder.append("\nTAREAS COMPLETADAS:\n")
+    if (listaCompletadas.isNotEmpty()) {
+        stringBuilder.append("=== TAREAS COMPLETADAS ===\n\n")
         listaCompletadas.forEach { tarea ->
-            stringBuilder.append(
-                if (tarea.fecha.isNotBlank())
-                    "Tarea: ${tarea.texto} - Fecha: ${formatearFechaParaMostrar(tarea.fecha)}\n"
-                else
-                    "Tarea: ${tarea.texto}\n"
-            )
+            appendTareaInfo(tarea)
         }
     }
 
@@ -125,22 +137,6 @@ fun formatearFechaParaMostrar(fechaIso: String): String {
     {
         e.printStackTrace()
         fechaIso // Si falla, devuelve la original
-    }
-}
-
-// ============ NOMBRE DEL POKEMON ============ //
-fun getPokeName(tarea: Tarea): String {
-    val name = tarea.texto
-
-    if (name.isBlank()) return ""
-    return try {
-        // Divide y reordena
-        val partes = name.split(" ")
-        partes[partes.size - 1] //
-    } catch (e: Exception)
-    {
-        e.printStackTrace()
-        name // Si falla, devuelve la original
     }
 }
 

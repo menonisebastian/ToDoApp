@@ -1,4 +1,4 @@
-package com.example.todoapp.firebase
+package com.example.todoapp.data.firebase
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.example.todoapp.data.network.RetrofitClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TareasViewModel : ViewModel() {
 
@@ -117,16 +120,66 @@ class TareasViewModel : ViewModel() {
     // ===============================================================
     // 5. OPERACIONES CRUD (ACCIONES PÚBLICAS)
     // ===============================================================
-
     fun agregarTarea(texto: String, fecha: String) {
         val uid = currentUserId ?: return
+
+        // 1. Extraer la última palabra para buscar el Pokémon
+        val posiblePokemon = texto.trim().substringAfterLast(" ").lowercase()
+
         viewModelScope.launch {
+            var pokeName = ""
+            var pokeType = ""
+            var pokeStats = ""
+            var pokeImg = ""
+
+            // 2. Intentar buscar en la API en un hilo IO (segundo plano)
+            if (posiblePokemon.isNotEmpty()) {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitClient.instance.getPokemon(posiblePokemon)
+                    }
+
+                    // 3. Si hay éxito, formateamos los datos
+                    pokeName = response.name.replaceFirstChar { it.uppercase() }
+                    pokeImg = response.sprites.front_default ?: ""
+
+                    // Formatear tipos (ej: "fire, flying")
+                    pokeType = response.types.joinToString(", ") { it.type.name.replaceFirstChar { char -> char.uppercase() } }
+
+                    // Formatear stats (ej: "HP: 45 | Atk: 49")
+                    pokeStats = response.stats.joinToString(" | ") {
+                        val statName = when(it.stat.name) {
+                            "hp" -> "HP"
+                            "attack" -> "Atk"
+                            "defense" -> "Def"
+                            "special-attack" -> "SpA"
+                            "special-defense" -> "SpD"
+                            "speed" -> "Spd"
+                            else -> it.stat.name
+                        }
+                        "$statName: ${it.base_stat}"
+                    }
+
+                } catch (e: Exception) {
+                    // Si falla (404 no encontrado o error de red), simplemente ignoramos
+                    // y guardamos la tarea sin datos de Pokémon.
+                    Log.d("PokeAPI", "No se encontró el Pokémon o hubo error: ${e.message}")
+                }
+            }
+
+            // 4. Crear el objeto Tarea con los datos (vacíos o rellenos)
             val nuevaTarea = Tarea(
-                id = "", // Firebase generará el ID
+                id = "",
                 texto = texto,
                 fecha = fecha,
-                completada = false
+                completada = false,
+                pokeName = pokeName,
+                pokeType = pokeType,
+                pokeStats = pokeStats,
+                pokeImg = pokeImg
             )
+
+            // 5. Guardar en Firebase
             db.collection("users").document(uid).collection("tareas").add(nuevaTarea)
         }
     }
