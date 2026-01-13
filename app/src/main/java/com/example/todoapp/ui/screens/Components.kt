@@ -685,7 +685,17 @@ fun TaskItem(
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(text = formatearFechaParaMostrar(tarea.fecha), color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "Pokemon: ${tarea.pokeName}", color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Row(verticalAlignment = Alignment.CenterVertically)
+                    {
+                        Text(text = "Pokemon: ",
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold)
+                        Text(text = tarea.pokeName,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold)
+                    }
                 }
             }
             else
@@ -694,10 +704,17 @@ fun TaskItem(
                     Text(text = tarea.texto, color = textColor)
                     if (tarea.pokeImg.isNotBlank()) {
                         Spacer(modifier = Modifier.height(5.dp))
-                        Text(text = "Pokemon: ${tarea.pokeName}",
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically)
+                        {
+                            Text(text = "Pokemon: ",
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold)
+                            Text(text = tarea.pokeName,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -881,11 +898,35 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
                         Spacer(modifier = Modifier.width(8.dp)) // Un poco de aire entre imagen y texto
 
                         Column {
-                            Text(text = "Pokemon: " + tarea.pokeName, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically)
+                            {
+                                Text(text = "Pokemon: ",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 12.sp)
+                                Text(text = tarea.pokeName,
+                                    color = MaterialTheme.colorScheme.inversePrimary,
+                                    fontSize = 12.sp)
+                            }
                             Spacer(modifier = Modifier.height(5.dp))
-                            Text(text = "Tipos: " + tarea.pokeType, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically)
+                            {
+                                Text(text = "Tipos: ",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 12.sp)
+                                Text(text = tarea.pokeType,
+                                    color = MaterialTheme.colorScheme.inversePrimary,
+                                    fontSize = 12.sp)
+                            }
                             Spacer(modifier = Modifier.height(5.dp))
-                            Text(text = "Stats: " + tarea.pokeStats, color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically)
+                            {
+                                Text(text = "Stats: ",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 12.sp)
+                                Text(text = tarea.pokeStats,
+                                    color = MaterialTheme.colorScheme.inversePrimary,
+                                    fontSize = 12.sp)
+                            }
                         }
                     }
                 }
