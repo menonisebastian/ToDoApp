@@ -676,7 +676,7 @@ fun TaskItem(
             verticalAlignment = Alignment.CenterVertically)
         {
             if(tarea.pokeImg.isNotBlank()) {
-                ImgPokemon(tarea, 80.dp) // Aumenté un poco el tamaño
+                ImgPokemon(tarea, 80.dp)
             }
             if (tarea.fecha.isNotBlank())
             {
@@ -827,12 +827,12 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp) // Padding interno estándar de un diálogo
+                    .padding(24.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // --- SECCIÓN TÍTULO (Tu Card original) ---
+                // --- SECCIÓN TÍTULO---
                 Card(
                     elevation = CardDefaults.cardElevation(10.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
