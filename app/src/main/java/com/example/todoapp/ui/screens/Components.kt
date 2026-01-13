@@ -1,5 +1,6 @@
 package com.example.todoapp.ui.screens
 
+import android.R.attr.start
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -672,8 +673,16 @@ fun TaskItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     )
     {
-        Row(modifier = Modifier.padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically)
+        val paddingStart = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
+        val paddingTop = 10.dp
+        val paddingBottom = 10.dp
+        val paddingEnd = 10.dp
+
+        Row(
+            modifier = Modifier
+                .padding(top = paddingTop, bottom = paddingBottom, start = paddingStart, end = paddingEnd),
+            verticalAlignment = Alignment.CenterVertically
+        )
         {
             if(tarea.pokeImg.isNotBlank()) {
                 ImgPokemon(tarea, 80.dp)
