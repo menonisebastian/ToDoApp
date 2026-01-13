@@ -918,7 +918,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
                                     fontSize = 12.sp)
                             }
                             Spacer(modifier = Modifier.height(5.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically)
+                            Row()
                             {
                                 Text(text = "Stats: ",
                                     color = MaterialTheme.colorScheme.onSurface,
