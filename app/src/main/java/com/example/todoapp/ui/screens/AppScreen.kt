@@ -351,6 +351,7 @@ fun App(
     if (tareaDetallada != null) {
         DetailTaskDialog(tarea = tareaDetallada!!,
             onDismiss = { tareaDetallada = null },
+            onEditar = { tareaEditando = tareaDetallada!! },
             onCompletar = {
             viewModel.completarTarea(tareaDetallada!!)
             tareaDetallada = null

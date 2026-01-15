@@ -140,6 +140,17 @@ fun formatearFechaParaMostrar(fechaIso: String): String {
     }
 }
 
+fun formatearStatsPokemon(stats: String): String
+{
+    val statSlot = stats.split("|")
+    var stat = ""
+
+    statSlot.forEach { item ->
+        stat += item.trim() +"\n"
+    }
+    return stat
+}
+
 // ============ PRIORIDAD DE LA TAREA ============ //
 fun determinePriority(tarea: Tarea): TaskPriority {
     // 1. Si ya está completada, no importa la fecha. Devolvemos COMPLETED y salimos.

@@ -1,6 +1,5 @@
 package com.example.todoapp.ui.screens
 
-import android.R.attr.start
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -106,6 +105,7 @@ import com.example.todoapp.data.firebase.User
 import com.example.todoapp.resources.SettingsPreferences
 import com.example.todoapp.resources.TaskPriority
 import com.example.todoapp.resources.formatearFechaParaMostrar
+import com.example.todoapp.resources.formatearStatsPokemon
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -132,7 +132,7 @@ fun PreferencesDialog(onDismiss: () -> Unit) {
             Modifier
                 .background(
                     MaterialTheme.colorScheme.background,
-                    RoundedCornerShape(20.dp)
+                    RoundedCornerShape(30.dp)
                 )
                 .padding(horizontal = 60.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -578,6 +578,7 @@ fun CompletedTasksList(
     if (tareaDetallada != null) {
         DetailTaskDialog(tarea = tareaDetallada!!,
             onDismiss = { tareaDetallada = null },
+            onEditar = { },
             onCompletar = {
                 viewModel.descompletarTarea(tareaDetallada!!)
                 tareaDetallada = null
@@ -838,7 +839,7 @@ fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 }
 
 @Composable
-fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Unit)
+fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Unit, onEditar: () -> Unit)
 {
     val priority = determinePriority(tarea)
 
@@ -857,7 +858,6 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 // --- SECCIÓN TÍTULO---
                 Card(
                     elevation = CardDefaults.cardElevation(10.dp),
@@ -899,44 +899,33 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
                     // --- SECCIÓN CONTENIDO (Info Pokemon) ---
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().padding(start = 20.dp)
                     ) {
-                        ImgPokemon(tarea, 100.dp)
-
-                        Spacer(modifier = Modifier.width(8.dp)) // Un poco de aire entre imagen y texto
-
                         Column {
-                            Row(verticalAlignment = Alignment.CenterVertically)
-                            {
-                                Text(text = "Pokemon: ",
+
+                            Text(text = "Pokemon: ",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 12.sp)
-                                Text(text = tarea.pokeName,
-                                    color = MaterialTheme.colorScheme.inversePrimary,
-                                    fontSize = 12.sp)
-                            }
+                                    fontSize = 15.sp)
+                            Text(text = tarea.pokeName,
+                                color = MaterialTheme.colorScheme.inversePrimary,
+                                fontSize = 15.sp)
                             Spacer(modifier = Modifier.height(5.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically)
-                            {
-                                Text(text = "Tipos: ",
+                            Text(text = "Tipos: ",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 12.sp)
-                                Text(text = tarea.pokeType,
-                                    color = MaterialTheme.colorScheme.inversePrimary,
-                                    fontSize = 12.sp)
-                            }
+                                    fontSize = 15.sp)
+                            Text(text = tarea.pokeType,
+                                color = MaterialTheme.colorScheme.inversePrimary,
+                                fontSize = 15.sp)
                             Spacer(modifier = Modifier.height(5.dp))
-                            Row()
-                            {
-                                Text(text = "Stats: ",
+                            Text(text = "Stats: ",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 12.sp)
-                                Text(text = tarea.pokeStats,
+                                    fontSize = 15.sp)
+                            Text(text = formatearStatsPokemon(tarea.pokeStats),
                                     color = MaterialTheme.colorScheme.inversePrimary,
-                                    fontSize = 12.sp)
-                            }
+                                    fontSize = 15.sp)
                         }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        ImgPokemon(tarea, 120.dp)
                     }
                 }
 
@@ -950,6 +939,17 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
                         colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.inversePrimary), modifier = Modifier.size(40.dp))
                     {
                         Icon(Icons.Filled.Close, contentDescription = "Cancelar", tint = MaterialTheme.colorScheme.onPrimary)
+                    }
+
+                    if (!tarea.completada)
+                    {
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        IconButton(onClick = { onEditar() },
+                            colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary), modifier = Modifier.size(40.dp))
+                        {
+                            Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.onPrimary)
+                        }
                     }
 
                     Spacer(modifier = Modifier.width(20.dp))
