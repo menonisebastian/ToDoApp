@@ -140,13 +140,25 @@ fun formatearFechaParaMostrar(fechaIso: String): String {
     }
 }
 
+//fun formatearStatsPokemon(stats: String): String
+//{
+//    val statSlot = stats.split("|")
+//    var stat = ""
+//
+//    statSlot.forEach { item ->
+//        stat += item.trim() +"\n"
+//    }
+//    return stat
+//}
+
 fun formatearStatsPokemon(stats: String): String
 {
     val statSlot = stats.split("|")
     var stat = ""
 
     statSlot.forEach { item ->
-        stat += item.trim() +"\n"
+        val slot = item.split(": ")
+        stat += slot[1].trim() +"\n"
     }
     return stat
 }

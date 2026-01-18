@@ -82,6 +82,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.example.todoapp.ui.theme.AppColors
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -905,24 +906,42 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
 
                             Text(text = "Pokemon: ",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 15.sp)
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold)
                             Text(text = tarea.pokeName,
                                 color = MaterialTheme.colorScheme.inversePrimary,
                                 fontSize = 15.sp)
                             Spacer(modifier = Modifier.height(5.dp))
                             Text(text = "Tipos: ",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 15.sp)
+                                    fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold)
                             Text(text = tarea.pokeType,
                                 color = MaterialTheme.colorScheme.inversePrimary,
                                 fontSize = 15.sp)
                             Spacer(modifier = Modifier.height(5.dp))
                             Text(text = "Stats: ",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 15.sp)
-                            Text(text = formatearStatsPokemon(tarea.pokeStats),
-                                    color = MaterialTheme.colorScheme.inversePrimary,
-                                    fontSize = 15.sp)
+                                    fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold)
+
+                            Row()
+                            {
+                                Column()
+                                {
+                                    Text(text = "HP: ", color = AppColors.HP, fontSize = 15.sp)
+                                    Text(text = "ATK: ", color = AppColors.ATK, fontSize = 15.sp)
+                                    Text(text = "DEF: ", color = AppColors.DEF, fontSize = 15.sp)
+                                    Text(text = "SpA: ", color = AppColors.SP_ATK, fontSize = 15.sp)
+                                    Text(text = "SpD: ", color = AppColors.SP_DEF, fontSize = 15.sp)
+                                    Text(text = "SPD: ", color = AppColors.SPEED, fontSize = 15.sp)
+                                }
+
+                                Column()
+                                {
+                                    Text(text = formatearStatsPokemon(tarea.pokeStats), color = MaterialTheme.colorScheme.inversePrimary, fontSize = 15.sp)
+                                }
+                            }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         ImgPokemon(tarea, 120.dp)
