@@ -1,11 +1,13 @@
 package com.example.todoapp.ui.screens
 
 import android.app.Activity
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.R
 import com.example.todoapp.data.firebase.AuthState
@@ -223,6 +227,20 @@ fun Login(
             )
 
             Spacer(Modifier.weight(1f))
+            TextButton(onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian".toUri())
+                context.startActivity(intent)
+            })
+            { Row(verticalAlignment = Alignment.CenterVertically)
+                {
+                    Text("Visitar Github ", color = MaterialTheme.colorScheme.secondary)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew,
+                        contentDescription = "Github",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+            }
             Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
         }
     }

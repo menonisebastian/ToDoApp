@@ -944,8 +944,8 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        ImgPokemon(tarea, 120.dp)
+                        Spacer(modifier = Modifier.width(30.dp))
+                        ImgPokemon(tarea, 130.dp)
                     }
                 }
 

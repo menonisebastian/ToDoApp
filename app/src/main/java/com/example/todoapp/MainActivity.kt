@@ -93,7 +93,7 @@ fun AppNav(
         composable("register") {
             Registrar(
                 authViewModel = authViewModel,
-                onRegistrar = {navController.navigate("login")},
+                onRegistrar = { navController.navigate("login")},
                 onBack = { navController.popBackStack() }
             )
         }

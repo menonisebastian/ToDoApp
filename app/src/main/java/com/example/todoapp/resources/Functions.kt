@@ -217,7 +217,7 @@ fun scheduleTaskNotification(context: Context, taskName: String, taskDate: Strin
         val date = LocalDate.parse(taskDate, formatter)
 
         // Configuramos la hora a las 9:00 AM
-        val dateTime = date.atTime(12, 32)
+        val dateTime = date.atTime(9, 0, 0)
         val triggerTime = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         // Solo programar si la fecha es futura

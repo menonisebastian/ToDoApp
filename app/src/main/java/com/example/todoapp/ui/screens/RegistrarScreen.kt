@@ -1,5 +1,6 @@
 package com.example.todoapp.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.ButtonDefaults
@@ -36,11 +38,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.data.firebase.AuthState
 import com.example.todoapp.data.firebase.AuthViewModel
@@ -52,12 +56,14 @@ import kotlinx.coroutines.launch
 // ============ REGISTER SCREEN ============
 @Composable
 fun Registrar(
-    authViewModel: AuthViewModel, // Inyectamos el ViewModel
-    onRegistrar: (String) -> Unit, // Callback para ir al login tras registro
+    authViewModel: AuthViewModel,
+    onRegistrar: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
 
     // VARIABLES DE TEXTO LOCALES
     var nombre by remember { mutableStateOf("") }
@@ -199,11 +205,28 @@ fun Registrar(
             // BOTÓN VOLVER
             TextButton(onClick = { onBack() }) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Volver", tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(15.dp))
-                    Text("Ya tengo una cuenta", color = MaterialTheme.colorScheme.secondary, modifier = Modifier.padding(start = 5.dp))
+                    Icon(Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Volver",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(15.dp))
+                    Text("Ya tengo una cuenta", color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 5.dp))
                 }
             }
             Spacer(Modifier.weight(1f))
+            TextButton(onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian".toUri())
+                context.startActivity(intent)
+            })
+            { Row(verticalAlignment = Alignment.CenterVertically)
+                {
+                    Text("Visitar Github ", color = MaterialTheme.colorScheme.secondary)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew,
+                        contentDescription = "Github",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+            }
 
             Text(text = "Desarrollada por Sebastián Menoni", color = MaterialTheme.colorScheme.inversePrimary, fontStyle = FontStyle.Italic, fontSize = 12.sp)
         }
