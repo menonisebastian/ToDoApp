@@ -48,6 +48,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.R
 import com.example.todoapp.data.firebase.AuthState
 import com.example.todoapp.data.firebase.AuthViewModel
+import com.example.todoapp.ui.CustomTextField
+import com.example.todoapp.ui.MainLogo
+import com.example.todoapp.ui.RowButtons
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -150,10 +153,20 @@ fun Login(
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
 
-                CustomTextField(value = email, onValueChange = { email = it }, label = "Email", isEnabled = authState !is AuthState.Loading)
+                CustomTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = "Email",
+                    isEnabled = authState !is AuthState.Loading
+                )
                 Spacer(Modifier.height(20.dp))
 
-                CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", isEnabled = authState !is AuthState.Loading)
+                CustomTextField(
+                    value = pass,
+                    onValueChange = { pass = it },
+                    label = "Contraseña",
+                    isEnabled = authState !is AuthState.Loading
+                )
                 Spacer(Modifier.height(20.dp))
 
                 // BOTÓN DE LOGIN

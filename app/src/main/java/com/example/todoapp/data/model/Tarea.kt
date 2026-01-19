@@ -1,4 +1,4 @@
-package com.example.todoapp.data.firebase
+package com.example.todoapp.data.model
 
 data class Tarea(
     var id: String = "",

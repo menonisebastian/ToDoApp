@@ -1,4 +1,4 @@
-package com.example.todoapp.ui.screens
+package com.example.todoapp.ui
 
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
@@ -100,9 +101,9 @@ import coil.compose.AsyncImage
 import com.example.todoapp.R
 import com.example.todoapp.resources.determinePriority
 import com.example.todoapp.resources.exportarTareas
-import com.example.todoapp.data.firebase.Tarea
+import com.example.todoapp.data.model.Tarea
 import com.example.todoapp.data.firebase.TareasViewModel
-import com.example.todoapp.data.firebase.User
+import com.example.todoapp.data.model.User
 import com.example.todoapp.resources.SettingsPreferences
 import com.example.todoapp.resources.TaskPriority
 import com.example.todoapp.resources.formatearFechaParaMostrar
@@ -1054,7 +1055,7 @@ fun EditTaskDialog(
 }
 
 @Composable
-fun HelpDialog(onDismiss: () -> Unit)
+fun HelpDialog(onDismiss: () -> Unit, onGithub: () -> Unit)
 {
     Dialog(onDismissRequest = onDismiss)
     {
@@ -1084,6 +1085,19 @@ fun HelpDialog(onDismiss: () -> Unit)
                     .width(80.dp)
                     .padding(vertical = 10.dp),
                 contentDescription = "logo texto")
+
+            TextButton(onClick = onGithub) {
+                Row(verticalAlignment = Alignment.CenterVertically)
+                {
+                    Text("Visitar Github ", color = MaterialTheme.colorScheme.secondary)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew,
+                        contentDescription = "Github",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+            }
+
             TextButton(onClick = onDismiss) { Text("Cerrar", color = MaterialTheme.colorScheme.secondary) }
         }
     }
@@ -1425,7 +1439,6 @@ fun ImgPokemon(tarea: Tarea, size: Dp) {
                 .padding(end = 10.dp)
         )
     } else {
-        // Si no hay imagen de URL, puedes no mostrar nada o mostrar un placeholder
-        // Image(painter = painterResource(id = R.drawable.pikachu), ... )
+        // Si no hay imagen de URL, no se debe mostrar nada o mostrar un placeholder
     }
 }

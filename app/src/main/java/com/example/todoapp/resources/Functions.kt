@@ -11,7 +11,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
-import com.example.todoapp.data.firebase.Tarea
+import com.example.todoapp.data.model.Tarea
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate

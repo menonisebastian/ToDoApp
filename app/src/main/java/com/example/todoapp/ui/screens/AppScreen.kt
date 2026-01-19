@@ -2,9 +2,11 @@ package com.example.todoapp.ui.screens
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -47,13 +49,28 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.resources.InactivityNotifier
 import com.example.todoapp.resources.ShakeDetector
-import com.example.todoapp.data.firebase.Tarea
+import com.example.todoapp.data.model.Tarea
 import com.example.todoapp.data.firebase.TareasViewModel
 import com.example.todoapp.resources.TaskPriority
 import com.example.todoapp.resources.determinePriority
 import com.example.todoapp.resources.scheduleTaskNotification
+import com.example.todoapp.ui.AggTareaDialog
+import com.example.todoapp.ui.CompletedTasksList
+import com.example.todoapp.ui.ConfirmClearDialog
+import com.example.todoapp.ui.ConfirmDeleteDialog
+import com.example.todoapp.ui.CuentaDialog
+import com.example.todoapp.ui.DetailTaskDialog
+import com.example.todoapp.ui.EditTaskDialog
+import com.example.todoapp.ui.EmptySearchMessage
+import com.example.todoapp.ui.EmptyTasksMessage
+import com.example.todoapp.ui.HelpDialog
+import com.example.todoapp.ui.LogoSmall
+import com.example.todoapp.ui.PreferencesDialog
+import com.example.todoapp.ui.TaskItem
+import com.example.todoapp.ui.TopCard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 // ============ MAIN APP SCREEN ============
 @Composable
@@ -185,14 +202,15 @@ fun App(
                 listaTareas = tareas,
                 onVaciarLista = {
                     if (tareas.isNotEmpty()) showClearDialog = true
-                    else Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT).show()
+                    else Toast.makeText(context, "No hay tareas para vaciar", Toast.LENGTH_SHORT)
+                        .show()
                 },
                 onBack = onBack,
                 onPreferences = { showPreferencesDialog.value = true },
                 onHelp = { showHelpDialog = true },
                 query = searchQuery,
-                onQueryChange = { searchQuery = it ;},
-                onCuenta = { showCuentaDialog = true},
+                onQueryChange = { searchQuery = it; },
+                onCuenta = { showCuentaDialog = true },
                 listaCompletadas = completadas
             )
 
@@ -234,6 +252,7 @@ fun App(
                                                 /* Handle snackbar action performed */
                                                 viewModel.descompletarTarea(tareaItem)
                                             }
+
                                             SnackbarResult.Dismissed -> {
                                                 /* Handle snackbar dismissed */
                                             }
@@ -247,7 +266,11 @@ fun App(
                             item()
                             {
                                 Spacer(Modifier.height(10.dp))
-                                CompletedTasksList(completedTasks = completadas, viewModel = viewModel, scope = scope, snackbarHostState = snackbarHostState
+                                CompletedTasksList(
+                                    completedTasks = completadas,
+                                    viewModel = viewModel,
+                                    scope = scope,
+                                    snackbarHostState = snackbarHostState
                                 )
                             }
                         }
@@ -258,7 +281,12 @@ fun App(
             {
                 if (completadas.isNotEmpty()) {
                     Spacer(Modifier.height(10.dp))
-                    CompletedTasksList(completedTasks = completadas, viewModel = viewModel, scope = scope, snackbarHostState = snackbarHostState)
+                    CompletedTasksList(
+                        completedTasks = completadas,
+                        viewModel = viewModel,
+                        scope = scope,
+                        snackbarHostState = snackbarHostState
+                    )
                 }
                 EmptyTasksMessage()
             }
@@ -273,15 +301,15 @@ fun App(
             fecha = fecha,
             onFechaChange = { fecha = it },
             onAddTarea = { nuevaTarea, nuevaFecha ->
-                if(nuevaTarea.isNotBlank()) {
+                if (nuevaTarea.isNotBlank()) {
                     viewModel.agregarTarea(nuevaTarea, nuevaFecha)
-                    if (nuevaFecha.isNotBlank())
-                    {
+                    if (nuevaFecha.isNotBlank()) {
                         scheduleTaskNotification(context, nuevaTarea, nuevaFecha)
                     }
                     tarea = ""
                     fecha = ""
-                    Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Tarea agregada correctamente", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         )
@@ -294,8 +322,7 @@ fun App(
             onDismiss = { tareaEditando = null },
             onSave = { nuevoTexto, nuevaFecha ->
                 viewModel.editarTarea(tareaToEdit, nuevoTexto, nuevaFecha)
-                if (nuevaFecha.isNotBlank())
-                {
+                if (nuevaFecha.isNotBlank()) {
                     scheduleTaskNotification(context, nuevoTexto, nuevaFecha)
                 }
                 tareaEditando = null
@@ -322,7 +349,8 @@ fun App(
                             SnackbarResult.ActionPerformed -> {
                                 viewModel.restaurarTarea(taskToDelete)
                             }
-                            SnackbarResult.Dismissed -> { }
+
+                            SnackbarResult.Dismissed -> {}
                         }
                     }
                 }
@@ -338,7 +366,8 @@ fun App(
             onConfirm = {
                 viewModel.vaciarLista()
                 ultimaTareaEliminada = null
-                Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "La lista de tareas ha sido vaciada", Toast.LENGTH_SHORT)
+                    .show()
             }
         )
     }
@@ -349,13 +378,20 @@ fun App(
     }
 
     if (tareaDetallada != null) {
-        DetailTaskDialog(tarea = tareaDetallada!!,
+        DetailTaskDialog(
+            tarea = tareaDetallada!!,
             onDismiss = { tareaDetallada = null },
             onEditar = { tareaEditando = tareaDetallada!! },
             onCompletar = {
-            viewModel.completarTarea(tareaDetallada!!)
-            tareaDetallada = null
-        })
+                viewModel.completarTarea(tareaDetallada!!)
+                tareaDetallada = null
+            })
     }
-    if (showHelpDialog) { HelpDialog(onDismiss = { showHelpDialog = false }) }
+    if (showHelpDialog) {
+        HelpDialog(onDismiss = {showHelpDialog = false},
+            onGithub = {
+                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian".toUri())
+                context.startActivity(intent)
+            })
+    }
 }

@@ -44,6 +44,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.data.firebase.AuthState
 import com.example.todoapp.data.firebase.AuthViewModel
+import com.example.todoapp.ui.CustomTextField
+import com.example.todoapp.ui.MainLogo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -124,19 +126,44 @@ fun Registrar(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                CustomTextField(value = nombre, onValueChange = { nombre = it }, label = "Nombre", isEnabled = authState !is AuthState.Loading)
+                CustomTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = "Nombre",
+                    isEnabled = authState !is AuthState.Loading
+                )
                 Spacer(Modifier.height(20.dp))
 
-                CustomTextField(value = userName, onValueChange = { userName = it }, label = "Usuario", isEnabled = authState !is AuthState.Loading)
+                CustomTextField(
+                    value = userName,
+                    onValueChange = { userName = it },
+                    label = "Usuario",
+                    isEnabled = authState !is AuthState.Loading
+                )
                 Spacer(Modifier.height(20.dp))
 
-                CustomTextField(value = email, onValueChange = { email = it }, label = "Email", isEnabled = authState !is AuthState.Loading)
+                CustomTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = "Email",
+                    isEnabled = authState !is AuthState.Loading
+                )
                 Spacer(Modifier.height(20.dp))
 
-                CustomTextField(value = pass, onValueChange = { pass = it }, label = "Contraseña", isEnabled = authState !is AuthState.Loading)
+                CustomTextField(
+                    value = pass,
+                    onValueChange = { pass = it },
+                    label = "Contraseña",
+                    isEnabled = authState !is AuthState.Loading
+                )
                 Spacer(Modifier.height(20.dp))
 
-                CustomTextField(value = passConf, onValueChange = { passConf = it }, label = "Confirmar contraseña", isEnabled = authState !is AuthState.Loading)
+                CustomTextField(
+                    value = passConf,
+                    onValueChange = { passConf = it },
+                    label = "Confirmar contraseña",
+                    isEnabled = authState !is AuthState.Loading
+                )
                 Spacer(Modifier.height(20.dp))
 
                 // BOTÓN DE REGISTRAR
