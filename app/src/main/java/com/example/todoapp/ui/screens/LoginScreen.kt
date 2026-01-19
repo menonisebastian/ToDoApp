@@ -143,7 +143,7 @@ fun Login(
             // LOGO E IMAGEN
             MainLogo()
 
-            Spacer(Modifier.height(80.dp))
+            Spacer(Modifier.height(60.dp))
 
             // TARJETA DE FORMULARIO
             Column(
@@ -213,6 +213,12 @@ fun Login(
                 }
             }
 
+            Text("Accede también con",
+                color = MaterialTheme.colorScheme.inversePrimary,
+                modifier = Modifier.padding(top = 20.dp),
+                fontSize = 15.sp
+            )
+
             // LOGIN CON REDES SOCIALES
             RowButtons(
                 onGoogleClick = {
@@ -228,7 +234,7 @@ fun Login(
 
             Spacer(Modifier.weight(1f))
             TextButton(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian".toUri())
+                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian/ToDoApp".toUri())
                 context.startActivity(intent)
             })
             { Row(verticalAlignment = Alignment.CenterVertically)

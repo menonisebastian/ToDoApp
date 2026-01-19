@@ -214,7 +214,7 @@ fun Registrar(
             }
             Spacer(Modifier.weight(1f))
             TextButton(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian".toUri())
+                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian/ToDoApp".toUri())
                 context.startActivity(intent)
             })
             { Row(verticalAlignment = Alignment.CenterVertically)

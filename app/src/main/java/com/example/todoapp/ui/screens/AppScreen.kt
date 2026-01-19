@@ -389,7 +389,7 @@ fun App(
     if (showHelpDialog) {
         HelpDialog(onDismiss = {showHelpDialog = false},
             onGithub = {
-                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian".toUri())
+                val intent = Intent(Intent.ACTION_VIEW, "https://github.com/menonisebastian/ToDoApp".toUri())
                 context.startActivity(intent)
             })
     }
