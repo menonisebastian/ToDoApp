@@ -809,7 +809,7 @@ fun EmptySearchMessage() {
             fontSize = 20.sp,
             fontStyle = FontStyle.Italic,
             color = Color.Gray,
-            modifier = Modifier.padding(vertical = 50.dp))
+            modifier = Modifier.padding(top = 80.dp))
     }
 }
 

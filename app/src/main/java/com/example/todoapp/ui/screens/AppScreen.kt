@@ -98,6 +98,7 @@ fun App(
     var showHelpDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
+    val showCompletedTasks = completadas.isNotEmpty() && searchQuery.isEmpty()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -213,84 +214,68 @@ fun App(
                 listaCompletadas = completadas
             )
 
-            if (tareas.isNotEmpty()) {
+            // Espaciador fijo para consistencia visual
+            Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(20.dp))
+            // ============ LISTA UNIFICADA ============
+            // Usamos una sola LazyColumn para manejar todo el flujo de contenido
+            LazyColumn(modifier = Modifier.weight(1f)) {
 
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    if (filteredTareas.isEmpty()) {
-                        item { EmptySearchMessage() }
-                    } else {
-                        items(filteredTareas, key = { it.id }) { tareaItem ->
-                            Spacer(Modifier.height(10.dp))
-                            val priority = determinePriority(tareaItem)
-                            if (priority == TaskPriority.EXPIRED && !tareaItem.completada)
-                            {
-                                LaunchedEffect(Unit) {
-                                    viewModel.completarTarea(tareaItem)
-                                }
+                // 1. Tareas Pendientes (Filtradas)
+                if (filteredTareas.isNotEmpty()) {
+                    items(filteredTareas, key = { it.id }) { tareaItem ->
+                        Spacer(Modifier.height(10.dp))
+                        val priority = determinePriority(tareaItem)
+                        if (priority == TaskPriority.EXPIRED && !tareaItem.completada) {
+                            LaunchedEffect(Unit) {
+                                viewModel.completarTarea(tareaItem)
                             }
-                            TaskItem(
-                                tarea = tareaItem,
-                                onTaskClick = { tareaDetallada = tareaItem },
-                                onEdit = { tareaEditando = tareaItem },
-                                textColor = taskTextColor,
-                                onDelete = { tareaAEliminar = tareaItem },
-                                onCheck = {
-                                    viewModel.completarTarea(tareaItem)
-                                    scope.launch {
-                                        val result = snackbarHostState
-                                            .showSnackbar(
-                                                message = "Tarea completada",
-                                                actionLabel = "Deshacer",
-                                                // Defaults to SnackbarDuration.Short
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        when (result) {
-                                            SnackbarResult.ActionPerformed -> {
-                                                /* Handle snackbar action performed */
-                                                viewModel.descompletarTarea(tareaItem)
-                                            }
-
-                                            SnackbarResult.Dismissed -> {
-                                                /* Handle snackbar dismissed */
-                                            }
-                                        }
+                        }
+                        TaskItem(
+                            tarea = tareaItem,
+                            onTaskClick = { tareaDetallada = tareaItem },
+                            onEdit = { tareaEditando = tareaItem },
+                            textColor = taskTextColor,
+                            onDelete = { tareaAEliminar = tareaItem },
+                            onCheck = {
+                                viewModel.completarTarea(tareaItem)
+                                scope.launch {
+                                    val result = snackbarHostState.showSnackbar(
+                                        message = "Tarea completada",
+                                        actionLabel = "Deshacer",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        viewModel.descompletarTarea(tareaItem)
                                     }
                                 }
-                            )
-                        }
-                        item { Spacer(Modifier.height(10.dp)) }
-                        // COMPLETADAS CON TAREAS PENDIENTES
-                        if (completadas.isNotEmpty() && searchQuery.isEmpty())
-                        {
-                            item()
-                            {
-                                Spacer(Modifier.height(10.dp))
-                                CompletedTasksList(
-                                    completedTasks = completadas,
-                                    viewModel = viewModel,
-                                    scope = scope,
-                                    snackbarHostState = snackbarHostState
-                                )
                             }
-                        }
+                        )
+                    }
+                } else if (searchQuery.isNotBlank()) {
+                    // 2. Mensaje si buscamos y no encontramos nada
+                    item { EmptySearchMessage() }
+                }
+
+                // 3. Lista de Tareas Completadas (Usando la variable de control)
+                if (showCompletedTasks) {
+                    item {
+                        Spacer(Modifier.height(10.dp))
+                        CompletedTasksList(
+                            completedTasks = completadas,
+                            viewModel = viewModel,
+                            scope = scope,
+                            snackbarHostState = snackbarHostState
+                        )
                     }
                 }
-            }
-            //COMPLETADAS SIN TAREAS PENDIENTES
-            else
-            {
-                if (completadas.isNotEmpty() && searchQuery.isEmpty()) {
-                    Spacer(Modifier.height(10.dp))
-                    CompletedTasksList(
-                        completedTasks = completadas,
-                        viewModel = viewModel,
-                        scope = scope,
-                        snackbarHostState = snackbarHostState
-                    )
+
+                // 4. Mensaje si la lista principal está vacía (sin tareas pendientes)
+                if (tareas.isEmpty()) {
+                    item {
+                        EmptyTasksMessage()
+                    }
                 }
-                EmptyTasksMessage()
             }
         }
     }

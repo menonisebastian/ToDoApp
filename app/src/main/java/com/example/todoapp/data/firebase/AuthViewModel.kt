@@ -57,9 +57,9 @@ class AuthViewModel : ViewModel() {
                 // 1. Crear usuario en Auth
                 val authResult = auth.createUserWithEmailAndPassword(email.trim(), pass.trim()).await()
                 val userId = authResult.user?.uid ?: throw Exception("Error obteniendo UID")
+                val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
                 // 2. Guardar datos en Firestore
-                val fechaAlta = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 val nuevoUsuario = hashMapOf(
                     "id" to userId,
                     "username" to userName.trim(),
