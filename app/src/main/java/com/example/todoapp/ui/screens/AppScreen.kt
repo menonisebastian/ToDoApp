@@ -260,7 +260,9 @@ fun App(
                                 }
                             )
                         }
-                        if (completadas.isNotEmpty())
+                        item { Spacer(Modifier.height(10.dp)) }
+                        // COMPLETADAS CON TAREAS PENDIENTES
+                        if (completadas.isNotEmpty() && searchQuery.isEmpty())
                         {
                             item()
                             {
@@ -276,9 +278,10 @@ fun App(
                     }
                 }
             }
+            //COMPLETADAS SIN TAREAS PENDIENTES
             else
             {
-                if (completadas.isNotEmpty()) {
+                if (completadas.isNotEmpty() && searchQuery.isEmpty()) {
                     Spacer(Modifier.height(10.dp))
                     CompletedTasksList(
                         completedTasks = completadas,
