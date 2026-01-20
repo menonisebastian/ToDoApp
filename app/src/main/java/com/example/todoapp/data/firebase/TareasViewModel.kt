@@ -129,7 +129,7 @@ class TareasViewModel : ViewModel() {
         val posiblePokemon = texto.trim()
             .substringAfterLast(" ")
             .lowercase()
-            .trim { !it.isLetterOrDigit() }
+            .trim { !it.isLetter() }
 
         // Si no hay palabra válida, devolvemos vacío inmediatamente
         if (posiblePokemon.isEmpty()) return InfoPokemon()
