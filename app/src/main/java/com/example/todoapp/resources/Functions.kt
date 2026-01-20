@@ -140,6 +140,12 @@ fun formatearFechaParaMostrar(fechaIso: String): String {
     }
 }
 
+fun compararFechaActual(fecha: String): Boolean {
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val fechaActual = LocalDate.now()
+    return LocalDate.parse(fecha, formatter) <= fechaActual
+}
+
 fun formatearStatsPokemon(stats: String): String
 {
     val statSlot = stats.split("|")

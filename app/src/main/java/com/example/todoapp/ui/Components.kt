@@ -106,6 +106,7 @@ import com.example.todoapp.data.firebase.TareasViewModel
 import com.example.todoapp.data.model.User
 import com.example.todoapp.resources.SettingsPreferences
 import com.example.todoapp.resources.TaskPriority
+import com.example.todoapp.resources.compararFechaActual
 import com.example.todoapp.resources.formatearFechaParaMostrar
 import com.example.todoapp.resources.formatearStatsPokemon
 import com.google.firebase.auth.FirebaseAuth
@@ -535,7 +536,6 @@ fun CompletedTasksList(
     var tareaDetallada by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
 
-
     Column(modifier = Modifier
         .fillMaxWidth()
         .shadow(5.dp, RoundedCornerShape(20.dp))
@@ -569,7 +569,29 @@ fun CompletedTasksList(
                 {
                     items(completedTasks, key = { it.id }) { tareaItem ->
                         HorizontalDivider()
-                        CompletedTaskItem(tarea = tareaItem, viewModel = viewModel, onTaskClick = {tareaDetallada = tareaItem}, onDelete = {tareaAEliminar = tareaItem})
+                        CompletedTaskItem(tarea = tareaItem,
+                            onCompletar = {
+                                if (tareaItem.fecha.isNotBlank() && compararFechaActual(tareaItem.fecha))
+                                {
+                                    scope.launch {
+                                        val result = snackbarHostState
+                                            .showSnackbar(
+                                                message = "La fecha de la tarea no puede ser anterior a la actual.",
+                                                actionLabel = "OK",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        when (result) {
+                                            SnackbarResult.ActionPerformed -> { }
+                                            SnackbarResult.Dismissed -> { }
+                                        }
+                                    }
+                                }
+                                else {
+                                    viewModel.descompletarTarea(tareaItem)
+                                }
+                            },
+                            onTaskClick = {tareaDetallada = tareaItem},
+                            onDelete = {tareaAEliminar = tareaItem})
                     }
                 }
             }
@@ -676,7 +698,7 @@ fun TaskItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     )
     {
-        //val paddingStart = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
+        // PADDINGS VARIABLES
         val paddingStart = if (tarea.pokeName.isBlank()) 30.dp else 20.dp
         val paddingTop = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
         val paddingBottom = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
@@ -740,24 +762,13 @@ fun TaskItem(
     }
 }
 
-@Composable
-fun RowItemButtons(onCheck: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit)
-{
-    Row(horizontalArrangement = Arrangement.End)
-    {
-        IconButton(onClick = { onCheck()}) { Icon(Icons.Default.Check, contentDescription = "Completar", tint = MaterialTheme.colorScheme.secondary)}
-        IconButton(onClick = { onEdit() }) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary) }
-        IconButton(onClick = { onDelete() }) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary) }
-    }
-}
-
 
 // ============ TAREA COMPLETADA ITEM ============ //
 @Composable
 fun CompletedTaskItem(
     tarea: Tarea,
-    viewModel: TareasViewModel,
     onTaskClick: () -> Unit,
+    onCompletar: () -> Unit,
     onDelete: () -> Unit
 )
 {
@@ -766,7 +777,7 @@ fun CompletedTaskItem(
         .padding(vertical = 10.dp, horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically)
     {
-        IconButton(onClick = {viewModel.descompletarTarea(tarea)})
+        IconButton(onClick = { onCompletar() })
         {
             Icon(Icons.Default.Check, contentDescription = "Editar", tint = MaterialTheme.colorScheme.secondary)
         }
@@ -1131,6 +1142,17 @@ fun PriorityChip(priority: TaskPriority) {
             fontWeight = FontWeight.Bold,
             fontSize = 12.sp
         )
+    }
+}
+
+@Composable
+fun RowItemButtons(onCheck: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit)
+{
+    Row(horizontalArrangement = Arrangement.End)
+    {
+        IconButton(onClick = { onCheck()}) { Icon(Icons.Default.Check, contentDescription = "Completar", tint = MaterialTheme.colorScheme.secondary)}
+        IconButton(onClick = { onEdit() }) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary) }
+        IconButton(onClick = { onDelete() }) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.inversePrimary) }
     }
 }
 
