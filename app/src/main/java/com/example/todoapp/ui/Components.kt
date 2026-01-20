@@ -757,10 +757,9 @@ fun CompletedTaskItem(
     onDelete: () -> Unit
 )
 {
-
     Row(modifier = Modifier
-        .padding(vertical = 10.dp, horizontal = 20.dp)
-        .clickable { onTaskClick() },
+        .clickable { onTaskClick() }
+        .padding(vertical = 10.dp, horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically)
     {
         IconButton(onClick = {viewModel.descompletarTarea(tarea)})
