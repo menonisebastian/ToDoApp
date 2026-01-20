@@ -676,9 +676,10 @@ fun TaskItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     )
     {
-        val paddingStart = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
-        val paddingTop = 10.dp
-        val paddingBottom = 10.dp
+        //val paddingStart = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
+        val paddingStart = if (tarea.pokeName.isBlank()) 30.dp else 20.dp
+        val paddingTop = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
+        val paddingBottom = if (tarea.pokeName.isBlank()) 20.dp else 10.dp
         val paddingEnd = 10.dp
 
         Row(
@@ -697,16 +698,19 @@ fun TaskItem(
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(text = formatearFechaParaMostrar(tarea.fecha), color = MaterialTheme.colorScheme.inversePrimary, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(5.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically)
-                    {
-                        Text(text = "Pokemon: ",
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold)
-                        Text(text = tarea.pokeName,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold)
+                    if (tarea.pokeImg.isNotBlank()) {
+                        Row(verticalAlignment = Alignment.CenterVertically)
+                        {
+                            Text(text = "Pokemon: ",
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold)
+                            Text(text = tarea.pokeName,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
