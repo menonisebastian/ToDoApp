@@ -646,9 +646,7 @@ fun CustomizableSearchBar(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier
-            .fillMaxWidth()
-        //.shadow(4.dp, shape = RoundedCornerShape(30.dp))
-        ,
+            .fillMaxWidth(),
         placeholder = { Text("Buscar Tarea", color = Color.Gray) },
         leadingIcon = {
             Icon(Icons.Default.Search, contentDescription = "Buscar", tint = MaterialTheme.colorScheme.onSurface)
@@ -803,6 +801,8 @@ fun CompletedTaskItem(
     }
 }
 
+
+// ===== MENSAJE DE LISTA VACIA ===== //
 @Composable
 fun EmptyTasksMessage() {
     Column(modifier = Modifier
@@ -812,6 +812,8 @@ fun EmptyTasksMessage() {
     { Text("Tu lista de tareas está vacía", fontSize = 20.sp, fontStyle = FontStyle.Italic, color = Color.Gray) }
 }
 
+
+// ===== MENSAJE DE BUSQUEDA VACIA ===== //
 @Composable
 fun EmptySearchMessage() {
     Column(modifier = Modifier
@@ -827,6 +829,8 @@ fun EmptySearchMessage() {
     }
 }
 
+
+// ===== CONFIRMACIÓN DE VACIAR LISTA ===== //
 @Composable
 fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(onDismissRequest = onDismiss,
@@ -854,6 +858,8 @@ fun ConfirmClearDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     )
 }
 
+
+// ====== DIALOGO DE TAREA DETALLADA ====== //
 @Composable
 fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Unit, onEditar: () -> Unit)
 {
@@ -1002,6 +1008,7 @@ fun DetailTaskDialog(tarea: Tarea, onDismiss: () -> Unit, onCompletar: () -> Uni
     }
 }
 
+// ============ DIALOGO DE CONFIRMAR ELIMINACION =========== //
 @Composable
 fun ConfirmDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit)
 {
@@ -1030,6 +1037,7 @@ fun ConfirmDeleteDialog(onDismiss: () -> Unit, onConfirm: () -> Unit)
         containerColor = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(10.dp))
 }
 
+// ============ DIALOGO DE EDITAR TAREA =========== //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTaskDialog(
@@ -1068,6 +1076,8 @@ fun EditTaskDialog(
     )
 }
 
+
+// ============== DIALOGO AYUDA ============ //
 @Composable
 fun HelpDialog(onDismiss: () -> Unit, onGithub: () -> Unit)
 {
@@ -1117,6 +1127,8 @@ fun HelpDialog(onDismiss: () -> Unit, onGithub: () -> Unit)
     }
 }
 
+
+// ========= BOX DE PRIORIDAD DE TAREA =========== //
 @Composable
 fun PriorityChip(priority: TaskPriority) {
     Box(
@@ -1145,6 +1157,8 @@ fun PriorityChip(priority: TaskPriority) {
     }
 }
 
+
+// =========== ROW DE BOTONES DE TAREA ========== //
 @Composable
 fun RowItemButtons(onCheck: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit)
 {
@@ -1156,6 +1170,7 @@ fun RowItemButtons(onCheck: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit
     }
 }
 
+// ========= ROW DE BOTONES DE LOGIN ========== //
 @Composable
 fun RowButtons(onGoogleClick: () -> Unit,
                onGithubClick: () -> Unit,
@@ -1217,6 +1232,8 @@ fun SocialMediaButton(
     }
 }
 
+
+// ============ TEXTFIELD CUSTOMIZABLE ============= //
 @Composable
 fun CustomTextField(
     value: String,
@@ -1302,6 +1319,8 @@ fun CustomTextField(
     )
 }
 
+
+// ============ TEXTFIELD DE FECHA ============ //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomDateField(
@@ -1412,6 +1431,8 @@ fun CustomDateField(
     )
 }
 
+
+// ============ LOGO PRINCIPAL ============ //
 @Composable
 fun MainLogo()
 {
@@ -1438,6 +1459,8 @@ fun MainLogo()
     )
 }
 
+
+// ============ LOGO MINI ============ //
 @Composable
 fun LogoSmall(width:Dp)
 {
@@ -1453,6 +1476,8 @@ fun LogoSmall(width:Dp)
         contentDescription = "logo texto")
 }
 
+
+// ============ IMAGEN DE POKEMON ============ //
 @Composable
 fun ImgPokemon(tarea: Tarea, size: Dp) {
     if (tarea.pokeImg.isNotBlank()) {

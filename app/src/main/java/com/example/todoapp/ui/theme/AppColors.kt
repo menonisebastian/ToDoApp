@@ -2,7 +2,6 @@ package com.example.todoapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Agruparlos en un objeto hace que importarlo sea muy fácil
 object AppColors {
     //--------------------------------------------//
 

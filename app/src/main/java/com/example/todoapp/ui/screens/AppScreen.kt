@@ -78,14 +78,13 @@ fun App(
     onBack: () -> Unit,
     viewModel: TareasViewModel
 ) {
-    // VARIABLES LOCALES
-    var tarea by remember { mutableStateOf("") }
-
     // OBSERVAMOS LA BD DESDE EL VIEWMODEL
     val tareas by viewModel.listaTareas.collectAsStateWithLifecycle()
     val completadas by viewModel.listaCompletadas.collectAsStateWithLifecycle()
     val datosUsuario by viewModel.datosUsuario.collectAsStateWithLifecycle()
 
+    // VARIABLES LOCALES
+    var tarea by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
     var tareaEditando by remember { mutableStateOf<Tarea?>(null) }
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
@@ -172,7 +171,7 @@ fun App(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState)
         {
                 data ->
-            // Aquí se personaliza el aspecto visual del Snackbar
+            // Aspecto visual del Snackbar
             Snackbar(
                 snackbarData = data,
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -214,14 +213,12 @@ fun App(
                 listaCompletadas = completadas
             )
 
-            // Espaciador fijo para consistencia visual
             Spacer(modifier = Modifier.height(20.dp))
 
-            // ============ LISTA UNIFICADA ============
-            // Usamos una sola LazyColumn para manejar todo el flujo de contenido
+            // ============ LISTA DE TAREAS ============ //
             LazyColumn(modifier = Modifier.weight(1f)) {
 
-                // 1. Tareas Pendientes (Filtradas)
+                // Tareas Pendientes
                 if (filteredTareas.isNotEmpty()) {
                     items(filteredTareas, key = { it.id }) { tareaItem ->
                         Spacer(Modifier.height(10.dp))
@@ -253,11 +250,11 @@ fun App(
                         )
                     }
                 } else if (searchQuery.isNotBlank()) {
-                    // 2. Mensaje si buscamos y no encontramos nada
+                    // Mensaje de búsqueda vacía
                     item { EmptySearchMessage() }
                 }
 
-                // 3. Lista de Tareas Completadas (Usando la variable de control)
+                // Lista de Tareas Completadas
                 if (showCompletedTasks) {
                     item {
                         Spacer(Modifier.height(10.dp))
@@ -270,7 +267,7 @@ fun App(
                     }
                 }
 
-                // 4. Mensaje si la lista principal está vacía (sin tareas pendientes)
+                // Mensaje si la lista principal está vacía (sin tareas pendientes)
                 if (tareas.isEmpty()) {
                     item {
                         EmptyTasksMessage()

@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Login(
     authViewModel: AuthViewModel,
-    onLoginSuccess: (String) -> Unit,
+    onLoginSuccess: () -> Unit,
     onRegistrar: () -> Unit
 ) {
     val context = LocalContext.current
@@ -229,7 +229,7 @@ fun Login(
             // LOGIN CON REDES SOCIALES
             RowButtons(
                 onGoogleClick = {
-                    // Forzamos el cierre de sesión del cliente de Google para poder elegir cuenta
+                    // Se fuerza el cierre de sesión del cliente de Google para poder elegir cuenta
                     googleSignInClient.signOut().addOnCompleteListener {
                         googleLauncher.launch(googleSignInClient.signInIntent)
                     }
@@ -276,7 +276,7 @@ fun Login(
 
         LaunchedEffect(Unit) {
             delay(1500)
-            onLoginSuccess(email)
+            onLoginSuccess()
             authViewModel.resetState()
         }
     }

@@ -171,7 +171,7 @@ class TareasViewModel : ViewModel() {
     }
 
     // ===============================================================
-    // 5. OPERACIONES CRUD (ACCIONES PÚBLICAS)
+    // 5. OPERACIONES CRUD
     // ===============================================================
     fun agregarTarea(texto: String, fecha: String) {
         val uid = currentUserId ?: return

@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Registrar(
     authViewModel: AuthViewModel,
-    onRegistrar: (String) -> Unit,
+    onRegistrar: () -> Unit,
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -75,6 +75,7 @@ fun Registrar(
     // ESTADO DEL VIEWMODEL
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
+    // FILTRO DE COMPROBACION TEXTO DEL FORMULARIO
     val formularioValido = nombre.isNotBlank() && email.isNotBlank() &&
             userName.isNotBlank() && pass.isNotBlank() && passConf.isNotBlank()
 
@@ -178,7 +179,6 @@ fun Registrar(
                         if (pass != passConf) {
                             scope.launch { snackbarHostState.showSnackbar("Las contraseñas no coinciden") }
                         } else {
-                            // LLAMADA AL VIEWMODEL (Sin lógica de Firestore aquí)
                             authViewModel.registrar(email, pass, nombre, userName)
                         }
                     },
@@ -250,7 +250,7 @@ fun Registrar(
 
         LaunchedEffect(Unit) {
             delay(2000)
-            onRegistrar(email) // Pasamos el email al login para autocompletar si quieres
+            onRegistrar()
             authViewModel.resetState()
         }
     }
