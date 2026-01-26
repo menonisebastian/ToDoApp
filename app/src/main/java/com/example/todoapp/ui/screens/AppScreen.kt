@@ -170,7 +170,7 @@ fun App(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState)
         {
-                data ->
+            data ->
             // Aspecto visual del Snackbar
             Snackbar(
                 snackbarData = data,

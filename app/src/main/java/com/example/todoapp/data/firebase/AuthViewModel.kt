@@ -107,17 +107,17 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Función auxiliar para mapear errores (movida desde tu UI)
+    // Función auxiliar para mapear errores
     private fun mapFirebaseError(e: Exception): String {
         Log.e("AuthViewModel", "Error Firebase", e)
 
         return when (e) {
-            // 1. PRIMERO: La excepción específica (la hija)
+            // 1. excepción específica
             is FirebaseAuthUserCollisionException -> {
                 "Ya existe una cuenta con este email. Usa tu contraseña o recupérala."
             }
 
-            // 2. DESPUÉS: La excepción general (la madre)
+            // 2. excepción general
             is FirebaseAuthException -> {
                 when (e.errorCode) {
                     "ERROR_INVALID_EMAIL" -> "El formato del correo no es válido."
@@ -126,13 +126,12 @@ class AuthViewModel : ViewModel() {
                     "ERROR_USER_DISABLED" -> "Esta cuenta ha sido inhabilitada."
                     "ERROR_TOO_MANY_REQUESTS" -> "Demasiados intentos. Inténtalo más tarde."
                     "ERROR_EMAIL_ALREADY_IN_USE" -> "El email ya está registrado."
-                    // Este código también captura la colisión, pero el bloque de arriba es más limpio para tu caso
                     "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" -> "Ya existe una cuenta con este email usando otro método."
                     else -> "Error de autenticación: ${e.errorCode}"
                 }
             }
 
-            // 3. FINALMENTE: Cualquier otra excepción
+            // 3. Cualquier otra excepción
             else -> e.message ?: "Error desconocido"
         }
     }
